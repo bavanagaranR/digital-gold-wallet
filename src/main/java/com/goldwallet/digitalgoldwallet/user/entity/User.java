@@ -1,28 +1,46 @@
 package com.goldwallet.digitalgoldwallet.user.entity;
 
-import com.goldwallet.digitalgoldwallet.user.entity.Address;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
-
+//User entity class..
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer userId;
+    @Column(name = "user_id")
+    private Long userId;
 
-    @Column(unique = true, nullable = false)
+    @Email
+    @NotBlank
+    @Column(unique = true)
     private String email;
 
+    @NotBlank
     private String name;
-
-    private Double balance;
-
-    private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "address_id")
     private Address address;
+
+    private BigDecimal balance = BigDecimal.ZERO;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
 }
+
+
