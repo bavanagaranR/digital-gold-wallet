@@ -2,6 +2,7 @@ package com.goldwallet.digitalgoldwallet.transaction.entity;
 
 import com.goldwallet.digitalgoldwallet.user.entity.User;
 import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -50,3 +51,5 @@ public class TransactionHistory {
         if (this.transactionStatus == null) this.transactionStatus = "PENDING";
     }
 }
+
+
