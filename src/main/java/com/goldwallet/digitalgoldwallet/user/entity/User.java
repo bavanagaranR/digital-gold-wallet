@@ -3,6 +3,7 @@ package com.goldwallet.digitalgoldwallet.user.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -20,11 +21,11 @@ public class User {
     private Long userId;
 
     @Email
-    @NotBlank(message = "Email is required")
+    @NotBlank
     @Column(unique = true)
     private String email;
 
-    @NotBlank(message = "Name is required")
+    @NotBlank
     private String name;
 
     @ManyToOne
@@ -33,5 +34,13 @@ public class User {
 
     private BigDecimal balance = BigDecimal.ZERO;
 
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
 }
+
+
