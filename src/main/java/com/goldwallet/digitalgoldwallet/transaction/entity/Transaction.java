@@ -5,6 +5,7 @@ import com.project.digitalgoldwallet.vendor.entity.VendorBranch;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.antlr.v4.runtime.misc.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
