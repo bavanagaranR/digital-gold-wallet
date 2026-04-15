@@ -1,55 +1,58 @@
 package com.goldwallet.digitalgoldwallet.transaction.entity;
 
-import com.goldwallet.digitalgoldwallet.user.entity.User;
+import com.project.digitalgoldwallet.user.entity.User;
+import com.project.digitalgoldwallet.vendor.entity.VendorBranch;
 import jakarta.persistence.*;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.*;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-
 @Entity
-@Data
 @Table(name = "transaction_history")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class TransactionHistory {
 
     @Id
-    @Column(name = "transaction_id", length = 36)
-    private String transactionId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "transaction_id")
+    private Long transactionId;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @NotNull
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "branch_id")
+    @NotNull
+    private VendorBranch branch;
+
+    // ENUM replaced with String
+    @NotBlank
     @Column(name = "transaction_type")
     private String transactionType;
 
+    @NotBlank
     @Column(name = "transaction_status")
     private String transactionStatus;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @Column(name = "quantity", precision = 18, scale = 4)
+    @NotNull
     private BigDecimal quantity;
 
-    @Column(name = "amount", precision = 18, scale = 4)
+    @NotNull
     private BigDecimal amount;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "branch_id")
-    private VendorBranch branch;
-
     @PrePersist
-    protected void onCreate() {
+    public void prePersist() {
         this.createdAt = LocalDateTime.now();
-        if (this.transactionStatus == null) this.transactionStatus = "PENDING";
     }
 }
-
 
