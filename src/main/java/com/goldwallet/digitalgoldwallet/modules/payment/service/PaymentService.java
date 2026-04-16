@@ -4,7 +4,7 @@ import com.goldwallet.digitalgoldwallet.modules.payment.dto.request.InitiatePaym
 import com.goldwallet.digitalgoldwallet.modules.payment.dto.response.PaymentResponse;
 
 import java.util.List;
-
+//payment interface
 public interface PaymentService {
     PaymentResponse initiatePayment(InitiatePaymentRequest request);
     PaymentResponse getPaymentById(Long paymentId);
