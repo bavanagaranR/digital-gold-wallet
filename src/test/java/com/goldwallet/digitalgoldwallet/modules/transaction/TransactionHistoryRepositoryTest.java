@@ -1,7 +1,8 @@
-package com.goldwallet.digitalgoldwallet.modules.transaction.repository;
+package com.goldwallet.digitalgoldwallet.modules.transaction;
 
 
 import com.goldwallet.digitalgoldwallet.modules.transaction.entity.TransactionHistory;
+import com.goldwallet.digitalgoldwallet.modules.transaction.repository.TransactionHistoryRepository;
 import com.goldwallet.digitalgoldwallet.modules.user.entity.Address;
 import com.goldwallet.digitalgoldwallet.modules.user.entity.User;
 import com.goldwallet.digitalgoldwallet.modules.user.repository.AddressRepository;
@@ -12,7 +13,7 @@ import com.goldwallet.digitalgoldwallet.modules.vendor.repository.VendorBranchRe
 import com.goldwallet.digitalgoldwallet.modules.vendor.repository.VendorRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
