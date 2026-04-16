@@ -88,6 +88,17 @@
 			<scope>test</scope>
 		</dependency>
 
+
+		<!--H2Db only for testing  without affecting original postgresDB-->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+
+
+
 	</dependencies>
 
 	<build>
