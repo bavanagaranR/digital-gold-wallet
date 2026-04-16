@@ -1,6 +1,6 @@
 package com.goldwallet.digitalgoldwallet.modules.transaction.service;
 
-import com.digitalgoldwallet.modules.transaction.dto.response.TransactionResponse;
+import com.goldwallet.digitalgoldwallet.modules.transaction.dto.response.TransactionResponse;
 
 import java.util.List;
 

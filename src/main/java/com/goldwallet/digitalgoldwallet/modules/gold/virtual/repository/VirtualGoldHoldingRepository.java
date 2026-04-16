@@ -1,6 +1,6 @@
 package com.goldwallet.digitalgoldwallet.modules.gold.virtual.repository;
 
-import com.digitalgoldwallet.modules.gold.virtual.entity.VirtualGoldHolding;
+import com.goldwallet.digitalgoldwallet.modules.gold.virtual.entity.VirtualGoldHolding;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
