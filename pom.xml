@@ -75,10 +75,7 @@
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-validation</artifactId>
-		</dependency>
+
 <!--j-unit dependency-->
 
 		<dependency>
@@ -89,12 +86,14 @@
 		</dependency>
 
 
+
 		<!--H2Db only for testing  without affecting original postgresDB-->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
+
 
 
 
