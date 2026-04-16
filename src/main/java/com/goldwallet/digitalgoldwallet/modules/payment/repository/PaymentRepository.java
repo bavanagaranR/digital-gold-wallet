@@ -1,5 +1,6 @@
 package com.goldwallet.digitalgoldwallet.modules.payment.repository;
 
+
 import com.goldwallet.digitalgoldwallet.modules.payment.entity.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
