@@ -8,6 +8,7 @@ import com.goldwallet.digitalgoldwallet.modules.vendor.dto.response.VendorRespon
 import java.math.BigDecimal;
 import java.util.List;
 
+//vendor service
 public interface VendorService {
     VendorResponse createVendor(CreateVendorRequest request);
     VendorResponse getVendorById(Long vendorId);
