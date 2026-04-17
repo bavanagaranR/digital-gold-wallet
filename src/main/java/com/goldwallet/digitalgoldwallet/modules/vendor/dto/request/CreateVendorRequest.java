@@ -16,6 +16,7 @@ public class CreateVendorRequest {
     private String websiteUrl;
     private BigDecimal currentGoldPrice;
 
+    //getters and setters
     public String getVendorName() {
         return vendorName;
     }
