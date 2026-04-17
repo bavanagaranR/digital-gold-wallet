@@ -19,9 +19,7 @@ import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "payments")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+
 @Builder
 public class Payment {
 
@@ -59,6 +57,76 @@ public class Payment {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    public Payment() {
+    }
+
+    public Payment(Long paymentId, User user, BigDecimal amount, PaymentMethod paymentMethod, TransactionType transactionType, PaymentStatus paymentStatus, LocalDateTime createdAt) {
+
+        this.paymentId = paymentId;
+        this.user = user;
+        this.amount = amount;
+        this.paymentMethod = paymentMethod;
+        this.transactionType = transactionType;
+        this.paymentStatus = paymentStatus;
+        this.createdAt = createdAt;
+    }
+
+    public Long getPaymentId() {
+        return paymentId;
+    }
+
+    public void setPaymentId(Long paymentId) {
+        this.paymentId = paymentId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public TransactionType getTransactionType() {
+        return transactionType;
+    }
+
+    public void setTransactionType(TransactionType transactionType) {
+        this.transactionType = transactionType;
+    }
+
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
     public enum PaymentMethod {
         CREDIT_CARD, DEBIT_CARD, GOOGLE_PAY, AMAZON_PAY, PHONEPE, PAYTM, BANK_TRANSFER

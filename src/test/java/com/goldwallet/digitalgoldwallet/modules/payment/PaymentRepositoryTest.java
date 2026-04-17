@@ -6,6 +6,9 @@ import com.goldwallet.digitalgoldwallet.modules.user.entity.Address;
 import com.goldwallet.digitalgoldwallet.modules.user.entity.User;
 import com.goldwallet.digitalgoldwallet.modules.user.repository.AddressRepository;
 import com.goldwallet.digitalgoldwallet.modules.user.repository.UserRepository;
+
+import jakarta.persistence.EntityManager;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -19,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @ActiveProfiles("test")
-
 class PaymentRepositoryTest {
 
     @Autowired
@@ -31,7 +33,10 @@ class PaymentRepositoryTest {
     @Autowired
     private AddressRepository addressRepository;
 
-    //  Helper Method
+    @Autowired
+    private EntityManager entityManager;
+
+    // ---------- Helper ----------
     private User createUser(String email) {
         Address address = addressRepository.save(Address.builder()
                 .street("Street")
@@ -49,7 +54,8 @@ class PaymentRepositoryTest {
                 .build());
     }
 
-    // Create Payment
+    // ---------- BASIC CRUD ----------
+
     @Test
     void testCreatePayment() {
         User user = createUser("pay1@gmail.com");
@@ -67,7 +73,6 @@ class PaymentRepositoryTest {
         assertNotNull(payment.getPaymentId());
     }
 
-    //  Find Payment by ID
     @Test
     void testFindPaymentById() {
         User user = createUser("pay2@gmail.com");
@@ -83,11 +88,9 @@ class PaymentRepositoryTest {
         );
 
         Optional<Payment> found = paymentRepository.findById(payment.getPaymentId());
-
         assertTrue(found.isPresent());
     }
 
-    //  Update Payment Status
     @Test
     void testUpdatePaymentStatus() {
         User user = createUser("pay3@gmail.com");
@@ -108,7 +111,6 @@ class PaymentRepositoryTest {
         assertEquals(Payment.PaymentStatus.SUCCESS, updated.getPaymentStatus());
     }
 
-    //  Delete Payment
     @Test
     void testDeletePayment() {
         User user = createUser("pay4@gmail.com");
@@ -128,7 +130,8 @@ class PaymentRepositoryTest {
         assertFalse(paymentRepository.findById(payment.getPaymentId()).isPresent());
     }
 
-    //  Enum Validation (Payment Method)
+    // ---------- ENUM VALIDATION ----------
+
     @Test
     void testPaymentMethodEnum() {
         User user = createUser("pay5@gmail.com");
@@ -146,7 +149,6 @@ class PaymentRepositoryTest {
         assertEquals(Payment.PaymentMethod.CREDIT_CARD, payment.getPaymentMethod());
     }
 
-    //  Enum Validation (Transaction Type)
     @Test
     void testTransactionTypeEnum() {
         User user = createUser("pay6@gmail.com");
@@ -164,7 +166,6 @@ class PaymentRepositoryTest {
         assertEquals(Payment.TransactionType.DEBITED_FROM_WALLET, payment.getTransactionType());
     }
 
-    //  Enum Validation (Payment Status)
     @Test
     void testPaymentStatusEnum() {
         User user = createUser("pay7@gmail.com");
@@ -182,7 +183,8 @@ class PaymentRepositoryTest {
         assertEquals(Payment.PaymentStatus.FAILED, payment.getPaymentStatus());
     }
 
-    //  User Mapping Check
+    // ---------- MAPPING ----------
+
     @Test
     void testUserPaymentMapping() {
         User user = createUser("pay8@gmail.com");
@@ -202,7 +204,6 @@ class PaymentRepositoryTest {
         assertEquals("User pay8@gmail.com", found.get().getUser().getName());
     }
 
-    //  Multiple Payments
     @Test
     void testMultiplePayments() {
         User user = createUser("pay9@gmail.com");
@@ -223,12 +224,128 @@ class PaymentRepositoryTest {
                 .paymentStatus(Payment.PaymentStatus.SUCCESS)
                 .build());
 
-        List<Payment> list = paymentRepository.findAll();
-
-        assertEquals(2, list.size());
+        assertEquals(2, paymentRepository.findAll().size());
     }
 
-    //  Invalid Case (Null Amount)
+    // ---------- CUSTOM QUERY TESTS ----------
+
+    @Test
+    void testCustomUpdatePaymentStatus() {
+        User user = createUser("pay_update@gmail.com");
+
+        Payment payment = paymentRepository.save(
+                Payment.builder()
+                        .user(user)
+                        .amount(new BigDecimal("500"))
+                        .paymentMethod(Payment.PaymentMethod.GOOGLE_PAY)
+                        .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
+                        .paymentStatus(Payment.PaymentStatus.FAILED)
+                        .build()
+        );
+
+        paymentRepository.updatePaymentStatus(payment.getPaymentId(), Payment.PaymentStatus.SUCCESS);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        Payment updated = paymentRepository.findById(payment.getPaymentId()).get();
+
+        assertEquals(Payment.PaymentStatus.SUCCESS, updated.getPaymentStatus());
+    }
+
+    @Test
+    void testCustomDeletePayment() {
+        User user = createUser("pay_delete@gmail.com");
+
+        Payment payment = paymentRepository.save(
+                Payment.builder()
+                        .user(user)
+                        .amount(new BigDecimal("300"))
+                        .paymentMethod(Payment.PaymentMethod.PAYTM)
+                        .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
+                        .paymentStatus(Payment.PaymentStatus.SUCCESS)
+                        .build()
+        );
+
+        paymentRepository.deletePaymentByIdCustom(payment.getPaymentId());
+
+        entityManager.flush();
+        entityManager.clear();
+
+        assertFalse(paymentRepository.findById(payment.getPaymentId()).isPresent());
+    }
+
+    @Test
+    void testFindByStatus() {
+        User user = createUser("pay_status@gmail.com");
+
+        paymentRepository.save(Payment.builder()
+                .user(user)
+                .amount(new BigDecimal("100"))
+                .paymentMethod(Payment.PaymentMethod.PHONEPE)
+                .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
+                .paymentStatus(Payment.PaymentStatus.SUCCESS)
+                .build());
+
+        List<Payment> list =
+                paymentRepository.findByStatus(Payment.PaymentStatus.SUCCESS);
+
+        assertFalse(list.isEmpty());
+    }
+
+    @Test
+    void testFindPaymentsGreaterThan() {
+        User user = createUser("pay_amount@gmail.com");
+
+        paymentRepository.save(Payment.builder()
+                .user(user)
+                .amount(new BigDecimal("100"))
+                .paymentMethod(Payment.PaymentMethod.PAYTM)
+                .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
+                .paymentStatus(Payment.PaymentStatus.SUCCESS)
+                .build());
+
+        paymentRepository.save(Payment.builder()
+                .user(user)
+                .amount(new BigDecimal("1000"))
+                .paymentMethod(Payment.PaymentMethod.GOOGLE_PAY)
+                .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
+                .paymentStatus(Payment.PaymentStatus.SUCCESS)
+                .build());
+
+        List<Payment> result =
+                paymentRepository.findPaymentsGreaterThan(new BigDecimal("500"));
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void testTotalPaymentByUser() {
+        User user = createUser("pay_total@gmail.com");
+
+        paymentRepository.save(Payment.builder()
+                .user(user)
+                .amount(new BigDecimal("200"))
+                .paymentMethod(Payment.PaymentMethod.GOOGLE_PAY)
+                .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
+                .paymentStatus(Payment.PaymentStatus.SUCCESS)
+                .build());
+
+        paymentRepository.save(Payment.builder()
+                .user(user)
+                .amount(new BigDecimal("300"))
+                .paymentMethod(Payment.PaymentMethod.PAYTM)
+                .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
+                .paymentStatus(Payment.PaymentStatus.SUCCESS)
+                .build());
+
+        BigDecimal total = paymentRepository.getTotalPaymentByUser(user.getUserId());
+
+        assertEquals(0, total.compareTo(new BigDecimal("500")));
+    }
+
+    // ---------- VALIDATION ----------
+
     @Test
     void testNullAmount() {
         User user = createUser("pay10@gmail.com");
@@ -246,3 +363,16 @@ class PaymentRepositoryTest {
         assertNotNull(exception);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
