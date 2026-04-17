@@ -14,9 +14,6 @@ import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "vendor_branches")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class VendorBranch {
 
@@ -45,4 +42,55 @@ public class VendorBranch {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    public VendorBranch() {
+    }
+
+    public VendorBranch(Long branchId, Vendor vendor, Address address, BigDecimal quantity, LocalDateTime createdAt) {
+        this.branchId = branchId;
+        this.vendor = vendor;
+        this.address = address;
+        this.quantity = quantity;
+        this.createdAt = createdAt;
+    }
+
+    public Long getBranchId() {
+        return branchId;
+    }
+
+    public void setBranchId(Long branchId) {
+        this.branchId = branchId;
+    }
+
+    public Vendor getVendor() {
+        return vendor;
+    }
+
+    public void setVendor(Vendor vendor) {
+        this.vendor = vendor;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public BigDecimal getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(BigDecimal quantity) {
+        this.quantity = quantity;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
