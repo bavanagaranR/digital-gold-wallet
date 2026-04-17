@@ -14,6 +14,7 @@ import java.util.List;
 
 @Repository
 public interface VendorBranchRepository extends JpaRepository<VendorBranch, Long> {
+
     List<VendorBranch> findByVendorVendorId(Long vendorId);
 
     @Query("SELECT vb FROM VendorBranch vb WHERE vb.quantity > :qty")
@@ -22,7 +23,7 @@ public interface VendorBranchRepository extends JpaRepository<VendorBranch, Long
     @Query("SELECT vb FROM VendorBranch vb WHERE vb.address.city = :city")
     List<VendorBranch> findBranchesByCity(@Param("city") String city);
 
-    @Query("SELECT SUM(vb.quantity) FROM VendorBranch vb WHERE vb.vendor.vendorId = :vendorId")
+    @Query("SELECT COALESCE(SUM(vb.quantity), 0) FROM VendorBranch vb WHERE vb.vendor.vendorId = :vendorId")
     BigDecimal getTotalGoldByVendor(@Param("vendorId") Long vendorId);
 
     @Modifying
