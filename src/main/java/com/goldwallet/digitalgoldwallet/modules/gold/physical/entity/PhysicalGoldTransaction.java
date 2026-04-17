@@ -1,6 +1,5 @@
 package com.goldwallet.digitalgoldwallet.modules.gold.physical.entity;
 
-
 import com.goldwallet.digitalgoldwallet.modules.user.entity.Address;
 import com.goldwallet.digitalgoldwallet.modules.user.entity.User;
 import com.goldwallet.digitalgoldwallet.modules.vendor.entity.VendorBranch;
@@ -11,18 +10,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-
-
-
-
 import jakarta.validation.constraints.*;
-
 
 @Entity
 @Table(name = "physical_gold_transactions")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class PhysicalGoldTransaction {
 
@@ -55,4 +46,67 @@ public class PhysicalGoldTransaction {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    //no-args constructor
+    public PhysicalGoldTransaction() { }
+
+    //all-args constructor
+
+    public PhysicalGoldTransaction(Long transactionId, User user, VendorBranch branch, BigDecimal quantity, Address deliveryAddress, LocalDateTime createdAt) {
+        this.transactionId = transactionId;
+        this.user = user;
+        this.branch = branch;
+        this.quantity = quantity;
+        this.deliveryAddress = deliveryAddress;
+        this.createdAt = createdAt;
+    }
+
+    //getters and setters
+    public Long getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(Long transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public VendorBranch getBranch() {
+        return branch;
+    }
+
+    public void setBranch(VendorBranch branch) {
+        this.branch = branch;
+    }
+
+    public BigDecimal getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(BigDecimal quantity) {
+        this.quantity = quantity;
+    }
+
+    public Address getDeliveryAddress() {
+        return deliveryAddress;
+    }
+
+    public void setDeliveryAddress(Address deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
