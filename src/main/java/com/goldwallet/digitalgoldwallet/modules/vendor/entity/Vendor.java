@@ -12,13 +12,11 @@ import java.util.List;
 
 
 import jakarta.validation.constraints.*;   // ✅ ADD THIS
+import org.hibernate.validator.constraints.URL;
 
 
 @Entity
 @Table(name = "vendors")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class Vendor {
 
@@ -49,10 +47,8 @@ public class Vendor {
     @Column(name = "contact_phone", length = 20)
     private String contactPhone;
 
-    @Pattern(
-            regexp = "^(https?://)?([\\w\\-]+\\.)+[\\w\\-]+(:\\d+)?(/\\S*)?$",
-            message = "Invalid website URL"
-    )
+
+    @URL(message = "Invalid website URL")
     @Column(name = "website_url")
     private String websiteUrl;
 
@@ -76,4 +72,110 @@ public class Vendor {
 
     @OneToMany(mappedBy = "vendor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<VendorBranch> branches;
+
+
+    public Vendor() {
+    }
+
+    public Vendor(Long vendorId, String vendorName, String description, String contactPersonName, String contactEmail, String contactPhone, String websiteUrl, BigDecimal totalGoldQuantity, BigDecimal currentGoldPrice, LocalDateTime createdAt, List<VendorBranch> branches) {
+        this.vendorId = vendorId;
+        this.vendorName = vendorName;
+        this.description = description;
+        this.contactPersonName = contactPersonName;
+        this.contactEmail = contactEmail;
+        this.contactPhone = contactPhone;
+        this.websiteUrl = websiteUrl;
+        this.totalGoldQuantity = totalGoldQuantity;
+        this.currentGoldPrice = currentGoldPrice;
+        this.createdAt = createdAt;
+        this.branches = branches;
+    }
+
+    public Long getVendorId() {
+        return vendorId;
+    }
+
+    public void setVendorId(Long vendorId) {
+        this.vendorId = vendorId;
+    }
+
+    public String getVendorName() {
+        return vendorName;
+    }
+
+    public void setVendorName(String vendorName) {
+        this.vendorName = vendorName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getContactPersonName() {
+        return contactPersonName;
+    }
+
+    public void setContactPersonName(String contactPersonName) {
+        this.contactPersonName = contactPersonName;
+    }
+
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
+    }
+
+    public String getContactPhone() {
+        return contactPhone;
+    }
+
+    public void setContactPhone(String contactPhone) {
+        this.contactPhone = contactPhone;
+    }
+
+    public String getWebsiteUrl() {
+        return websiteUrl;
+    }
+
+    public void setWebsiteUrl(String websiteUrl) {
+        this.websiteUrl = websiteUrl;
+    }
+
+    public BigDecimal getTotalGoldQuantity() {
+        return totalGoldQuantity;
+    }
+
+    public void setTotalGoldQuantity(BigDecimal totalGoldQuantity) {
+        this.totalGoldQuantity = totalGoldQuantity;
+    }
+
+    public BigDecimal getCurrentGoldPrice() {
+        return currentGoldPrice;
+    }
+
+    public void setCurrentGoldPrice(BigDecimal currentGoldPrice) {
+        this.currentGoldPrice = currentGoldPrice;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public List<VendorBranch> getBranches() {
+        return branches;
+    }
+
+    public void setBranches(List<VendorBranch> branches) {
+        this.branches = branches;
+    }
 }
