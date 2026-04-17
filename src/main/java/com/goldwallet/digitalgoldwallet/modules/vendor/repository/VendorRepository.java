@@ -24,8 +24,15 @@ public interface VendorRepository extends JpaRepository<Vendor, Long> {
     @Query("SELECT v FROM Vendor v WHERE v.currentGoldPrice > :price")
     List<Vendor> findVendorsWithGoldPriceGreaterThan(@Param("price") BigDecimal price);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
     @Query("UPDATE Vendor v SET v.currentGoldPrice = :price WHERE v.vendorId = :id")
     int updateGoldPrice(@Param("id") Long id, @Param("price") BigDecimal price);
+
+    // Optional custom delete
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Transactional
+    @Query("DELETE FROM Vendor v WHERE v.vendorId = :id")
+    void deleteVendorById(@Param("id") Long id);
 }
+
