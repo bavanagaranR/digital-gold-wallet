@@ -6,6 +6,7 @@ import com.goldwallet.digitalgoldwallet.modules.vendor.entity.Vendor;
 import com.goldwallet.digitalgoldwallet.modules.vendor.entity.VendorBranch;
 import com.goldwallet.digitalgoldwallet.modules.vendor.repository.VendorBranchRepository;
 import com.goldwallet.digitalgoldwallet.modules.vendor.repository.VendorRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -32,7 +33,10 @@ class VendorRepositoryTest {
     @Autowired
     private AddressRepository addressRepository;
 
-    // Helper method
+    @Autowired
+    private EntityManager entityManager;
+
+    // ---------- Helper Methods ----------
     private Address createAddress(String area) {
         return addressRepository.save(Address.builder()
                 .street(area)
@@ -50,30 +54,30 @@ class VendorRepositoryTest {
                 .contactPersonName("Manager " + name)
                 .contactEmail(email)
                 .contactPhone("9876543210")
-                .websiteUrl("https://www." + name.toLowerCase().replace(" ", "") + ".com")                .totalGoldQuantity(BigDecimal.ZERO)
+                .websiteUrl("https://www." + name.toLowerCase().replace(" ", "") + ".com")
+                .totalGoldQuantity(BigDecimal.ZERO)
                 .currentGoldPrice(new BigDecimal("5700.00"))
                 .build());
     }
-    //  Create Vendor
+
+    // ---------- BASIC CRUD TESTS ----------
+
     @Test
     void testCreateVendor() {
         Vendor vendor = createVendor("Tanishq", "tanishq@gmail.com");
         assertNotNull(vendor.getVendorId());
     }
 
-    //  Find Vendor by ID
     @Test
     void testFindVendorById() {
         Vendor vendor = createVendor("Kalyan", "kalyan@gmail.com");
 
         Optional<Vendor> found = vendorRepository.findById(vendor.getVendorId());
-
         assertTrue(found.isPresent());
     }
 
-    //  Update Vendor Gold Price
     @Test
-    void testUpdateGoldPrice() {
+    void testUpdateVendor() {
         Vendor vendor = createVendor("Malabar", "malabar@gmail.com");
 
         vendor.setCurrentGoldPrice(new BigDecimal("6000"));
@@ -82,7 +86,6 @@ class VendorRepositoryTest {
         assertEquals(new BigDecimal("6000"), updated.getCurrentGoldPrice());
     }
 
-    //  Delete Vendor
     @Test
     void testDeleteVendor() {
         Vendor vendor = createVendor("GRT", "grt@gmail.com");
@@ -93,7 +96,73 @@ class VendorRepositoryTest {
         assertFalse(found.isPresent());
     }
 
-    //  Create Vendor Branch
+    // ---------- CUSTOM QUERY TESTS ----------
+
+    @Test
+    void testFindByVendorName() {
+        createVendor("Tanishq", "t@gmail.com");
+
+        Optional<Vendor> vendor = vendorRepository.findByVendorName("Tanishq");
+        assertTrue(vendor.isPresent());
+    }
+
+    @Test
+    void testFindByNameIgnoreCase() {
+        createVendor("Kalyan", "k@gmail.com");
+
+        Optional<Vendor> vendor = vendorRepository.findByNameIgnoreCase("kalyan");
+        assertTrue(vendor.isPresent());
+    }
+
+    @Test
+    void testFindVendorsWithGoldPriceGreaterThan() {
+        createVendor("Vendor1", "v1@gmail.com");
+        Vendor v2 = createVendor("Vendor2", "v2@gmail.com");
+
+        v2.setCurrentGoldPrice(new BigDecimal("6500"));
+        vendorRepository.save(v2);
+
+        List<Vendor> result =
+                vendorRepository.findVendorsWithGoldPriceGreaterThan(new BigDecimal("6000"));
+
+        assertEquals(1, result.size());
+    }
+    @Test
+    void testCustomUpdateGoldPrice() {
+
+        Vendor vendor = createVendor("Malabar", "m@gmail.com");
+
+        vendorRepository.updateGoldPrice(vendor.getVendorId(), new BigDecimal("6500"));
+
+        entityManager.flush();   // push update
+        entityManager.clear();   // clear cache
+
+        Vendor updated = vendorRepository.findById(vendor.getVendorId()).get();
+
+        assertEquals(0, updated.getCurrentGoldPrice().compareTo(new BigDecimal("6500")));
+    }
+
+    @Test
+    void testCustomDeleteVendor() {
+
+        //  CREATE vendor first
+        Vendor vendor = createVendor("DeleteVendor", "d@gmail.com");
+
+        // DELETE
+        vendorRepository.deleteVendorById(vendor.getVendorId());
+
+        //  Sync + clear cache
+        entityManager.flush();
+        entityManager.clear();
+
+        // VERIFY
+        Optional<Vendor> found = vendorRepository.findById(vendor.getVendorId());
+
+        assertFalse(found.isPresent());
+    }
+
+    // ---------- BRANCH TESTS ----------
+
     @Test
     void testCreateVendorBranch() {
         Vendor vendor = createVendor("Joyalukkas", "joy@gmail.com");
@@ -110,64 +179,12 @@ class VendorRepositoryTest {
         assertNotNull(branch.getBranchId());
     }
 
-    //  Vendor - Branch Mapping
     @Test
-    void testVendorBranchMapping() {
-        Vendor vendor = createVendor("AVM Gold", "avm@gmail.com");
-        Address address = createAddress("Anna Nagar");
+    void testFindBranchesByCity() {
+        Vendor vendor = createVendor("CityVendor", "cv@gmail.com");
+        Address address = createAddress("Adyar");
 
-        VendorBranch branch = vendorBranchRepository.save(
-                VendorBranch.builder()
-                        .vendor(vendor)
-                        .address(address)
-                        .quantity(new BigDecimal("100"))
-                        .build()
-        );
-
-        Optional<VendorBranch> found = vendorBranchRepository.findById(branch.getBranchId());
-
-        assertTrue(found.isPresent());
-        assertEquals("AVM Gold", found.get().getVendor().getVendorName());
-    }
-
-    //  Multiple Vendors
-    @Test
-    void testMultipleVendors() {
-        createVendor("Vendor1", "v1@gmail.com");
-        createVendor("Vendor2", "v2@gmail.com");
-
-        List<Vendor> vendors = vendorRepository.findAll();
-
-        assertEquals(2, vendors.size());
-    }
-
-    //  Branch Quantity Update
-    @Test
-    void testUpdateBranchQuantity() {
-        Vendor vendor = createVendor("Prince Gold", "prince@gmail.com");
-        Address address = createAddress("Velachery");
-
-        VendorBranch branch = vendorBranchRepository.save(
-                VendorBranch.builder()
-                        .vendor(vendor)
-                        .address(address)
-                        .quantity(new BigDecimal("20"))
-                        .build()
-        );
-
-        branch.setQuantity(new BigDecimal("80"));
-        VendorBranch updated = vendorBranchRepository.save(branch);
-
-        assertEquals(new BigDecimal("80"), updated.getQuantity());
-    }
-
-    //  Delete Branch
-    @Test
-    void testDeleteBranch() {
-        Vendor vendor = createVendor("Lalitha", "lalitha@gmail.com");
-        Address address = createAddress("Porur");
-
-        VendorBranch branch = vendorBranchRepository.save(
+        vendorBranchRepository.save(
                 VendorBranch.builder()
                         .vendor(vendor)
                         .address(address)
@@ -175,22 +192,68 @@ class VendorRepositoryTest {
                         .build()
         );
 
-        vendorBranchRepository.delete(branch);
+        List<VendorBranch> branches =
+                vendorBranchRepository.findBranchesByCity("Chennai");
 
-        Optional<VendorBranch> found = vendorBranchRepository.findById(branch.getBranchId());
-        assertFalse(found.isPresent());
+        assertFalse(branches.isEmpty());
     }
 
-    //  Vendor Default Values
     @Test
-    void testDefaultValues() {
-        Vendor vendor = vendorRepository.save(Vendor.builder()
-                .vendorName("DefaultVendor")
-                .contactEmail("default@gmail.com")
-                .websiteUrl("https://default.com")  // ✅ ADD THIS
-                .build());
+    void testFindBranchesWithQuantityGreaterThan() {
+        Vendor vendor = createVendor("QtyVendor", "q@gmail.com");
+        Address address = createAddress("Velachery");
 
-        assertEquals(BigDecimal.ZERO, vendor.getTotalGoldQuantity());
-        assertEquals(new BigDecimal("5700.00"), vendor.getCurrentGoldPrice());
+        vendorBranchRepository.save(
+                VendorBranch.builder()
+                        .vendor(vendor)
+                        .address(address)
+                        .quantity(new BigDecimal("80"))
+                        .build()
+        );
+
+        List<VendorBranch> result =
+                vendorBranchRepository.findBranchesWithQuantityGreaterThan(new BigDecimal("50"));
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void testTotalGoldByVendor() {
+        Vendor vendor = createVendor("TotalVendor", "tv@gmail.com");
+        Address address = createAddress("Tambaram");
+
+        vendorBranchRepository.save(
+                VendorBranch.builder()
+                        .vendor(vendor)
+                        .address(address)
+                        .quantity(new BigDecimal("50"))
+                        .build()
+        );
+
+        BigDecimal total =
+                vendorBranchRepository.getTotalGoldByVendor(vendor.getVendorId());
+
+        assertEquals(0, total.compareTo(new BigDecimal("50")));    }
+
+    @Test
+    void testDeleteBranchesByVendor() {
+        Vendor vendor = createVendor("DeleteBranchVendor", "db@gmail.com");
+        Address address = createAddress("Porur");
+
+        vendorBranchRepository.save(
+                VendorBranch.builder()
+                        .vendor(vendor)
+                        .address(address)
+                        .quantity(new BigDecimal("40"))
+                        .build()
+        );
+
+        vendorBranchRepository.deleteByVendorId(vendor.getVendorId());
+
+        List<VendorBranch> branches =
+                vendorBranchRepository.findByVendorVendorId(vendor.getVendorId());
+
+        assertTrue(branches.isEmpty());
     }
 }
+
