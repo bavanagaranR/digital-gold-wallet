@@ -5,7 +5,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 
-
+//wallet response dto updated
 @Builder
 public class WalletResponse {
     private Long userId;
