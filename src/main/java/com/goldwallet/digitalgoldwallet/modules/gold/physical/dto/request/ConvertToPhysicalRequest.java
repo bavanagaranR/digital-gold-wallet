@@ -3,11 +3,9 @@ package com.goldwallet.digitalgoldwallet.modules.gold.physical.dto.request;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 
 import java.math.BigDecimal;
 
-@Data
 public class ConvertToPhysicalRequest {
     @NotNull(message = "User ID is required")
     private Long userId;
@@ -21,4 +19,36 @@ public class ConvertToPhysicalRequest {
 
     @NotNull(message = "Delivery address ID is required")
     private Long deliveryAddressId;
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getBranchId() {
+        return branchId;
+    }
+
+    public void setBranchId(Long branchId) {
+        this.branchId = branchId;
+    }
+
+    public BigDecimal getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(BigDecimal quantity) {
+        this.quantity = quantity;
+    }
+
+    public Long getDeliveryAddressId() {
+        return deliveryAddressId;
+    }
+
+    public void setDeliveryAddressId(Long deliveryAddressId) {
+        this.deliveryAddressId = deliveryAddressId;
+    }
 }

@@ -4,6 +4,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+//user request
+
 public class CreateUserRequest {
     @NotBlank(message = "Name is required")
     private String name;
