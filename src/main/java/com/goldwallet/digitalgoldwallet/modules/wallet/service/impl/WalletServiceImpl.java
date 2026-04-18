@@ -7,17 +7,17 @@ import com.goldwallet.digitalgoldwallet.modules.user.repository.UserRepository;
 import com.goldwallet.digitalgoldwallet.modules.wallet.dto.request.WalletTransactionRequest;
 import com.goldwallet.digitalgoldwallet.modules.wallet.dto.response.WalletResponse;
 import com.goldwallet.digitalgoldwallet.modules.wallet.service.WalletService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class WalletServiceImpl implements WalletService {
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     @Transactional
