@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
+//DTO class for Transaction
 public class TransactionResponse {
     private Long transactionId;
     private Long userId;
