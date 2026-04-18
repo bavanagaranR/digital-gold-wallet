@@ -7,8 +7,10 @@ import com.goldwallet.digitalgoldwallet.modules.user.dto.request.UpdateUserReque
 import com.goldwallet.digitalgoldwallet.modules.user.dto.response.AddressResponse;
 import com.goldwallet.digitalgoldwallet.modules.user.dto.response.UserResponse;
 import com.goldwallet.digitalgoldwallet.modules.user.service.UserService;
+
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -19,10 +21,10 @@ import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/v1")
-@RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/users")
     public ResponseEntity<ApiResponse<UserResponse>> createUser(@Valid @RequestBody CreateUserRequest request) {
@@ -44,7 +46,9 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequest request) {
-        return ResponseEntity.ok(ApiResponse.success("User updated successfully", userService.updateUser(id, request)));
+        return ResponseEntity.ok(
+                ApiResponse.success("User updated successfully", userService.updateUser(id, request))
+        );
     }
 
     @GetMapping("/users/{id}/balance")
@@ -53,7 +57,8 @@ public class UserController {
     }
 
     @PostMapping("/addresses")
-    public ResponseEntity<ApiResponse<AddressResponse>> createAddress(@Valid @RequestBody CreateAddressRequest request) {
+    public ResponseEntity<ApiResponse<AddressResponse>> createAddress(
+            @Valid @RequestBody CreateAddressRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Address created successfully", userService.createAddress(request)));
     }
@@ -67,7 +72,8 @@ public class UserController {
     public ResponseEntity<ApiResponse<AddressResponse>> updateAddress(
             @PathVariable Long id,
             @Valid @RequestBody CreateAddressRequest request) {
-        return ResponseEntity.ok(ApiResponse.success("Address updated successfully", userService.updateAddress(id, request)));
+        return ResponseEntity.ok(
+                ApiResponse.success("Address updated successfully", userService.updateAddress(id, request))
+        );
     }
 }
-
