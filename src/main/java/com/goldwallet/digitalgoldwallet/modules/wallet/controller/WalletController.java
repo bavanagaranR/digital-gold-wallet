@@ -5,16 +5,16 @@ import com.goldwallet.digitalgoldwallet.modules.wallet.dto.request.WalletTransac
 import com.goldwallet.digitalgoldwallet.modules.wallet.dto.response.WalletResponse;
 import com.goldwallet.digitalgoldwallet.modules.wallet.service.WalletService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/wallets")
-@RequiredArgsConstructor
 public class WalletController {
 
-    private final WalletService walletService;
+    @Autowired
+    private WalletService walletService;
 
     @PostMapping("/{userId}/credit")
     public ResponseEntity<ApiResponse<WalletResponse>> credit(
