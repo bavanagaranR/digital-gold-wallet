@@ -17,8 +17,8 @@ import com.goldwallet.digitalgoldwallet.modules.user.repository.AddressRepositor
 import com.goldwallet.digitalgoldwallet.modules.user.repository.UserRepository;
 import com.goldwallet.digitalgoldwallet.modules.vendor.entity.VendorBranch;
 import com.goldwallet.digitalgoldwallet.modules.vendor.repository.VendorBranchRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,15 +28,25 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class PhysicalGoldServiceImpl implements PhysicalGoldService {
 
-    private final PhysicalGoldTransactionRepository physicalRepo;
-    private final VirtualGoldHoldingRepository holdingRepo;
-    private final UserRepository userRepository;
-    private final VendorBranchRepository branchRepository;
-    private final AddressRepository addressRepository;
-    private final TransactionHistoryRepository transactionHistoryRepository;
+    @Autowired
+    private PhysicalGoldTransactionRepository physicalRepo;
+
+    @Autowired
+    private VirtualGoldHoldingRepository holdingRepo;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private VendorBranchRepository branchRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
+
+    @Autowired
+    private TransactionHistoryRepository transactionHistoryRepository;
 
     @Override
     @Transactional
@@ -80,9 +90,13 @@ public class PhysicalGoldServiceImpl implements PhysicalGoldService {
 
     @Override
     public List<PhysicalGoldResponse> getUserPhysicalGold(Long userId) {
-        if (!userRepository.existsById(userId)) throw new ResourceNotFoundException("User not found: " + userId);
+        if (!userRepository.existsById(userId))
+            throw new ResourceNotFoundException("User not found: " + userId);
+
         return physicalRepo.findByUserUserIdOrderByCreatedAtDesc(userId)
-                .stream().map(this::mapToResponse).collect(Collectors.toList());
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     private PhysicalGoldResponse mapToResponse(PhysicalGoldTransaction p) {

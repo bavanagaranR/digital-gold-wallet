@@ -1,8 +1,7 @@
-package com.goldwallet.digitalgoldwallet.modules.transaction;
+package com.goldwallet.digitalgoldwallet.modules.transaction.repository;
 
 
 import com.goldwallet.digitalgoldwallet.modules.transaction.entity.TransactionHistory;
-import com.goldwallet.digitalgoldwallet.modules.transaction.repository.TransactionHistoryRepository;
 import com.goldwallet.digitalgoldwallet.modules.user.entity.Address;
 import com.goldwallet.digitalgoldwallet.modules.user.entity.User;
 import com.goldwallet.digitalgoldwallet.modules.user.repository.AddressRepository;
@@ -18,7 +17,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -1,3 +1,4 @@
+
 package com.goldwallet.digitalgoldwallet.modules.vendor.service.impl;
 
 import com.goldwallet.digitalgoldwallet.common.exception.ResourceNotFoundException;
@@ -12,8 +13,8 @@ import com.goldwallet.digitalgoldwallet.modules.vendor.entity.VendorBranch;
 import com.goldwallet.digitalgoldwallet.modules.vendor.repository.VendorBranchRepository;
 import com.goldwallet.digitalgoldwallet.modules.vendor.repository.VendorRepository;
 import com.goldwallet.digitalgoldwallet.modules.vendor.service.VendorService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,12 +24,16 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class VendorServiceImpl implements VendorService {
 
-    private final VendorRepository vendorRepository;
-    private final VendorBranchRepository branchRepository;
-    private final AddressRepository addressRepository;
+    @Autowired
+    private VendorRepository vendorRepository;
+
+    @Autowired
+    private VendorBranchRepository branchRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
 
     @Override
     @Transactional
@@ -42,6 +47,7 @@ public class VendorServiceImpl implements VendorService {
                 .websiteUrl(request.getWebsiteUrl())
                 .currentGoldPrice(request.getCurrentGoldPrice() != null ? request.getCurrentGoldPrice() : new BigDecimal("5700.00"))
                 .build();
+
         return mapToVendorResponse(vendorRepository.save(vendor));
     }
 
@@ -52,13 +58,17 @@ public class VendorServiceImpl implements VendorService {
 
     @Override
     public List<VendorResponse> getAllVendors() {
-        return vendorRepository.findAll().stream().map(this::mapToVendorResponse).collect(Collectors.toList());
+        return vendorRepository.findAll()
+                .stream()
+                .map(this::mapToVendorResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
     public VendorResponse updateVendor(Long vendorId, CreateVendorRequest request) {
         Vendor vendor = findVendorOrThrow(vendorId);
+
         if (request.getVendorName() != null) vendor.setVendorName(request.getVendorName());
         if (request.getDescription() != null) vendor.setDescription(request.getDescription());
         if (request.getContactPersonName() != null) vendor.setContactPersonName(request.getContactPersonName());
@@ -66,6 +76,7 @@ public class VendorServiceImpl implements VendorService {
         if (request.getContactPhone() != null) vendor.setContactPhone(request.getContactPhone());
         if (request.getWebsiteUrl() != null) vendor.setWebsiteUrl(request.getWebsiteUrl());
         if (request.getCurrentGoldPrice() != null) vendor.setCurrentGoldPrice(request.getCurrentGoldPrice());
+
         return mapToVendorResponse(vendorRepository.save(vendor));
     }
 
@@ -78,16 +89,19 @@ public class VendorServiceImpl implements VendorService {
     @Transactional
     public BranchResponse addBranch(Long vendorId, CreateBranchRequest request) {
         Vendor vendor = findVendorOrThrow(vendorId);
+
         Address address = null;
         if (request.getAddressId() != null) {
             address = addressRepository.findById(request.getAddressId())
                     .orElseThrow(() -> new ResourceNotFoundException("Address not found: " + request.getAddressId()));
         }
+
         VendorBranch branch = VendorBranch.builder()
                 .vendor(vendor)
                 .address(address)
                 .quantity(BigDecimal.ZERO)
                 .build();
+
         return mapToBranchResponse(branchRepository.save(branch));
     }
 
@@ -99,7 +113,10 @@ public class VendorServiceImpl implements VendorService {
     @Override
     public List<BranchResponse> getBranchesByVendor(Long vendorId) {
         findVendorOrThrow(vendorId);
-        return branchRepository.findByVendorVendorId(vendorId).stream().map(this::mapToBranchResponse).collect(Collectors.toList());
+        return branchRepository.findByVendorVendorId(vendorId)
+                .stream()
+                .map(this::mapToBranchResponse)
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -7,7 +7,7 @@ import com.goldwallet.digitalgoldwallet.modules.vendor.dto.response.BranchRespon
 import com.goldwallet.digitalgoldwallet.modules.vendor.dto.response.VendorResponse;
 import com.goldwallet.digitalgoldwallet.modules.vendor.service.VendorService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +17,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
-@RequiredArgsConstructor
 public class VendorController {
 
-    private final VendorService vendorService;
+    @Autowired
+    private VendorService vendorService;
 
     @PostMapping("/vendors")
     public ResponseEntity<ApiResponse<VendorResponse>> createVendor(@Valid @RequestBody CreateVendorRequest request) {
