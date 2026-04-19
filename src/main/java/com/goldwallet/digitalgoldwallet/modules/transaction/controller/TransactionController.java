@@ -3,7 +3,7 @@ package com.goldwallet.digitalgoldwallet.modules.transaction.controller;
 import com.goldwallet.digitalgoldwallet.common.response.ApiResponse;
 import com.goldwallet.digitalgoldwallet.modules.transaction.dto.response.TransactionResponse;
 import com.goldwallet.digitalgoldwallet.modules.transaction.service.TransactionService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,10 +11,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
-@RequiredArgsConstructor
 public class TransactionController {
 
-    private final TransactionService transactionService;
+    @Autowired
+    private TransactionService transactionService;
 
     @GetMapping("/transactions/{id}")
     public ResponseEntity<ApiResponse<TransactionResponse>> getTransaction(@PathVariable Long id) {
