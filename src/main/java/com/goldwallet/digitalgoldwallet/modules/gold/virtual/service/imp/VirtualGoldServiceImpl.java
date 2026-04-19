@@ -17,8 +17,8 @@ import com.goldwallet.digitalgoldwallet.modules.vendor.entity.Vendor;
 import com.goldwallet.digitalgoldwallet.modules.vendor.entity.VendorBranch;
 import com.goldwallet.digitalgoldwallet.modules.vendor.repository.VendorBranchRepository;
 import com.goldwallet.digitalgoldwallet.modules.vendor.repository.VendorRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,14 +29,22 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class VirtualGoldServiceImpl implements VirtualGoldService {
 
-    private final VirtualGoldHoldingRepository holdingRepository;
-    private final UserRepository userRepository;
-    private final VendorBranchRepository branchRepository;
-    private final VendorRepository vendorRepository;
-    private final TransactionHistoryRepository transactionHistoryRepository;
+    @Autowired
+    private VirtualGoldHoldingRepository holdingRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private VendorBranchRepository branchRepository;
+
+    @Autowired
+    private VendorRepository vendorRepository;
+
+    @Autowired
+    private TransactionHistoryRepository transactionHistoryRepository;
 
     @Override
     @Transactional
@@ -55,27 +63,29 @@ public class VirtualGoldServiceImpl implements VirtualGoldService {
             throw new BusinessException("Insufficient gold at branch. Available: " + branch.getQuantity());
         }
 
-        // Deduct balance
         user.setBalance(user.getBalance().subtract(totalCost));
         userRepository.save(user);
 
-        // Deduct from branch
         branch.setQuantity(branch.getQuantity().subtract(request.getQuantity()));
         branchRepository.save(branch);
 
-        // Update or create holding
-        Optional<VirtualGoldHolding> existingOpt = holdingRepository.findByUserUserIdAndBranchBranchId(user.getUserId(), branch.getBranchId());
+        Optional<VirtualGoldHolding> existingOpt =
+                holdingRepository.findByUserUserIdAndBranchBranchId(user.getUserId(), branch.getBranchId());
+
         VirtualGoldHolding holding;
         if (existingOpt.isPresent()) {
             holding = existingOpt.get();
             holding.setQuantity(holding.getQuantity().add(request.getQuantity()));
         } else {
             holding = VirtualGoldHolding.builder()
-                    .user(user).branch(branch).quantity(request.getQuantity()).build();
+                    .user(user)
+                    .branch(branch)
+                    .quantity(request.getQuantity())
+                    .build();
         }
+
         holding = holdingRepository.save(holding);
 
-        // Record transaction
         transactionHistoryRepository.save(TransactionHistory.builder()
                 .user(user).branch(branch)
                 .transactionType(TransactionHistory.TransactionType.BUY)
@@ -83,6 +93,7 @@ public class VirtualGoldServiceImpl implements VirtualGoldService {
                 .quantity(request.getQuantity()).amount(totalCost).build());
 
         log.info("User {} bought {} g gold from branch {}", user.getUserId(), request.getQuantity(), branch.getBranchId());
+
         return mapToResponse(holding, price);
     }
 
@@ -93,7 +104,8 @@ public class VirtualGoldServiceImpl implements VirtualGoldService {
         VendorBranch branch = findBranchOrThrow(request.getBranchId());
         Vendor vendor = branch.getVendor();
 
-        VirtualGoldHolding holding = holdingRepository.findByUserUserIdAndBranchBranchId(user.getUserId(), branch.getBranchId())
+        VirtualGoldHolding holding = holdingRepository
+                .findByUserUserIdAndBranchBranchId(user.getUserId(), branch.getBranchId())
                 .orElseThrow(() -> new BusinessException("No gold holdings found for this user at this branch"));
 
         if (holding.getQuantity().compareTo(request.getQuantity()) < 0) {
@@ -119,6 +131,7 @@ public class VirtualGoldServiceImpl implements VirtualGoldService {
                 .quantity(request.getQuantity()).amount(totalValue).build());
 
         log.info("User {} sold {} g gold at branch {}", user.getUserId(), request.getQuantity(), branch.getBranchId());
+
         return mapToResponse(holding, price);
     }
 
@@ -139,11 +152,13 @@ public class VirtualGoldServiceImpl implements VirtualGoldService {
     }
 
     private User findUserOrThrow(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
     }
 
     private VendorBranch findBranchOrThrow(Long branchId) {
-        return branchRepository.findById(branchId).orElseThrow(() -> new ResourceNotFoundException("Branch not found: " + branchId));
+        return branchRepository.findById(branchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Branch not found: " + branchId));
     }
 
     private VirtualGoldResponse mapToResponse(VirtualGoldHolding h, BigDecimal goldPrice) {

@@ -12,8 +12,10 @@ import com.goldwallet.digitalgoldwallet.modules.user.entity.User;
 import com.goldwallet.digitalgoldwallet.modules.user.repository.AddressRepository;
 import com.goldwallet.digitalgoldwallet.modules.user.repository.UserRepository;
 import com.goldwallet.digitalgoldwallet.modules.user.service.UserService;
-import lombok.RequiredArgsConstructor;
+
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,11 +25,13 @@ import java.math.BigDecimal;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
-    private final AddressRepository addressRepository;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
 
     @Override
     @Transactional
@@ -35,19 +39,23 @@ public class UserServiceImpl implements UserService {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new BusinessException("Email already in use: " + request.getEmail());
         }
+
         Address address = null;
         if (request.getAddressId() != null) {
             address = addressRepository.findById(request.getAddressId())
                     .orElseThrow(() -> new ResourceNotFoundException("Address not found: " + request.getAddressId()));
         }
+
         User user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
                 .address(address)
                 .balance(BigDecimal.ZERO)
                 .build();
+
         User saved = userRepository.save(user);
         log.info("Created user with ID: {}", saved.getUserId());
+
         return mapToUserResponse(saved);
     }
 
@@ -66,18 +74,25 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponse updateUser(Long userId, UpdateUserRequest request) {
         User user = findUserOrThrow(userId);
-        if (request.getName() != null) user.setName(request.getName());
+
+        if (request.getName() != null) {
+            user.setName(request.getName());
+        }
+
         if (request.getEmail() != null) {
-            if (!request.getEmail().equals(user.getEmail()) && userRepository.existsByEmail(request.getEmail())) {
+            if (!request.getEmail().equals(user.getEmail()) &&
+                    userRepository.existsByEmail(request.getEmail())) {
                 throw new BusinessException("Email already in use: " + request.getEmail());
             }
             user.setEmail(request.getEmail());
         }
+
         if (request.getAddressId() != null) {
             Address address = addressRepository.findById(request.getAddressId())
                     .orElseThrow(() -> new ResourceNotFoundException("Address not found: " + request.getAddressId()));
             user.setAddress(address);
         }
+
         return mapToUserResponse(userRepository.save(user));
     }
 
@@ -96,6 +111,7 @@ public class UserServiceImpl implements UserService {
                 .postalCode(request.getPostalCode())
                 .country(request.getCountry())
                 .build();
+
         return mapToAddressResponse(addressRepository.save(address));
     }
 
@@ -108,11 +124,13 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public AddressResponse updateAddress(Long addressId, CreateAddressRequest request) {
         Address address = findAddressOrThrow(addressId);
+
         address.setStreet(request.getStreet());
         address.setCity(request.getCity());
         address.setState(request.getState());
         address.setPostalCode(request.getPostalCode());
         address.setCountry(request.getCountry());
+
         return mapToAddressResponse(addressRepository.save(address));
     }
 
