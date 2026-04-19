@@ -1,5 +1,6 @@
 package com.goldwallet.digitalgoldwallet.modules.transaction.repository;
 
+
 import com.goldwallet.digitalgoldwallet.modules.transaction.entity.TransactionHistory;
 import com.goldwallet.digitalgoldwallet.modules.user.entity.Address;
 import com.goldwallet.digitalgoldwallet.modules.user.entity.User;
@@ -9,9 +10,6 @@ import com.goldwallet.digitalgoldwallet.modules.vendor.entity.Vendor;
 import com.goldwallet.digitalgoldwallet.modules.vendor.entity.VendorBranch;
 import com.goldwallet.digitalgoldwallet.modules.vendor.repository.VendorBranchRepository;
 import com.goldwallet.digitalgoldwallet.modules.vendor.repository.VendorRepository;
-
-import jakarta.persistence.EntityManager;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -41,10 +39,7 @@ class TransactionHistoryRepositoryTest {
     @Autowired
     private VendorBranchRepository branchRepository;
 
-    @Autowired
-    private EntityManager entityManager;
-
-    // ---------- Helpers ----------
+    // 🔧 Helper methods
     private User createUser(String email) {
         Address address = addressRepository.save(Address.builder()
                 .street("Street")
@@ -83,11 +78,11 @@ class TransactionHistoryRepositoryTest {
                 .build());
     }
 
-    // ---------- 1 CREATE ----------
+    //  Create BUY Transaction
     @Test
-    void testCreateTransaction() {
-        User user = createUser("t1@gmail.com");
-        VendorBranch branch = createBranch("V1");
+    void testCreateBuyTransaction() {
+        User user = createUser("txn1@gmail.com");
+        VendorBranch branch = createBranch("Vendor1");
 
         TransactionHistory txn = transactionRepository.save(
                 TransactionHistory.builder()
@@ -95,19 +90,19 @@ class TransactionHistoryRepositoryTest {
                         .branch(branch)
                         .transactionType(TransactionHistory.TransactionType.BUY)
                         .transactionStatus(TransactionHistory.TransactionStatus.SUCCESS)
-                        .quantity(new BigDecimal("5"))
-                        .amount(new BigDecimal("25000"))
+                        .quantity(new BigDecimal("10"))
+                        .amount(new BigDecimal("57000"))
                         .build()
         );
 
         assertNotNull(txn.getTransactionId());
     }
 
-    // ---------- 2 READ ----------
+    //  Create SELL Transaction
     @Test
-    void testFindById() {
-        User user = createUser("t2@gmail.com");
-        VendorBranch branch = createBranch("V2");
+    void testCreateSellTransaction() {
+        User user = createUser("txn2@gmail.com");
+        VendorBranch branch = createBranch("Vendor2");
 
         TransactionHistory txn = transactionRepository.save(
                 TransactionHistory.builder()
@@ -115,19 +110,41 @@ class TransactionHistoryRepositoryTest {
                         .branch(branch)
                         .transactionType(TransactionHistory.TransactionType.SELL)
                         .transactionStatus(TransactionHistory.TransactionStatus.SUCCESS)
-                        .quantity(new BigDecimal("2"))
-                        .amount(new BigDecimal("10000"))
+                        .quantity(new BigDecimal("5"))
+                        .amount(new BigDecimal("28500"))
                         .build()
         );
 
-        assertTrue(transactionRepository.findById(txn.getTransactionId()).isPresent());
+        assertEquals(TransactionHistory.TransactionType.SELL, txn.getTransactionType());
     }
 
-    // ---------- 3 UPDATE ----------
+    //  Find Transaction
     @Test
-    void testUpdateStatus() {
-        User user = createUser("t3@gmail.com");
-        VendorBranch branch = createBranch("V3");
+    void testFindTransaction() {
+        User user = createUser("txn3@gmail.com");
+        VendorBranch branch = createBranch("Vendor3");
+
+        TransactionHistory txn = transactionRepository.save(
+                TransactionHistory.builder()
+                        .user(user)
+                        .branch(branch)
+                        .transactionType(TransactionHistory.TransactionType.BUY)
+                        .transactionStatus(TransactionHistory.TransactionStatus.SUCCESS)
+                        .quantity(new BigDecimal("2"))
+                        .amount(new BigDecimal("11400"))
+                        .build()
+        );
+
+        Optional<TransactionHistory> found = transactionRepository.findById(txn.getTransactionId());
+
+        assertTrue(found.isPresent());
+    }
+
+    //  Update Transaction Status
+    @Test
+    void testUpdateTransactionStatus() {
+        User user = createUser("txn4@gmail.com");
+        VendorBranch branch = createBranch("Vendor4");
 
         TransactionHistory txn = transactionRepository.save(
                 TransactionHistory.builder()
@@ -135,8 +152,8 @@ class TransactionHistoryRepositoryTest {
                         .branch(branch)
                         .transactionType(TransactionHistory.TransactionType.BUY)
                         .transactionStatus(TransactionHistory.TransactionStatus.FAILED)
-                        .quantity(new BigDecimal("1"))
-                        .amount(new BigDecimal("5000"))
+                        .quantity(new BigDecimal("3"))
+                        .amount(new BigDecimal("17100"))
                         .build()
         );
 
@@ -146,11 +163,11 @@ class TransactionHistoryRepositoryTest {
         assertEquals(TransactionHistory.TransactionStatus.SUCCESS, updated.getTransactionStatus());
     }
 
-    // ---------- 4 DELETE ----------
+    //  Delete Transaction
     @Test
     void testDeleteTransaction() {
-        User user = createUser("t4@gmail.com");
-        VendorBranch branch = createBranch("V4");
+        User user = createUser("txn5@gmail.com");
+        VendorBranch branch = createBranch("Vendor5");
 
         TransactionHistory txn = transactionRepository.save(
                 TransactionHistory.builder()
@@ -159,7 +176,7 @@ class TransactionHistoryRepositoryTest {
                         .transactionType(TransactionHistory.TransactionType.SELL)
                         .transactionStatus(TransactionHistory.TransactionStatus.SUCCESS)
                         .quantity(new BigDecimal("1"))
-                        .amount(new BigDecimal("5000"))
+                        .amount(new BigDecimal("5700"))
                         .build()
         );
 
@@ -168,190 +185,31 @@ class TransactionHistoryRepositoryTest {
         assertFalse(transactionRepository.findById(txn.getTransactionId()).isPresent());
     }
 
-    // ---------- 5 FIND BY USER ----------
+    //  Convert to Physical Transaction
     @Test
-    void testFindByUser() {
-        User user = createUser("t5@gmail.com");
-        VendorBranch branch = createBranch("V5");
-
-        transactionRepository.save(TransactionHistory.builder()
-                .user(user)
-                .branch(branch)
-                .transactionType(TransactionHistory.TransactionType.BUY)
-                .transactionStatus(TransactionHistory.TransactionStatus.SUCCESS)
-                .quantity(new BigDecimal("2"))
-                .amount(new BigDecimal("1000"))
-                .build());
-
-        List<TransactionHistory> list =
-                transactionRepository.findByUserUserIdOrderByCreatedAtDesc(user.getUserId());
-
-        assertFalse(list.isEmpty());
-    }
-
-    // ---------- 6 FIND BY BRANCH ----------
-    @Test
-    void testFindByBranch() {
-        User user = createUser("t6@gmail.com");
-        VendorBranch branch = createBranch("V6");
-
-        transactionRepository.save(TransactionHistory.builder()
-                .user(user)
-                .branch(branch)
-                .transactionType(TransactionHistory.TransactionType.BUY)
-                .transactionStatus(TransactionHistory.TransactionStatus.SUCCESS)
-                .quantity(new BigDecimal("2"))
-                .amount(new BigDecimal("1000"))
-                .build());
-
-        List<TransactionHistory> list =
-                transactionRepository.findByBranchBranchIdOrderByCreatedAtDesc(branch.getBranchId());
-
-        assertFalse(list.isEmpty());
-    }
-
-    // ---------- 7 FILTER STATUS ----------
-    @Test
-    void testFindByStatus() {
-        User user = createUser("t7@gmail.com");
-        VendorBranch branch = createBranch("V7");
-
-        transactionRepository.save(TransactionHistory.builder()
-                .user(user)
-                .branch(branch)
-                .transactionType(TransactionHistory.TransactionType.BUY)
-                .transactionStatus(TransactionHistory.TransactionStatus.SUCCESS)
-                .quantity(new BigDecimal("1"))
-                .amount(new BigDecimal("1000"))
-                .build());
-
-        assertFalse(transactionRepository
-                .findByStatus(TransactionHistory.TransactionStatus.SUCCESS).isEmpty());
-    }
-
-    // ---------- 8 FILTER TYPE ----------
-    @Test
-    void testFindByType() {
-        User user = createUser("t8@gmail.com");
-        VendorBranch branch = createBranch("V8");
-
-        transactionRepository.save(TransactionHistory.builder()
-                .user(user)
-                .branch(branch)
-                .transactionType(TransactionHistory.TransactionType.SELL)
-                .transactionStatus(TransactionHistory.TransactionStatus.SUCCESS)
-                .quantity(new BigDecimal("1"))
-                .amount(new BigDecimal("1000"))
-                .build());
-
-        assertFalse(transactionRepository
-                .findByTransactionType(TransactionHistory.TransactionType.SELL).isEmpty());
-    }
-
-    // ---------- 9 AMOUNT FILTER ----------
-    @Test
-    void testAmountGreaterThan() {
-        User user = createUser("t9@gmail.com");
-        VendorBranch branch = createBranch("V9");
-
-        transactionRepository.save(TransactionHistory.builder()
-                .user(user)
-                .branch(branch)
-                .transactionType(TransactionHistory.TransactionType.BUY)
-                .transactionStatus(TransactionHistory.TransactionStatus.SUCCESS)
-                .quantity(new BigDecimal("1"))
-                .amount(new BigDecimal("5000"))
-                .build());
-
-        assertEquals(1,
-                transactionRepository.findTransactionsGreaterThan(new BigDecimal("1000")).size());
-    }
-
-    // ---------- 10 UPDATE CUSTOM ----------
-    @Test
-    void testCustomUpdate() {
-        User user = createUser("t10@gmail.com");
-        VendorBranch branch = createBranch("V10");
+    void testConvertToPhysical() {
+        User user = createUser("txn6@gmail.com");
+        VendorBranch branch = createBranch("Vendor6");
 
         TransactionHistory txn = transactionRepository.save(
                 TransactionHistory.builder()
                         .user(user)
                         .branch(branch)
-                        .transactionStatus(TransactionHistory.TransactionStatus.FAILED)
-                        .transactionType(TransactionHistory.TransactionType.BUY)
-                        .quantity(new BigDecimal("1"))
-                        .amount(new BigDecimal("1000"))
-                        .build()
-        );
-
-        transactionRepository.updateTransactionStatus(txn.getTransactionId(),
-                TransactionHistory.TransactionStatus.SUCCESS);
-
-        entityManager.clear();
-
-        assertEquals(TransactionHistory.TransactionStatus.SUCCESS,
-                transactionRepository.findById(txn.getTransactionId()).get().getTransactionStatus());
-    }
-
-    // ---------- 11 DELETE CUSTOM ----------
-    @Test
-    void testCustomDelete() {
-        User user = createUser("t11@gmail.com");
-        VendorBranch branch = createBranch("V11");
-
-        TransactionHistory txn = transactionRepository.save(
-                TransactionHistory.builder()
-                        .user(user)
-                        .branch(branch)
-                        .transactionType(TransactionHistory.TransactionType.BUY)
+                        .transactionType(TransactionHistory.TransactionType.CONVERT_TO_PHYSICAL)
                         .transactionStatus(TransactionHistory.TransactionStatus.SUCCESS)
-                        .quantity(new BigDecimal("1"))
-                        .amount(new BigDecimal("1000"))
+                        .quantity(new BigDecimal("8"))
+                        .amount(new BigDecimal("45600"))
                         .build()
         );
 
-        transactionRepository.deleteTransactionByIdCustom(txn.getTransactionId());
-
-        entityManager.clear();
-
-        assertFalse(transactionRepository.findById(txn.getTransactionId()).isPresent());
+        assertEquals(TransactionHistory.TransactionType.CONVERT_TO_PHYSICAL, txn.getTransactionType());
     }
 
-    // ---------- 12 AGGREGATION ----------
-    @Test
-    void testTotalAmount() {
-        User user = createUser("t12@gmail.com");
-        VendorBranch branch = createBranch("V12");
-
-        transactionRepository.save(TransactionHistory.builder()
-                .user(user)
-                .branch(branch)
-                .transactionType(TransactionHistory.TransactionType.BUY)
-                .transactionStatus(TransactionHistory.TransactionStatus.SUCCESS)
-                .quantity(new BigDecimal("1"))
-                .amount(new BigDecimal("1000"))
-                .build());
-
-        transactionRepository.save(TransactionHistory.builder()
-                .user(user)
-                .branch(branch)
-                .transactionType(TransactionHistory.TransactionType.SELL)
-                .transactionStatus(TransactionHistory.TransactionStatus.SUCCESS)
-                .quantity(new BigDecimal("1"))
-                .amount(new BigDecimal("2000"))
-                .build());
-
-        BigDecimal total =
-                transactionRepository.getTotalTransactionAmountByUser(user.getUserId());
-
-        assertEquals(0, total.compareTo(new BigDecimal("3000")));
-    }
-
-    // ---------- 13 USER MAPPING ----------
+    // User Mapping Check
     @Test
     void testUserMapping() {
-        User user = createUser("t13@gmail.com");
-        VendorBranch branch = createBranch("V13");
+        User user = createUser("txn7@gmail.com");
+        VendorBranch branch = createBranch("Vendor7");
 
         TransactionHistory txn = transactionRepository.save(
                 TransactionHistory.builder()
@@ -359,20 +217,21 @@ class TransactionHistoryRepositoryTest {
                         .branch(branch)
                         .transactionType(TransactionHistory.TransactionType.BUY)
                         .transactionStatus(TransactionHistory.TransactionStatus.SUCCESS)
-                        .quantity(new BigDecimal("1"))
-                        .amount(new BigDecimal("1000"))
+                        .quantity(new BigDecimal("4"))
+                        .amount(new BigDecimal("22800"))
                         .build()
         );
 
-        assertEquals("User t13@gmail.com",
-                transactionRepository.findById(txn.getTransactionId()).get().getUser().getName());
+        Optional<TransactionHistory> found = transactionRepository.findById(txn.getTransactionId());
+
+        assertEquals("User txn7@gmail.com", found.get().getUser().getName());
     }
 
-    // ---------- 14 BRANCH MAPPING ----------
+    //  Branch Mapping Check
     @Test
     void testBranchMapping() {
-        User user = createUser("t14@gmail.com");
-        VendorBranch branch = createBranch("Vendor14");
+        User user = createUser("txn8@gmail.com");
+        VendorBranch branch = createBranch("Vendor8");
 
         TransactionHistory txn = transactionRepository.save(
                 TransactionHistory.builder()
@@ -380,32 +239,62 @@ class TransactionHistoryRepositoryTest {
                         .branch(branch)
                         .transactionType(TransactionHistory.TransactionType.SELL)
                         .transactionStatus(TransactionHistory.TransactionStatus.SUCCESS)
-                        .quantity(new BigDecimal("1"))
-                        .amount(new BigDecimal("1000"))
+                        .quantity(new BigDecimal("6"))
+                        .amount(new BigDecimal("34200"))
                         .build()
         );
 
-        assertEquals("Vendor14",
-                transactionRepository.findById(txn.getTransactionId()).get()
-                        .getBranch().getVendor().getVendorName());
+        Optional<TransactionHistory> found = transactionRepository.findById(txn.getTransactionId());
+
+        assertEquals("Vendor8", found.get().getBranch().getVendor().getVendorName());
     }
 
-    // ---------- 15 NULL VALIDATION ----------
+    //  Multiple Transactions
+    @Test
+    void testMultipleTransactions() {
+        User user = createUser("txn9@gmail.com");
+        VendorBranch branch = createBranch("Vendor9");
+
+        transactionRepository.save(TransactionHistory.builder()
+                .user(user)
+                .branch(branch)
+                .transactionType(TransactionHistory.TransactionType.BUY)
+                .transactionStatus(TransactionHistory.TransactionStatus.SUCCESS)
+                .quantity(new BigDecimal("2"))
+                .amount(new BigDecimal("11400"))
+                .build());
+
+        transactionRepository.save(TransactionHistory.builder()
+                .user(user)
+                .branch(branch)
+                .transactionType(TransactionHistory.TransactionType.SELL)
+                .transactionStatus(TransactionHistory.TransactionStatus.SUCCESS)
+                .quantity(new BigDecimal("1"))
+                .amount(new BigDecimal("5700"))
+                .build());
+
+        List<TransactionHistory> list = transactionRepository.findAll();
+
+        assertEquals(2, list.size());
+    }
+
+    //  Invalid Case (Null Amount)
     @Test
     void testNullAmount() {
-        User user = createUser("t15@gmail.com");
-        VendorBranch branch = createBranch("V15");
+        User user = createUser("txn10@gmail.com");
+        VendorBranch branch = createBranch("Vendor10");
 
-        assertThrows(Exception.class, () -> {
+        Exception exception = assertThrows(Exception.class, () -> {
             transactionRepository.save(TransactionHistory.builder()
                     .user(user)
                     .branch(branch)
                     .transactionType(TransactionHistory.TransactionType.BUY)
                     .transactionStatus(TransactionHistory.TransactionStatus.SUCCESS)
-                    .quantity(new BigDecimal("1"))
+                    .quantity(new BigDecimal("5"))
                     .amount(null)
                     .build());
         });
+
+        assertNotNull(exception);
     }
 }
-

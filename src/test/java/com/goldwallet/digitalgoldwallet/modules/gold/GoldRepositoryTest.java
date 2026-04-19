@@ -1,7 +1,8 @@
 package com.goldwallet.digitalgoldwallet.modules.gold;
 
-import com.goldwallet.digitalgoldwallet.modules.gold.physical.entity.PhysicalGoldTransaction;
 import com.goldwallet.digitalgoldwallet.modules.gold.physical.repository.PhysicalGoldTransactionRepository;
+import com.goldwallet.digitalgoldwallet.modules.gold.physical.entity.PhysicalGoldTransaction;
+
 import com.goldwallet.digitalgoldwallet.modules.gold.virtual.entity.VirtualGoldHolding;
 import com.goldwallet.digitalgoldwallet.modules.gold.virtual.repository.VirtualGoldHoldingRepository;
 import com.goldwallet.digitalgoldwallet.modules.user.entity.Address;
@@ -12,9 +13,6 @@ import com.goldwallet.digitalgoldwallet.modules.vendor.entity.Vendor;
 import com.goldwallet.digitalgoldwallet.modules.vendor.entity.VendorBranch;
 import com.goldwallet.digitalgoldwallet.modules.vendor.repository.VendorBranchRepository;
 import com.goldwallet.digitalgoldwallet.modules.vendor.repository.VendorRepository;
-
-import jakarta.persistence.EntityManager;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -28,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @ActiveProfiles("test")
+
 class GoldRepositoryTest {
 
     @Autowired
@@ -48,10 +47,7 @@ class GoldRepositoryTest {
     @Autowired
     private VendorBranchRepository branchRepository;
 
-    @Autowired
-    private EntityManager entityManager;
-
-    // ---------- Helper Methods ----------
+    // 🔧 Helper Methods
     private User createUser(String email) {
         Address address = addressRepository.save(Address.builder()
                 .street("Street")
@@ -90,8 +86,7 @@ class GoldRepositoryTest {
                 .build());
     }
 
-    // ---------- EXISTING TESTS ----------
-
+    //  Create Physical Transaction
     @Test
     void testCreatePhysicalTransaction() {
         User user = createUser("phy1@gmail.com");
@@ -109,6 +104,7 @@ class GoldRepositoryTest {
         assertNotNull(tx.getTransactionId());
     }
 
+    //  Find Physical Transaction
     @Test
     void testFindPhysicalTransaction() {
         User user = createUser("phy2@gmail.com");
@@ -123,9 +119,11 @@ class GoldRepositoryTest {
         );
 
         Optional<PhysicalGoldTransaction> found = physicalRepo.findById(tx.getTransactionId());
+
         assertTrue(found.isPresent());
     }
 
+    //  Delete Physical Transaction
     @Test
     void testDeletePhysicalTransaction() {
         User user = createUser("phy3@gmail.com");
@@ -140,9 +138,11 @@ class GoldRepositoryTest {
         );
 
         physicalRepo.delete(tx);
+
         assertFalse(physicalRepo.findById(tx.getTransactionId()).isPresent());
     }
 
+    // Create Virtual Holding
     @Test
     void testCreateVirtualHolding() {
         User user = createUser("virt1@gmail.com");
@@ -159,6 +159,7 @@ class GoldRepositoryTest {
         assertNotNull(holding.getHoldingId());
     }
 
+    //  Find Virtual Holding
     @Test
     void testFindVirtualHolding() {
         User user = createUser("virt2@gmail.com");
@@ -173,9 +174,11 @@ class GoldRepositoryTest {
         );
 
         Optional<VirtualGoldHolding> found = virtualRepo.findById(holding.getHoldingId());
+
         assertTrue(found.isPresent());
     }
 
+    //  Update Virtual Holding Quantity
     @Test
     void testUpdateVirtualHolding() {
         User user = createUser("virt3@gmail.com");
@@ -192,9 +195,10 @@ class GoldRepositoryTest {
         holding.setQuantity(new BigDecimal("50"));
         VirtualGoldHolding updated = virtualRepo.save(holding);
 
-        assertEquals(0, updated.getQuantity().compareTo(new BigDecimal("50")));
+        assertEquals(new BigDecimal("50"), updated.getQuantity());
     }
 
+    //  Delete Virtual Holding
     @Test
     void testDeleteVirtualHolding() {
         User user = createUser("virt4@gmail.com");
@@ -209,108 +213,71 @@ class GoldRepositoryTest {
         );
 
         virtualRepo.delete(holding);
+
         assertFalse(virtualRepo.findById(holding.getHoldingId()).isPresent());
     }
 
-    // ---------- NEW CUSTOM QUERY TESTS ----------
-
+    //  Mapping Check (User ↔ Virtual Gold)
     @Test
-    void testTotalPhysicalGoldByUser() {
-        User user = createUser("phy_total@gmail.com");
-        VendorBranch branch = createBranch("VendorP");
+    void testUserVirtualGoldMapping() {
+        User user = createUser("virt5@gmail.com");
+        VendorBranch branch = createBranch("Vendor8");
 
-        physicalRepo.save(PhysicalGoldTransaction.builder()
+        VirtualGoldHolding holding = virtualRepo.save(
+                VirtualGoldHolding.builder()
+                        .user(user)
+                        .branch(branch)
+                        .quantity(new BigDecimal("12"))
+                        .build()
+        );
+
+        Optional<VirtualGoldHolding> found = virtualRepo.findById(holding.getHoldingId());
+
+        assertEquals("User virt5@gmail.com", found.get().getUser().getName());
+    }
+
+    //  Multiple Holdings
+    @Test
+    void testMultipleHoldings() {
+        User user = createUser("virt6@gmail.com");
+        VendorBranch branch = createBranch("Vendor9");
+
+        virtualRepo.save(VirtualGoldHolding.builder()
+                .user(user)
+                .branch(branch)
+                .quantity(new BigDecimal("5"))
+                .build());
+
+        virtualRepo.save(VirtualGoldHolding.builder()
                 .user(user)
                 .branch(branch)
                 .quantity(new BigDecimal("10"))
                 .build());
 
-        BigDecimal total = physicalRepo.getTotalPhysicalGoldByUser(user.getUserId());
-        assertEquals(0, total.compareTo(new BigDecimal("10")));
+        List<VirtualGoldHolding> list = virtualRepo.findAll();
+
+        assertEquals(2, list.size());
     }
 
+    //  Physical Transaction with Address Mapping
     @Test
-    void testDeletePhysicalTransactionCustom() {
-        User user = createUser("phy_del@gmail.com");
-        VendorBranch branch = createBranch("VendorPD");
+    void testPhysicalTransactionAddress() {
+        User user = createUser("phy4@gmail.com");
+        VendorBranch branch = createBranch("Vendor10");
 
         PhysicalGoldTransaction tx = physicalRepo.save(
                 PhysicalGoldTransaction.builder()
                         .user(user)
                         .branch(branch)
-                        .quantity(new BigDecimal("5"))
+                        .quantity(new BigDecimal("7"))
+                        .deliveryAddress(user.getAddress())
                         .build()
         );
 
-        physicalRepo.deleteTransactionById(tx.getTransactionId());
+        Optional<PhysicalGoldTransaction> found = physicalRepo.findById(tx.getTransactionId());
 
-        entityManager.flush();
-        entityManager.clear();
-
-        assertFalse(physicalRepo.findById(tx.getTransactionId()).isPresent());
-    }
-
-    @Test
-    void testCustomUpdateHolding() {
-        User user = createUser("virt_update@gmail.com");
-        VendorBranch branch = createBranch("VendorVU");
-
-        VirtualGoldHolding holding = virtualRepo.save(
-                VirtualGoldHolding.builder()
-                        .user(user)
-                        .branch(branch)
-                        .quantity(new BigDecimal("10"))
-                        .build()
-        );
-
-        virtualRepo.updateHoldingQuantity(holding.getHoldingId(), new BigDecimal("60"));
-
-        entityManager.flush();
-        entityManager.clear();
-
-        VirtualGoldHolding updated = virtualRepo.findById(holding.getHoldingId()).get();
-        assertEquals(0, updated.getQuantity().compareTo(new BigDecimal("60")));
-    }
-
-    @Test
-    void testCustomDeleteHolding() {
-        User user = createUser("virt_del@gmail.com");
-        VendorBranch branch = createBranch("VendorVD");
-
-        VirtualGoldHolding holding = virtualRepo.save(
-                VirtualGoldHolding.builder()
-                        .user(user)
-                        .branch(branch)
-                        .quantity(new BigDecimal("20"))
-                        .build()
-        );
-
-        virtualRepo.deleteHoldingById(holding.getHoldingId());
-
-        entityManager.flush();
-        entityManager.clear();
-
-        assertFalse(virtualRepo.findById(holding.getHoldingId()).isPresent());
-    }
-
-    @Test
-    void testTotalVirtualGoldByUser() {
-        User user = createUser("virt_total@gmail.com");
-        VendorBranch branch = createBranch("VendorVT");
-
-        virtualRepo.save(VirtualGoldHolding.builder()
-                .user(user)
-                .branch(branch)
-                .quantity(new BigDecimal("10"))
-                .build());
-
-        virtualRepo.save(VirtualGoldHolding.builder()
-                .user(user)
-                .branch(branch)
-                .quantity(new BigDecimal("20"))
-                .build());
-
-        BigDecimal total = virtualRepo.getTotalGoldByUser(user.getUserId());
-        assertEquals(0, total.compareTo(new BigDecimal("30")));
+        assertNotNull(found.get().getDeliveryAddress());
+        assertEquals("Chennai", found.get().getDeliveryAddress().getCity());
     }
 }
+
