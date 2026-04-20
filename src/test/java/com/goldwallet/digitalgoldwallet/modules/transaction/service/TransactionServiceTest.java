@@ -60,6 +60,19 @@ class TransactionServiceTest {
                 () -> transactionService.getTransactionById(1L));
     }
 
+    @Test
+    void testGetTransactionById_verifyRepositoryCall() {
+        TransactionHistory tx = new TransactionHistory();
+        tx.setTransactionId(1L);
+
+        when(transactionHistoryRepository.findById(1L))
+                .thenReturn(Optional.of(tx));
+
+        transactionService.getTransactionById(1L);
+
+        verify(transactionHistoryRepository, times(1)).findById(1L);
+    }
+
     // ---------- USER TRANSACTIONS ----------
 
     @Test
@@ -86,10 +99,30 @@ class TransactionServiceTest {
     @Test
     void testGetUserTransactions_emptyList() {
         when(userRepository.existsById(1L)).thenReturn(true);
+
         when(transactionHistoryRepository.findByUserUserIdOrderByCreatedAtDesc(1L))
                 .thenReturn(List.of());
 
         assertTrue(transactionService.getUserTransactions(1L).isEmpty());
+    }
+
+    @Test
+    void testGetUserTransactions_multipleTransactions() {
+        when(userRepository.existsById(1L)).thenReturn(true);
+
+        TransactionHistory tx1 = new TransactionHistory();
+        tx1.setTransactionId(1L);
+
+        TransactionHistory tx2 = new TransactionHistory();
+        tx2.setTransactionId(2L);
+
+        when(transactionHistoryRepository.findByUserUserIdOrderByCreatedAtDesc(1L))
+                .thenReturn(List.of(tx1, tx2));
+
+        List<TransactionResponse> response =
+                transactionService.getUserTransactions(1L);
+
+        assertEquals(2, response.size());
     }
 
     // ---------- BRANCH TRANSACTIONS ----------
@@ -118,10 +151,30 @@ class TransactionServiceTest {
     @Test
     void testGetBranchTransactions_emptyList() {
         when(branchRepository.existsById(1L)).thenReturn(true);
+
         when(transactionHistoryRepository.findByBranchBranchIdOrderByCreatedAtDesc(1L))
                 .thenReturn(List.of());
 
         assertTrue(transactionService.getBranchTransactions(1L).isEmpty());
+    }
+
+    @Test
+    void testGetBranchTransactions_multipleTransactions() {
+        when(branchRepository.existsById(1L)).thenReturn(true);
+
+        TransactionHistory tx1 = new TransactionHistory();
+        tx1.setTransactionId(1L);
+
+        TransactionHistory tx2 = new TransactionHistory();
+        tx2.setTransactionId(2L);
+
+        when(transactionHistoryRepository.findByBranchBranchIdOrderByCreatedAtDesc(1L))
+                .thenReturn(List.of(tx1, tx2));
+
+        List<TransactionResponse> response =
+                transactionService.getBranchTransactions(1L);
+
+        assertEquals(2, response.size());
     }
 
     // ---------- MAPPING TEST ----------
@@ -165,5 +218,51 @@ class TransactionServiceTest {
         assertEquals(10L, res.getUserId());
         assertEquals(20L, res.getBranchId());
     }
-}
 
+    @Test
+    void testMapping_amountField() {
+        TransactionHistory tx = new TransactionHistory();
+        tx.setTransactionId(1L);
+        tx.setAmount(new BigDecimal("1000"));
+
+        when(transactionHistoryRepository.findById(1L))
+                .thenReturn(Optional.of(tx));
+
+        TransactionResponse response =
+                transactionService.getTransactionById(1L);
+
+        assertEquals(new BigDecimal("1000"), response.getAmount());
+    }
+
+    @Test
+    void testMapping_quantityField() {
+        TransactionHistory tx = new TransactionHistory();
+        tx.setTransactionId(1L);
+        tx.setQuantity(new BigDecimal("5"));
+
+        when(transactionHistoryRepository.findById(1L))
+                .thenReturn(Optional.of(tx));
+
+        TransactionResponse response =
+                transactionService.getTransactionById(1L);
+
+        assertEquals(new BigDecimal("5"), response.getQuantity());
+    }
+
+    @Test
+    void testMapping_createdAtField() {
+        LocalDateTime time = LocalDateTime.now();
+
+        TransactionHistory tx = new TransactionHistory();
+        tx.setTransactionId(1L);
+        tx.setCreatedAt(time);
+
+        when(transactionHistoryRepository.findById(1L))
+                .thenReturn(Optional.of(tx));
+
+        TransactionResponse response =
+                transactionService.getTransactionById(1L);
+
+        assertEquals(time, response.getCreatedAt());
+    }
+}
