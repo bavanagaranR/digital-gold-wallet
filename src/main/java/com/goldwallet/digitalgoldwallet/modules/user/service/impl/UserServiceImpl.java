@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
+//Lombok annotation that automatically gives you a logger in your class.
 @Slf4j
 @Service
 public class UserServiceImpl implements UserService {
