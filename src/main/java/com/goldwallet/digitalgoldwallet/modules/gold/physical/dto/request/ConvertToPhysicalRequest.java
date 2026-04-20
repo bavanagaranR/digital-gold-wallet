@@ -14,6 +14,7 @@ public class ConvertToPhysicalRequest {
     private Long branchId;
 
     @NotNull(message = "Quantity is required")
+    //by default, inclusive = true for @decimalmin
     @DecimalMin(value = "0.01", message = "Quantity must be greater than 0")
     private BigDecimal quantity;
 
