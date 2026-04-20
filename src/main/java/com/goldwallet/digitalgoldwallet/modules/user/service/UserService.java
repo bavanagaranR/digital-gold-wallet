@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 
-//service interface
+//Interface for service Layer
 
 public interface UserService {
     UserResponse createUser(CreateUserRequest request);
