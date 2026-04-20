@@ -10,6 +10,7 @@ import com.goldwallet.digitalgoldwallet.modules.vendor.repository.VendorBranchRe
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,5 +59,42 @@ public class TransactionServiceImpl implements TransactionService {
                 .amount(tx.getAmount())
                 .createdAt(tx.getCreatedAt())
                 .build();
+    }
+    @Override
+    public List<TransactionResponse> getTransactionsByStatus(String status) {
+
+        TransactionHistory.TransactionStatus enumStatus;
+
+        try {
+            enumStatus = TransactionHistory.TransactionStatus.valueOf(status.toUpperCase());
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid status: " + status);
+        }
+
+        return transactionHistoryRepository.findByStatus(enumStatus)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    @Override
+    public List<TransactionResponse> getTransactionsByType(String type) {
+
+        TransactionHistory.TransactionType enumType =
+                TransactionHistory.TransactionType.valueOf(type.toUpperCase());
+
+        return transactionHistoryRepository.findByTransactionType(enumType)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    @Override
+    public List<TransactionResponse> getTransactionsGreaterThanAmount(BigDecimal amount) {
+
+        return transactionHistoryRepository.findTransactionsGreaterThan(amount)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 }
