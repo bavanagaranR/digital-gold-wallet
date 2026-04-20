@@ -1,22 +1,39 @@
 package com.goldwallet.digitalgoldwallet.modules.vendor.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
-
+import jakarta.validation.constraints.*;
+import org.hibernate.validator.constraints.URL;
 
 import java.math.BigDecimal;
 
-
 public class CreateVendorRequest {
-    @NotBlank(message = "Vendor name is required")
+
+    @NotBlank(message = "Vendor name cannot be empty")
+    @Size(max = 100, message = "Vendor name must be less than 100 characters")
     private String vendorName;
+
+    @Size(max = 1000, message = "Description too long")
     private String description;
+
+    @Size(max = 100, message = "Contact person name must be less than 100 characters")
     private String contactPersonName;
+
+    @Email(message = "Invalid email format")
+    @Size(max = 100, message = "Email must be less than 100 characters")
     private String contactEmail;
+
+    @Pattern(regexp = "^[0-9]{10,15}$", message = "Invalid phone number (10–15 digits only)")
     private String contactPhone;
+
+    @URL(message = "Invalid website URL")
     private String websiteUrl;
+
+    @NotNull(message = "Gold price cannot be null")
+    @DecimalMin(value = "0.01", inclusive = true, message = "Gold price must be greater than 0")
+    @Digits(integer = 16, fraction = 2, message = "Invalid price format")
     private BigDecimal currentGoldPrice;
 
-    //getters and setters
+    // getters and setters
+
     public String getVendorName() {
         return vendorName;
     }
