@@ -7,19 +7,23 @@ import com.goldwallet.digitalgoldwallet.modules.transaction.repository.Transacti
 import com.goldwallet.digitalgoldwallet.modules.transaction.service.TransactionService;
 import com.goldwallet.digitalgoldwallet.modules.user.repository.UserRepository;
 import com.goldwallet.digitalgoldwallet.modules.vendor.repository.VendorBranchRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class TransactionServiceImpl implements TransactionService {
 
-    private final TransactionHistoryRepository transactionHistoryRepository;
-    private final UserRepository userRepository;
-    private final VendorBranchRepository branchRepository;
+    @Autowired
+    private TransactionHistoryRepository transactionHistoryRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private VendorBranchRepository branchRepository;
 
     @Override
     public TransactionResponse getTransactionById(Long transactionId) {

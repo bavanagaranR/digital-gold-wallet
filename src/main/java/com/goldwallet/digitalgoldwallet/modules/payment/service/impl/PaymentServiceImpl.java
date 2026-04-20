@@ -8,22 +8,24 @@ import com.goldwallet.digitalgoldwallet.modules.payment.repository.PaymentReposi
 import com.goldwallet.digitalgoldwallet.modules.payment.service.PaymentService;
 import com.goldwallet.digitalgoldwallet.modules.user.entity.User;
 import com.goldwallet.digitalgoldwallet.modules.user.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-//payment service implementation class
+// payment service implementation class
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
 
-    private final PaymentRepository paymentRepository;
-    private final UserRepository userRepository;
+    @Autowired
+    private PaymentRepository paymentRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     @Transactional
