@@ -40,7 +40,8 @@ public class VendorController {
 
     @PutMapping("/vendors/{id}")
     public ResponseEntity<ApiResponse<VendorResponse>> updateVendor(
-            @PathVariable Long id, @RequestBody CreateVendorRequest request) {
+            @PathVariable Long id,
+            @Valid @RequestBody CreateVendorRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Vendor updated", vendorService.updateVendor(id, request)));
     }
 
@@ -51,7 +52,8 @@ public class VendorController {
 
     @PostMapping("/vendors/{vendorId}/branches")
     public ResponseEntity<ApiResponse<BranchResponse>> addBranch(
-            @PathVariable Long vendorId, @RequestBody CreateBranchRequest request) {
+            @PathVariable Long vendorId,
+            @Valid @RequestBody CreateBranchRequest request)  {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Branch added", vendorService.addBranch(vendorId, request)));
     }

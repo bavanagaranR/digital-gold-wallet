@@ -21,7 +21,11 @@ public class CreateVendorRequest {
     @Size(max = 100, message = "Email must be less than 100 characters")
     private String contactEmail;
 
-    @Pattern(regexp = "^[0-9]{10,15}$", message = "Invalid phone number (10–15 digits only)")
+    //    @Pattern(regexp = "^[0-9]{10,15}$", message = "Invalid phone number (10–15 digits only)")
+    @Pattern(
+            regexp = "^(\\+\\d{1,3}\\s?)?[0-9]{10}$",
+            message = "Invalid phone number"
+    )
     private String contactPhone;
 
     @URL(message = "Invalid website URL")
