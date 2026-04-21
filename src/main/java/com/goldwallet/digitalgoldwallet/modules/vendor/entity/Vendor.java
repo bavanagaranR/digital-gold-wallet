@@ -7,11 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-
-
-
-
-import jakarta.validation.constraints.*;   // ✅ ADD THIS
+import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.URL;
 
 
@@ -52,14 +48,14 @@ public class Vendor {
     @Column(name = "website_url")
     private String websiteUrl;
 
-    @NotNull(message = "Total gold quantity cannot be null")   // ✅ VALIDATION
+    @NotNull(message = "Total gold quantity cannot be null")
     @DecimalMin(value = "0.00", inclusive = true, message = "Gold quantity cannot be negative")
     @Digits(integer = 16, fraction = 2, message = "Invalid quantity format")
     @Column(name = "total_gold_quantity", precision = 18, scale = 2)
     @Builder.Default
     private BigDecimal totalGoldQuantity = BigDecimal.ZERO;
 
-    @NotNull(message = "Gold price cannot be null")   // ✅ VALIDATION
+    @NotNull(message = "Gold price cannot be null")
     @DecimalMin(value = "0.01", inclusive = true, message = "Gold price must be greater than 0")
     @Digits(integer = 16, fraction = 2, message = "Invalid price format")
     @Column(name = "current_gold_price", precision = 18, scale = 2)
