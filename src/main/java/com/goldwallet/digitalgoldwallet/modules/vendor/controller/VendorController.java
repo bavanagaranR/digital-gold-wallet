@@ -63,10 +63,25 @@ public class VendorController {
         return ResponseEntity.ok(ApiResponse.success(vendorService.getBranchById(branchId)));
     }
 
-    @GetMapping("/vendors/{vendorId}/branches")
-    public ResponseEntity<ApiResponse<List<BranchResponse>>> getBranches(@PathVariable Long vendorId) {
-        return ResponseEntity.ok(ApiResponse.success(vendorService.getBranchesByVendor(vendorId)));
+//    @GetMapping("/vendors/{vendorId}/branches")
+//    public ResponseEntity<ApiResponse<List<BranchResponse>>> getBranches(@PathVariable Long vendorId) {
+//        return ResponseEntity.ok(ApiResponse.success(vendorService.getBranchesByVendor(vendorId)));
+//    }
+@GetMapping("/vendors/{vendorId}/branches")
+public ResponseEntity<ApiResponse<List<BranchResponse>>> getBranches(@PathVariable Long vendorId) {
+
+    List<BranchResponse> branches = vendorService.getBranchesByVendor(vendorId);
+
+    if (branches.isEmpty()) {
+        return ResponseEntity.ok(
+                ApiResponse.success("No branches found for this vendor", branches)
+        );
     }
+
+    return ResponseEntity.ok(
+            ApiResponse.success("Branches fetched successfully", branches)
+    );
+}
 
     @GetMapping("/branches/{branchId}/inventory")
     public ResponseEntity<ApiResponse<BigDecimal>> getBranchInventory(@PathVariable Long branchId) {

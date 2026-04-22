@@ -39,7 +39,10 @@ public class Vendor {
     @Column(name = "contact_email", length = 100)
     private String contactEmail;
 
-    @Pattern(regexp = "^[0-9]{10,15}$", message = "Invalid phone number")
+    @Pattern(
+            regexp = "^(\\+\\d{1,3}\\s?)?[0-9]{10}$",
+            message = "Invalid phone number"
+    )
     @Column(name = "contact_phone", length = 20)
     private String contactPhone;
 
