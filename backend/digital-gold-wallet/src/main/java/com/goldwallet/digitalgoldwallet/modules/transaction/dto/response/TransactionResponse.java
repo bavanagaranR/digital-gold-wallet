@@ -1,4 +1,5 @@
 package com.goldwallet.digitalgoldwallet.modules.transaction.dto.response;
+
 import com.goldwallet.digitalgoldwallet.modules.transaction.entity.TransactionHistory;
 import lombok.Builder;
 import lombok.Data;
@@ -7,15 +8,16 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 
+// DTO class used to send transaction data in API responses — shields the entity from direct exposure
 @Builder
-//DTO class for Transaction
 public class TransactionResponse {
+
     private Long transactionId;
     private Long userId;
     private String userName;
     private Long branchId;
-    private TransactionHistory.TransactionType transactionType;
-    private TransactionHistory.TransactionStatus transactionStatus;
+    private TransactionHistory.TransactionType transactionType;       // Type: BUY, SELL, or CONVERT_TO_PHYSICAL
+    private TransactionHistory.TransactionStatus transactionStatus;   // Outcome: SUCCESS or FAILED
     private BigDecimal quantity;
     private BigDecimal amount;
     private LocalDateTime createdAt;
