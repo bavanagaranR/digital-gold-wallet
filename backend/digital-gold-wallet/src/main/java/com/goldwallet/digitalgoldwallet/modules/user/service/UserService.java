@@ -11,8 +11,6 @@ import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 
-//service interface
-
 public interface UserService {
     UserResponse createUser(CreateUserRequest request);
     UserResponse getUserById(Long userId);
