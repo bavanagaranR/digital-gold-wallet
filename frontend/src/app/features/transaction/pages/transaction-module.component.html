@@ -1,0 +1,27 @@
+<div class="page-container">
+  <div class="mb-12 relative">
+    <div class="absolute -top-6 -left-6 w-32 h-32 bg-gold-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <span class="inline-block px-3 py-1 rounded-full bg-maroon-900 text-gold-400 text-[10px] font-black uppercase tracking-[0.2em] border border-gold-500/30 mb-4">Mirudhula</span>
+    <h1 class="font-display font-black text-5xl text-maroon-950 tracking-tighter">Transaction <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600">Module</span></h1>
+    <p class="text-maroon-900/60 mt-4 text-sm font-mono tracking-tighter">com.goldwallet.digitalgoldwallet.modules.transaction</p>
+    <p class="text-maroon-900/70 mt-6 text-lg leading-relaxed max-w-3xl font-medium italic border-l-4 border-gold-500/20 pl-6">
+      "This module manages and tracks all financial and gold-related transactions within the system. It allows retrieving individual transactions, listing user or branch-specific activity, and filtering records by status, type, or amount."
+    </p>
+  </div>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @for (ep of endpoints; track ep.path) {
+      <a [routerLink]="ep.route" class="group relative bg-white border border-gold-200/50 rounded-2xl p-6 shadow-sm hover:shadow-2xl hover:border-gold-500/50 transition-all duration-500 overflow-hidden">
+        <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-maroon-900/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
+        <div class="flex items-center justify-between mb-4">
+           <span [class]="'badge-' + ep.method.toLowerCase() + ' !px-3 !py-1 !rounded-md !text-[10px] !font-black !tracking-widest'">{{ ep.method }}</span>
+           <div class="w-8 h-8 rounded-full bg-maroon-50 flex items-center justify-center text-maroon-900 group-hover:bg-maroon-900 group-hover:text-gold-400 transition-colors">
+              <span class="text-xs">→</span>
+           </div>
+        </div>
+        <code class="block text-xs text-maroon-900 font-bold mb-2 group-hover:text-maroon-950">{{ ep.path }}</code>
+        <p class="text-[10px] text-maroon-900/50 font-bold uppercase tracking-widest">{{ ep.purpose }}</p>
+      </a>
+    }
+  </div>
+</div>

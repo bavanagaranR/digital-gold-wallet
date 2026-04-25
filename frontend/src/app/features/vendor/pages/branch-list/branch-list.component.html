@@ -1,0 +1,32 @@
+<div class="page-container">
+  <app-page-header title="Vendor Branches" developer="Caitlyn Mary" moduleName="Vendor" method="GET"
+    endpoint="/api/v1/vendors/{vendorId}/branches" description="Lists all branches belonging to a specific vendor with pagination support." />
+  <div class="card">
+    <div class="flex items-center gap-3 mb-4">
+      <input [(ngModel)]="vendorId" type="number" class="input-field w-40" placeholder="Vendor ID" />
+      <div class="flex items-center gap-2"><label class="text-sm text-slate-500">Page:</label><input [(ngModel)]="page" type="number" min="0" class="input-field w-16" /></div>
+      <div class="flex items-center gap-2"><label class="text-sm text-slate-500">Size:</label><input [(ngModel)]="size" type="number" min="1" class="input-field w-16" /></div>
+      <button (click)="load()" class="btn-primary" [disabled]="loading">{{ loading ? '...' : 'Load' }}</button>
+    </div>
+    @if (branches.length) {
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="text-left text-slate-400 border-b border-slate-100"><th class="pb-2 pr-4">ID</th><th class="pb-2 pr-4">Vendor Name</th><th class="pb-2 pr-4">Address ID</th><th class="pb-2">Inventory(g)</th></tr></thead>
+          <tbody>
+            @for (b of branches; track b.branchId) {
+              <tr class="border-b border-slate-100"><td class="py-2 pr-4 text-slate-500">{{b.branchId}}</td><td class="py-2 pr-4 text-slate-900">{{b.vendorName}}</td><td class="py-2 pr-4 text-slate-600">{{b.addressId}}</td><td class="py-2 text-primary-600">{{b.quantity}}g</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="flex justify-between mt-4">
+        <span class="text-xs text-slate-400">Page {{ page+1 }} of {{ totalPages }}</span>
+        <div class="flex gap-2">
+          <button (click)="prev()" [disabled]="page===0" class="btn-secondary text-xs px-3">← Prev</button>
+          <button (click)="next()" [disabled]="page>=totalPages-1" class="btn-secondary text-xs px-3">Next →</button>
+        </div>
+      </div>
+    }
+    <app-result-viewer [error]="error" [loading]="loading" />
+  </div>
+</div>

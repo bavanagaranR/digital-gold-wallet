@@ -1,0 +1,27 @@
+<div class="page-container max-w-2xl">
+  <app-page-header title="Get Payment by ID" developer="Bavanagaran" moduleName="Payment" method="GET"
+    endpoint="/api/v1/payments/{id}"
+    description="Retrieves comprehensive details of a specific payment transaction using its unique ID." />
+  <div class="card">
+    <div class="flex gap-2">
+      <input [(ngModel)]="paymentId" type="number" class="input-field" placeholder="Enter Payment ID" />
+      <button (click)="submit()" class="btn-primary" [disabled]="loading">Fetch</button>
+    </div>
+    @if (result && !loading) {
+      <div class="mt-6 border border-slate-100 rounded-lg p-4 bg-white/80">
+        <h3 class="text-slate-900 font-medium mb-4 border-b border-slate-100 pb-2">Payment Details</h3>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div><span class="text-slate-400 block mb-1">Payment ID</span><span class="text-slate-800">{{result.paymentId}}</span></div>
+          <div><span class="text-slate-400 block mb-1">User ID</span><span class="text-slate-800">{{result.userId}}</span></div>
+          <div><span class="text-slate-400 block mb-1">User Name</span><span class="text-slate-800">{{result.userName}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Amount</span><span class="text-primary-600 font-medium">₹{{result.amount}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Method</span><span class="text-slate-800">{{result.paymentMethod}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Type</span><span class="text-slate-800">{{result.transactionType}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Status</span><span class="text-green-400">{{result.paymentStatus}}</span></div>
+          <div class="col-span-2"><span class="text-slate-400 block mb-1">Created At</span><span class="text-slate-500 text-xs">{{result.createdAt | date:'medium'}}</span></div>
+        </div>
+      </div>
+    }
+    <app-result-viewer [error]="error" [loading]="loading" />
+  </div>
+</div>

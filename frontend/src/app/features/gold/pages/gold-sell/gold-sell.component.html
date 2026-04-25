@@ -1,0 +1,71 @@
+<div class="page-container max-w-4xl">
+  <app-page-header title="Sell Virtual Gold" developer="Suba Harini" moduleName="Gold" method="POST"
+    endpoint="/api/v1/gold/virtual/sell"
+    description="Sells virtual gold held by a user back to a branch. Credits monetary value to wallet." />
+  <div class="card bg-gradient-to-br from-white to-beige-50 border-gold-200/50 shadow-2xl">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+      <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6">
+        <div class="grid grid-cols-1 gap-6">
+          <div>
+            <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">User ID</label>
+            <input formControlName="userId" type="number" class="input-field" placeholder="User ID" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">Branch ID</label>
+            <input formControlName="branchId" type="number" class="input-field" placeholder="Branch ID" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">Quantity (Grams)</label>
+            <div class="relative">
+              <input formControlName="quantity" type="number" step="0.001" class="input-field !pr-12 !border-gold-300" placeholder="0.000" />
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gold-700 font-bold text-xs">g</span>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary w-full !bg-gold-600 hover:!bg-gold-500 !text-maroon-950 !border-maroon-950/20 group py-4 shadow-gold-500/20" [disabled]="loading">
+          <span class="flex items-center justify-center gap-3">
+            <span class="text-xl group-hover:scale-125 transition-transform">💰</span>
+            {{ loading ? '...' : 'Sell Gold' }}
+          </span>
+        </button>
+      </form>
+
+      <div class="space-y-6">
+        <div class="bg-beige-100 rounded-3xl p-8 border border-gold-200 shadow-xl relative overflow-hidden group">
+           <h3 class="relative text-maroon-900 font-black text-xs uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+             <span class="w-1 h-3 bg-gold-600 rounded-full"></span>
+             Sale Details
+           </h3>
+           
+           @if (result && !loading) {
+            <div class="relative animate-fade-in space-y-4">
+              <div class="flex justify-between items-center py-3 border-b border-gold-300/20">
+                <span class="text-maroon-900/50 text-[10px] font-bold uppercase">Holding Ref</span>
+                <span class="text-maroon-950 font-mono text-sm">#{{result.holdingId}}</span>
+              </div>
+              <div class="flex justify-between items-center py-3 border-b border-gold-300/20">
+                <span class="text-maroon-900/50 text-[10px] font-bold uppercase">Quantity</span>
+                <span class="text-maroon-950 font-black text-xl tracking-tighter">{{result.quantity}}g</span>
+              </div>
+              <div class="flex justify-between items-center py-3 border-b border-gold-300/20">
+                <span class="text-maroon-900/50 text-[10px] font-bold uppercase">Settlement</span>
+                <span class="text-gold-600 font-black text-xl">₹{{result.totalValue}}</span>
+              </div>
+              <div class="mt-6 pt-4 text-center">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-green-100 text-green-700 text-[10px] font-black uppercase tracking-widest border border-green-200">Funds Transferred</span>
+              </div>
+            </div>
+           } @else {
+             <div class="relative flex flex-col items-center justify-center py-12 opacity-40 group-hover:opacity-60 transition-opacity">
+                <div class="w-20 h-20 border-2 border-dashed border-maroon-200 rounded-full flex items-center justify-center mb-4">
+                   <span class="text-4xl">⚖️</span>
+                </div>
+                <p class="text-[10px] font-bold text-maroon-800 uppercase tracking-widest text-center px-8">Confirm sale details to view settlement</p>
+             </div>
+           }
+        </div>
+      </div>
+    </div>
+    <app-result-viewer [error]="error" [loading]="loading" />
+  </div>
+</div>

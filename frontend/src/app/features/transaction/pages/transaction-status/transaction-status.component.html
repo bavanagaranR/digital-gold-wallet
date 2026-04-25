@@ -1,0 +1,72 @@
+<div class="page-container">
+  <app-page-header title="Status Analytics" developer="Mirudhula" moduleName="Transaction" method="GET"
+    endpoint="/api/v1/transactions/status/{status}"
+    description="Filter global ledger by settlement status." />
+  <div class="card border-gold-200/30">
+    <div class="flex flex-col md:flex-row items-center gap-6 mb-8 bg-maroon-950 p-6 rounded-2xl border border-gold-500/20">
+       <div class="flex-1 w-full">
+          <label class="block text-[10px] font-bold text-gold-500/70 uppercase tracking-widest mb-2">Status</label>
+          <select [(ngModel)]="status" class="input-field !bg-maroon-900/50 !border-gold-500/20 !text-gold-100">
+            <option value="">Select Status</option>
+            <option value="SUCCESS">SUCCESS</option>
+            <!-- <option value="PENDING">PENDING</option> -->
+            <option value="FAILED">FAILED</option>
+          </select>
+       </div>
+       <div class="flex gap-4">
+          <div class="w-20">
+             <label class="block text-[10px] font-bold text-gold-500/70 uppercase tracking-widest mb-2">Page</label>
+             <input [(ngModel)]="page" type="number" min="0" class="input-field !bg-maroon-900/50 !border-gold-500/20 !text-gold-100 text-center" />
+          </div>
+          <div class="w-20">
+             <label class="block text-[10px] font-bold text-gold-500/70 uppercase tracking-widest mb-2">Size</label>
+             <input [(ngModel)]="size" type="number" min="1" class="input-field !bg-maroon-900/50 !border-gold-500/20 !text-gold-100 text-center" />
+          </div>
+       </div>
+       <button (click)="load()" class="btn-primary !py-3.5 !px-12 mt-6 md:mt-0 !bg-gold-500 hover:!bg-gold-400 !text-maroon-950" [disabled]="loading">Load</button>
+    </div>
+
+    @if (txns.length) {
+      <div class="overflow-hidden rounded-2xl border border-gold-100 shadow-xl">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-maroon-900 text-gold-400 text-[10px] uppercase tracking-[0.2em]">
+              <th class="py-5 px-6 text-left">ID</th>
+              <th class="py-5 px-6 text-left">User ID</th>
+              <th class="py-5 px-6 text-left">Type</th>
+              <th class="py-5 px-6 text-left">Amount</th>
+              <th class="py-5 px-6 text-left">Status</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white">
+            @for (t of txns; track t.transactionId) {
+              <tr class="border-b border-gold-100/50 hover:bg-beige-50/50 transition-colors">
+                <td class="py-4 px-6 font-mono text-xs text-maroon-400">#{{t.transactionId}}</td>
+                <td class="py-4 px-6 font-mono text-xs font-bold text-maroon-950">USR-{{t.userId || '—'}}</td>
+                <td class="py-4 px-6">
+                   <span class="px-2 py-0.5 rounded bg-beige-100 text-maroon-900 text-[9px] font-black uppercase tracking-widest">{{t.transactionType}}</span>
+                </td>
+                <td class="py-4 px-6">
+                   <span class="text-gold-600 font-black text-lg tracking-tighter">₹{{t.amount}}</span>
+                </td>
+                <td class="py-4 px-6">
+                   <span [class]="t.transactionStatus === 'SUCCESS' ? 'text-green-600' : 'text-amber-600'" class="text-[10px] font-black uppercase tracking-widest">
+                     {{t.transactionStatus}}
+                   </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="flex items-center justify-between mt-8">
+        <span class="text-[10px] font-bold text-maroon-400 uppercase tracking-widest">Page {{ page+1 }} of {{ totalPages }}</span>
+        <div class="flex gap-3">
+          <button (click)="prev()" [disabled]="page===0" class="btn-secondary !py-2 !px-4 text-[10px] font-bold uppercase tracking-widest disabled:opacity-30">Previous</button>
+          <button (click)="next()" [disabled]="page>=totalPages-1" class="btn-secondary !py-2 !px-4 text-[10px] font-bold uppercase tracking-widest disabled:opacity-30">Next</button>
+        </div>
+      </div>
+    }
+    <app-result-viewer [error]="error" [loading]="loading" />
+  </div>
+</div>

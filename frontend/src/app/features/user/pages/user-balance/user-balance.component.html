@@ -1,0 +1,17 @@
+<div class="page-container max-w-2xl">
+  <app-page-header title="User Wallet Balance" developer="Pavithra" moduleName="User" method="GET"
+    endpoint="/api/v1/users/{id}/balance" description="Returns the current wallet balance of a specific user. Useful for displaying available funds before a transaction." />
+  <div class="card">
+    <div class="flex gap-3 mb-4">
+      <input [(ngModel)]="userId" type="number" class="input-field" placeholder="Enter User ID" />
+      <button (click)="submit()" class="btn-primary" [disabled]="loading">{{ loading ? '...' : 'Check Balance' }}</button>
+    </div>
+    @if (balance !== null && !loading) {
+      <div class="bg-primary-50 border border-gold-700/40 rounded-xl p-6 text-center">
+        <p class="text-slate-500 text-sm">Wallet Balance</p>
+        <p class="text-4xl font-heading text-primary-600 mt-1">₹ {{ balance | number:'1.2-2' }}</p>
+      </div>
+    }
+    <app-result-viewer [error]="error" [loading]="loading" />
+  </div>
+</div>

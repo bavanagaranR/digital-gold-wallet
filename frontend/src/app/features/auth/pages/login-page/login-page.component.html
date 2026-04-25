@@ -1,0 +1,73 @@
+<div class="min-h-screen bg-beige-50 flex items-center justify-center px-4 relative overflow-hidden">
+  <!-- Decorative background elements -->
+  <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-gold-500 rounded-full blur-[120px]"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-gold-600 rounded-full blur-[120px]"></div>
+  </div>
+
+  <div class="w-full max-w-lg relative z-10 animate-slide-up">
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gold-400 to-gold-600 rounded-2xl shadow-[0_0_30px_rgba(212,175,55,0.4)] mb-6 transform rotate-3 hover:rotate-0 transition-transform duration-500 animate-float">
+        <span class="text-4xl">⚜️</span>
+      </div>
+      <h1 class="font-display text-5xl text-maroon-900 font-bold tracking-tighter mb-2">DIGITAL GOLD</h1>
+      <div class="h-1 w-24 bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto mb-4"></div>
+      <p class="text-maroon-800/60 font-medium tracking-[0.2em] uppercase text-xs">Evaluator Executive Portal</p>
+    </div>
+
+    <div class="card !bg-white border-gold-500/20 shadow-2xl">
+      <h2 class="text-2xl font-display font-bold text-maroon-900 mb-8 flex items-center gap-3 justify-center">
+        <span class="w-8 h-px bg-gold-500/30"></span> Secure Access <span class="w-8 h-px bg-gold-500/30"></span>
+      </h2>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+        <div class="space-y-2">
+          <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest ml-1">Username</label>
+          <div class="relative group">
+            <input formControlName="username" type="text"
+              class="input-field !bg-beige-50/50 !border-gold-500/20 !text-maroon-950 focus:!border-gold-500 !py-4"
+              placeholder="Username" />
+            <div class="absolute inset-y-0 right-4 flex items-center opacity-40 group-focus-within:opacity-100 transition-opacity">👤</div>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest ml-1">Password</label>
+          <div class="relative group">
+            <input formControlName="password" type="password"
+              class="input-field !bg-beige-50/50 !border-gold-500/20 !text-maroon-950 focus:!border-gold-500 !py-4"
+              placeholder="••••••••" />
+            <div class="absolute inset-y-0 right-4 flex items-center opacity-40 group-focus-within:opacity-100 transition-opacity">🔑</div>
+          </div>
+        </div>
+
+        @if (error) {
+          <div class="bg-red-50 border border-red-500/30 rounded-xl p-4 animate-shake">
+            <p class="text-red-600 text-xs font-bold text-center uppercase tracking-wide">{{ error }}</p>
+          </div>
+        }
+
+        <button type="submit" class="btn-primary w-full !py-4 !text-lg !bg-gold-500 !text-maroon-950 hover:!bg-gold-400 !shadow-[0_10px_20px_-5px_rgba(212,175,55,0.3)] mt-4" [disabled]="loading">
+          {{ loading ? 'VERIFYING...' : 'AUTHORIZE LOGIN' }}
+        </button>
+      </form>
+
+      <div class="mt-10 pt-8 border-t border-gold-500/10">
+        <p class="text-[10px] text-maroon-300 mb-5 font-bold uppercase tracking-[0.2em] text-center">Quick Access Credentials</p>
+        <div class="grid grid-cols-2 gap-3">
+          @for (cred of credentials; track cred.user) {
+            <button (click)="fillCred(cred.user, cred.pass)"
+              class="text-left bg-beige-50 hover:bg-gold-500/5 border border-gold-500/10 rounded-xl p-3 transition-all duration-300 group">
+              <span class="text-maroon-900 font-bold block text-sm group-hover:translate-x-1 transition-transform tracking-tight">{{ cred.user }}</span>
+              <span class="text-maroon-300 text-[10px] uppercase font-bold tracking-tighter">{{ cred.label }}</span>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <p class="text-center mt-8 text-maroon-300 text-[10px] font-bold uppercase tracking-[0.3em]">
+      © 2026 Digital Gold Trust • Secure Banking Node
+    </p>
+  </div>
+</div>

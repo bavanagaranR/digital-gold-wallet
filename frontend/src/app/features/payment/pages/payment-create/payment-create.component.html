@@ -1,0 +1,50 @@
+<div class="page-container max-w-2xl">
+  <app-page-header title="Initiate Payment" developer="Bavanagaran" moduleName="Payment" method="POST"
+    endpoint="/api/v1/payments"
+    description="Creates and processes a new payment transaction for a user. Specify the amount, payment method (UPI/CARD/NETBANKING), and transaction type (BUY_GOLD/SELL_GOLD/WALLET_CREDIT/WALLET_DEBIT)." />
+  <div class="card">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="grid grid-cols-1 gap-4">
+        <div><label class="block text-sm text-slate-500 mb-1">User ID *</label><input formControlName="userId" type="number" class="input-field" /></div>
+        <div><label class="block text-sm text-slate-500 mb-1">Amount (₹) *</label><input formControlName="amount" type="number" step="0.01" class="input-field" /></div>
+        <div>
+          <label class="block text-sm text-slate-500 mb-1">Payment Method *</label>
+          <select formControlName="paymentMethod" class="input-field">
+            <option value="">Select method</option>
+            <option value="CREDIT_CARD">Credit Card</option>
+            <option value="DEBIT_CARD">Debit Card</option>
+            <option value="GOOGLE_PAY">Google Pay</option>
+            <option value="AMAZON_PAY">Amazon Pay</option>
+            <option value="PHONEPE">PhonePe</option>
+            <option value="PAYTM">Paytm</option>
+            <option value="BANK_TRANSFER">Bank Transfer</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-slate-500 mb-1">Transaction Type *</label>
+          <select formControlName="transactionType" class="input-field">
+            <option value="">Select type</option>
+            <option value="CREDITED_TO_WALLET">Credit to Wallet</option>
+            <option value="DEBITED_FROM_WALLET">Debit from Wallet</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn-primary mt-4" [disabled]="loading">{{ loading ? 'Processing...' : '💳 Initiate Payment' }}</button>
+    </form>
+    @if (result && !loading) {
+      <div class="mt-6 border border-slate-100 rounded-lg p-4 bg-white/80">
+        <h3 class="text-slate-900 font-medium mb-4 border-b border-slate-100 pb-2">Payment Initiated</h3>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div><span class="text-slate-400 block mb-1">Payment ID</span><span class="text-slate-800">{{result.paymentId}}</span></div>
+          <div><span class="text-slate-400 block mb-1">User Name</span><span class="text-slate-800">{{result.userName}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Amount</span><span class="text-primary-600 font-medium">₹{{result.amount}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Method</span><span class="text-slate-800">{{result.paymentMethod}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Type</span><span class="text-slate-800">{{result.transactionType}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Status</span><span class="text-green-400">{{result.paymentStatus}}</span></div>
+          <div class="col-span-2"><span class="text-slate-400 block mb-1">Created At</span><span class="text-slate-500 text-xs">{{result.createdAt | date:'medium'}}</span></div>
+        </div>
+      </div>
+    }
+    <app-result-viewer [error]="error" [loading]="loading" />
+  </div>
+</div>

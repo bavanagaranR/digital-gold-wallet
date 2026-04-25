@@ -1,0 +1,33 @@
+<div class="page-container">
+  <app-page-header title="Branch Virtual Gold Holdings" developer="Suba Harini" moduleName="Gold" method="GET"
+    endpoint="/api/v1/branches/{branchId}/gold/virtual"
+    description="Returns all virtual gold holding records associated with a specific branch. Shows how much gold each user holds at the branch." />
+  <div class="card">
+    <div class="flex items-center gap-3 mb-4">
+      <input [(ngModel)]="branchId" type="number" class="input-field w-40" placeholder="Branch ID" />
+      <div class="flex items-center gap-2"><label class="text-sm text-slate-500">Page:</label><input [(ngModel)]="page" type="number" min="0" class="input-field w-16" /></div>
+      <div class="flex items-center gap-2"><label class="text-sm text-slate-500">Size:</label><input [(ngModel)]="size" type="number" min="1" class="input-field w-16" /></div>
+      <button (click)="load()" class="btn-primary" [disabled]="loading">{{ loading ? '...' : 'Load' }}</button>
+    </div>
+    @if (holdings.length) {
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="text-left text-slate-400 border-b border-slate-100"><th class="pb-2 pr-4">ID</th><th class="pb-2 pr-4">User ID</th><th class="pb-2">Total Grams</th></tr></thead>
+          <tbody>
+            @for (h of holdings; track h.holdingId) {
+              <tr class="border-b border-slate-100"><td class="py-2 pr-4 text-slate-500">{{h.holdingId}}</td><td class="py-2 pr-4 text-slate-900">{{h.userId}}</td><td class="py-2 text-primary-600">{{h.quantity}}g</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="flex justify-between mt-4">
+        <span class="text-xs text-slate-400">Page {{ page+1 }} of {{ totalPages }}</span>
+        <div class="flex gap-2">
+          <button (click)="prev()" [disabled]="page===0" class="btn-secondary text-xs px-3">← Prev</button>
+          <button (click)="next()" [disabled]="page>=totalPages-1" class="btn-secondary text-xs px-3">Next →</button>
+        </div>
+      </div>
+    }
+    <app-result-viewer [error]="error" [loading]="loading" />
+  </div>
+</div>

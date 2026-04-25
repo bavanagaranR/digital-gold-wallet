@@ -1,0 +1,47 @@
+<div class="card group hover:border-gold-500/50 transition-all duration-500">
+  <div class="flex items-start justify-between mb-6">
+    <div class="flex-1">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></div>
+        <span class="text-[10px] font-bold text-gold-600 uppercase tracking-[0.3em]">Developer</span>
+      </div>
+      <h2 class="text-3xl font-display font-black text-maroon-900 group-hover:text-maroon-950 transition-colors">{{ dev.name }}</h2>
+      <div class="flex flex-wrap gap-2 mt-3">
+        @for (mod of dev.modules; track mod.name) {
+          <span class="text-[10px] font-bold bg-maroon-50 text-maroon-800 px-3 py-1 rounded-full border border-maroon-100 uppercase tracking-wider">{{ mod.name }}</span>
+        }
+      </div>
+    </div>
+    <div class="w-16 h-16 bg-beige-50 rounded-2xl flex items-center justify-center text-4xl shadow-inner border border-gold-100 group-hover:scale-110 transition-transform duration-500">👤</div>
+  </div>
+
+  @for (mod of dev.modules; track mod.name) {
+    <div class="mb-6 last:mb-0">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="w-1 h-4 bg-gold-500 rounded-full"></span>
+        <p class="text-[10px] text-maroon-400 font-mono font-bold uppercase tracking-widest">{{ mod.packageName }}</p>
+      </div>
+      <p class="text-maroon-900/70 text-sm leading-relaxed mb-4 font-medium">{{ mod.description }}</p>
+      <div class="space-y-2 bg-beige-50/50 p-4 rounded-xl border border-gold-100/30">
+        @for (ep of mod.endpoints; track ep.path) {
+          <div class="flex items-start gap-3 py-2 border-b border-gold-200/20 last:border-0 group/item">
+            <span [class]="'badge-' + ep.method.toLowerCase() + ' mt-1 shrink-0 scale-90'">{{ ep.method }}</span>
+            <div class="flex-1 min-w-0">
+               <div class="flex items-center gap-2">
+                <code class="text-[11px] font-mono font-bold text-maroon-800 break-all leading-none">{{ ep.path }}</code>
+              </div>
+              <p class="text-[11px] text-maroon-400 mt-1 font-medium leading-tight">{{ ep.purpose }}</p>
+            </div>
+            <a [routerLink]="ep.page" class="text-[10px] font-bold text-gold-600 hover:text-maroon-600 uppercase tracking-widest whitespace-nowrap flex items-center gap-1 group-hover/item:translate-x-1 transition-all">Explore <span class="text-lg leading-none">→</span></a>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="flex flex-wrap gap-3 mt-6 pt-6 border-t border-gold-500/20">
+    @for (mod of dev.modules; track mod.name) {
+      <a [routerLink]="'/' + moduleRoute(mod.name)" class="btn-primary !py-2.5 !px-5 text-xs uppercase tracking-widest flex-1 text-center font-bold">Go to {{ mod.name }}</a>
+    }
+  </div>
+</div>

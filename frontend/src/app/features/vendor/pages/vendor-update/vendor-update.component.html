@@ -1,0 +1,38 @@
+<div class="page-container max-w-2xl">
+  <app-page-header title="Update Vendor" developer="Caitlyn Mary" moduleName="Vendor" method="PUT"
+    endpoint="/api/v1/vendors/{id}" description="Updates vendor information by ID. Provide the vendor ID and only the fields you wish to change." />
+  <div class="card">
+    <div class="mb-4"><label class="block text-sm text-slate-500 mb-1">Vendor ID *</label><input [(ngModel)]="vendorId" type="number" class="input-field" /></div>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="grid grid-cols-2 gap-4">
+        <div class="col-span-2"><label class="block text-sm text-slate-500 mb-1">Name</label><input formControlName="vendorName" class="input-field" /></div>
+        <div class="col-span-2"><label class="block text-sm text-slate-500 mb-1">Description</label><textarea formControlName="description" class="input-field" rows="2"></textarea></div>
+        <div><label class="block text-sm text-slate-500 mb-1">Contact Person Name</label><input formControlName="contactPersonName" class="input-field" /></div>
+        <div><label class="block text-sm text-slate-500 mb-1">Website URL</label><input formControlName="websiteUrl" class="input-field" /></div>
+        <div><label class="block text-sm text-slate-500 mb-1">Email</label><input formControlName="contactEmail" class="input-field" /></div>
+        <div><label class="block text-sm text-slate-500 mb-1">Phone</label><input formControlName="contactPhone" class="input-field" /></div>
+        <div><label class="block text-sm text-slate-500 mb-1">Gold Price Per Gram</label><input formControlName="currentGoldPrice" type="number" class="input-field" /></div>
+        <!-- <div><label class="block text-sm text-slate-500 mb-1">Total Gold Quantity (g)</label><input formControlName="totalGoldQuantity" type="number" class="input-field" /></div> -->
+      </div>
+      <button type="submit" class="btn-primary mt-4" [disabled]="loading">{{ loading ? 'Updating...' : 'Update Vendor' }}</button>
+    </form>
+    @if (result && !loading) {
+      <div class="mt-6 border border-slate-100 rounded-lg p-4 bg-white/80">
+        <h3 class="text-slate-900 font-medium mb-4 border-b border-slate-100 pb-2">Updated Vendor Details</h3>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div><span class="text-slate-400 block mb-1">Vendor ID</span><span class="text-slate-800">{{result.vendorId}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Name</span><span class="text-slate-800">{{result.vendorName}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Description</span><span class="text-slate-800">{{result.description || 'N/A'}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Contact Person</span><span class="text-slate-800">{{result.contactPersonName || 'N/A'}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Email</span><span class="text-slate-800">{{result.contactEmail}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Phone</span><span class="text-slate-800">{{result.contactPhone}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Website URL</span><span class="text-slate-800">{{result.websiteUrl || 'N/A'}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Total Gold Quantity</span><span class="text-slate-800">{{result.totalGoldQuantity || 0}} g</span></div>
+          <div><span class="text-slate-400 block mb-1">Gold Price</span><span class="text-primary-600 font-medium">₹{{result.currentGoldPrice}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Created At</span><span class="text-slate-800">{{result.createdAt | date:'medium'}}</span></div>
+        </div>
+      </div>
+    }
+    <app-result-viewer [error]="error" [loading]="loading" />
+  </div>
+</div>

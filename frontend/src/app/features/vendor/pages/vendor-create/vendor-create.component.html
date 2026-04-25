@@ -1,0 +1,85 @@
+<div class="page-container max-w-4xl">
+  <app-page-header title="Vendor Registration" developer="Caitlyn Mary" moduleName="Vendor" method="POST"
+    endpoint="/api/v1/vendors" description="Onboard a new institutional gold provider into the platform." />
+  <div class="card border-gold-200/50 shadow-2xl relative overflow-hidden">
+    <div class="absolute -right-20 -top-20 w-64 h-64 bg-gold-500/5 rounded-full blur-3xl"></div>
+    <form [formGroup]="form" (ngSubmit)="submit()" class="relative">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+        <div class="col-span-2">
+           <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">Vendor Name *</label>
+           <input formControlName="vendorName" class="input-field" placeholder="e.g. Royal Gold Reserves" />
+        </div>
+        <div class="col-span-2">
+           <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">Description</label>
+           <textarea formControlName="description" class="input-field !h-24 py-4" placeholder="Brief institution history and credentials..."></textarea>
+        </div>
+        <div>
+           <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">Contact Person Name</label>
+           <input formControlName="contactPersonName" class="input-field" placeholder="Full Name" />
+        </div>
+        <div>
+           <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">Website URL</label>
+           <input formControlName="websiteUrl" class="input-field" placeholder="https://..." />
+        </div>
+        <div>
+           <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">Email *</label>
+           <input formControlName="contactEmail" type="email" class="input-field" placeholder="partners@institution.com" />
+        </div>
+        <div>
+           <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">Phone *</label>
+           <input formControlName="contactPhone" class="input-field" placeholder="+1..." />
+        </div>
+        <div class="md:col-span-2 bg-maroon-950 p-8 rounded-2xl border border-gold-500/30 shadow-inner">
+           <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div class="text-center md:text-left">
+                 <label class="block text-[10px] font-bold text-gold-500/50 uppercase tracking-widest mb-1">Current Gold Price *</label>
+                 <p class="text-gold-100 text-xs italic font-medium">Standardized pricing per gram in local currency</p>
+              </div>
+              <div class="relative w-full md:w-64">
+                 <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gold-500 font-black">₹</span>
+                 <input formControlName="currentGoldPrice" type="number" class="input-field !pl-10 !bg-maroon-900/50 !border-gold-500/30 !text-gold-100 !text-2xl font-black tracking-tighter" placeholder="0.00" />
+              </div>
+           </div>
+        </div>
+      </div>
+      <div class="flex justify-center">
+         <button type="submit" class="btn-primary !py-4 !px-20 uppercase tracking-[0.3em] text-[10px] font-black group" [disabled]="loading">
+           <span class="flex items-center gap-3">
+              <span class="text-lg group-hover:rotate-12 transition-transform">💎</span>
+              {{ loading ? '...' : 'Create Vendor' }}
+           </span>
+         </button>
+      </div>
+    </form>
+
+    @if (result && !loading) {
+      <div class="mt-12 animate-fade-in">
+         <div class="bg-beige-50 rounded-3xl p-8 border border-gold-200">
+            <div class="flex items-center gap-4 mb-8">
+               <div class="w-12 h-12 bg-maroon-950 rounded-xl flex items-center justify-center text-gold-400 font-black">ID</div>
+               <span class="text-maroon-950 font-mono text-xl font-black">VND-{{result.vendorId}}</span>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+               <div>
+                  <span class="text-[9px] font-bold text-maroon-400 uppercase tracking-widest block mb-1">Entity</span>
+                  <span class="text-maroon-950 font-bold text-sm">{{result.vendorName}}</span>
+               </div>
+               <div>
+                  <span class="text-[9px] font-bold text-maroon-400 uppercase tracking-widest block mb-1">Valuation</span>
+                  <span class="text-gold-600 font-black text-sm tracking-tight">₹{{result.currentGoldPrice | number:'1.2-2'}}/g</span>
+               </div>
+               <div>
+                  <span class="text-[9px] font-bold text-maroon-400 uppercase tracking-widest block mb-1">Holdings</span>
+                  <span class="text-maroon-950 font-bold text-sm">{{result.totalGoldQuantity || 0}}g</span>
+               </div>
+               <div>
+                  <span class="text-[9px] font-bold text-maroon-400 uppercase tracking-widest block mb-1">Joined</span>
+                  <span class="text-maroon-950/60 font-mono text-[10px]">{{result.createdAt | date:'shortDate'}}</span>
+               </div>
+            </div>
+         </div>
+      </div>
+    }
+    <app-result-viewer [error]="error" [loading]="loading" />
+  </div>
+</div>

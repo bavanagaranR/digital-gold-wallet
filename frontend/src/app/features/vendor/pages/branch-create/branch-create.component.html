@@ -1,0 +1,26 @@
+<div class="page-container max-w-2xl">
+  <app-page-header title="Add Branch to Vendor" developer="Caitlyn Mary" moduleName="Vendor" method="POST"
+    endpoint="/api/v1/vendors/{vendorId}/branches" description="Creates a new branch under an existing vendor. Specify the vendor ID and the branch details including location and initial inventory." />
+  <div class="card">
+    <div class="mb-4"><label class="block text-sm text-slate-500 mb-1">Vendor ID *</label><input [(ngModel)]="vendorId" type="number" class="input-field" /></div>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="grid grid-cols-1 gap-4">
+        <div><label class="block text-sm text-slate-500 mb-1">Address ID *</label><input formControlName="addressId" type="number" class="input-field" placeholder="123" /></div>
+        <div><label class="block text-sm text-slate-500 mb-1">Inventory (g)</label><input formControlName="quantity" type="number" class="input-field" placeholder="0.00" /></div>
+      </div>
+      <button type="submit" class="btn-primary mt-4" [disabled]="loading">{{ loading ? 'Creating...' : 'Add Branch' }}</button>
+    </form>
+    @if (result && !loading) {
+      <div class="mt-6 border border-slate-100 rounded-lg p-4 bg-white/80">
+        <h3 class="text-slate-900 font-medium mb-4 border-b border-slate-100 pb-2">Created Branch Details</h3>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div><span class="text-slate-400 block mb-1">Branch ID</span><span class="text-slate-800">{{result.branchId}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Vendor ID</span><span class="text-slate-800">{{vendorId}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Address ID</span><span class="text-slate-800">{{result.addressId}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Inventory</span><span class="text-primary-600 font-medium">{{result.quantity || 0}} g</span></div>
+        </div>
+      </div>
+    }
+    <app-result-viewer [error]="error" [loading]="loading" />
+  </div>
+</div>

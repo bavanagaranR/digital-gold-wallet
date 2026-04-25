@@ -1,0 +1,72 @@
+<div class="page-container max-w-4xl">
+  <app-page-header title="Buy Virtual Gold" developer="Suba Harini" moduleName="Gold" method="POST"
+    endpoint="/api/v1/gold/virtual/buy"
+    description="Purchases virtual gold for a user from a specific branch. Deducts from wallet and credits gold holding." />
+  <div class="card bg-gradient-to-br from-white to-beige-50 border-gold-200/50 shadow-2xl">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+      <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6">
+        <div class="grid grid-cols-1 gap-6">
+          <div>
+            <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">User ID</label>
+            <input formControlName="userId" type="number" class="input-field" placeholder="User ID" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">Branch ID</label>
+            <input formControlName="branchId" type="number" class="input-field" placeholder="Branch ID" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">Quantity (Grams)</label>
+            <div class="relative">
+              <input formControlName="quantity" type="number" step="0.001" class="input-field !pr-12" placeholder="0.000" />
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gold-600 font-bold text-xs">g</span>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary w-full !bg-maroon-950 hover:!bg-maroon-900 border-gold-500/30 group py-4" [disabled]="loading">
+          <span class="flex items-center justify-center gap-3">
+            <span class="text-xl group-hover:rotate-12 transition-transform">🥇</span>
+            {{ loading ? '...' : 'Buy Gold' }}
+          </span>
+        </button>
+      </form>
+
+      <div class="space-y-6">
+        <div class="bg-maroon-900 rounded-3xl p-8 border border-gold-500/40 shadow-2xl relative overflow-hidden group">
+           <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5"></div>
+           <h3 class="relative text-gold-500 font-black text-xs uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+             <span class="w-1 h-3 bg-gold-400 rounded-full"></span>
+             Purchase Details
+           </h3>
+           
+           @if (result && !loading) {
+            <div class="relative animate-fade-in space-y-4">
+              <div class="flex justify-between items-center py-3 border-b border-gold-500/10">
+                <span class="text-gold-500/50 text-[10px] font-bold uppercase">Holding ID</span>
+                <span class="text-gold-100 font-mono text-sm">#{{result.holdingId}}</span>
+              </div>
+              <div class="flex justify-between items-center py-3 border-b border-gold-500/10">
+                <span class="text-gold-500/50 text-[10px] font-bold uppercase">Quantity</span>
+                <span class="text-gold-400 font-black text-xl tracking-tighter">{{result.quantity}}g</span>
+              </div>
+              <div class="flex justify-between items-center py-3 border-b border-gold-500/10">
+                <span class="text-gold-500/50 text-[10px] font-bold uppercase">Total Value</span>
+                <span class="text-gold-100 font-black">₹{{result.totalValue}}</span>
+              </div>
+              <div class="mt-6 pt-4 text-center">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-gold-500/10 text-gold-400 text-[10px] font-black uppercase tracking-widest border border-gold-500/20">Transaction Confirmed</span>
+              </div>
+            </div>
+           } @else {
+             <div class="relative flex flex-col items-center justify-center py-12 opacity-30 group-hover:opacity-50 transition-opacity">
+                <div class="w-20 h-20 border-2 border-dashed border-gold-500/50 rounded-full flex items-center justify-center mb-4">
+                   <span class="text-4xl">🔱</span>
+                </div>
+                <p class="text-[10px] font-bold text-gold-500 uppercase tracking-widest text-center px-8">Prepare transaction details to generate receipt</p>
+             </div>
+           }
+        </div>
+      </div>
+    </div>
+    <app-result-viewer [error]="error" [loading]="loading" />
+  </div>
+</div>

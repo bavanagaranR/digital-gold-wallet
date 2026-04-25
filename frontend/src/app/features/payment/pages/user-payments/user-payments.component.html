@@ -1,0 +1,41 @@
+<div class="page-container max-w-2xl">
+  <app-page-header title="User Payment History" developer="Bavanagaran" moduleName="Payment" method="GET"
+    endpoint="/api/v1/users/{userId}/payments"
+    description="Retrieves a full list of all payment transactions made by a specific user." />
+  <div class="card">
+    <div class="flex gap-2 mb-4">
+      <input [(ngModel)]="userId" type="number" class="input-field w-40" placeholder="Enter User ID" />
+      <div class="flex items-center gap-2"><label class="text-sm text-slate-500">Page:</label><input [(ngModel)]="page" type="number" min="0" class="input-field w-16" /></div>
+      <div class="flex items-center gap-2"><label class="text-sm text-slate-500">Size:</label><input [(ngModel)]="size" type="number" min="1" class="input-field w-16" /></div>
+      <button (click)="load()" class="btn-primary" [disabled]="loading">Load Payments</button>
+    </div>
+    @if (payments && payments.length && !loading) {
+      <div class="mt-6 space-y-4">
+        <h3 class="text-slate-900 font-medium">History</h3>
+        @for (p of payments; track p.paymentId) {
+          <div class="border border-slate-100 rounded-lg p-4 bg-white/50 text-sm hover:border-primary-200 transition-colors">
+            <div class="flex justify-between items-start mb-2">
+              <span class="text-slate-400">ID: {{p.paymentId}}</span>
+              <span class="text-primary-600 font-medium">₹{{p.amount}}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-slate-600">{{p.paymentMethod}} • {{p.transactionType}}</span>
+              <span class="text-green-400 text-xs font-bold">{{p.paymentStatus}}</span>
+            </div>
+            <div class="mt-2 pt-2 border-t border-slate-50 text-[10px] text-slate-400 italic">
+              Created: {{p.createdAt | date:'medium'}}
+            </div>
+          </div>
+        }
+      </div>
+      <div class="flex justify-between mt-4">
+        <span class="text-xs text-slate-400">Page {{ page+1 }} of {{ totalPages }} · {{ totalElements }} total</span>
+        <div class="flex gap-2">
+          <button (click)="prev()" [disabled]="page===0" class="btn-secondary text-xs px-3">← Prev</button>
+          <button (click)="next()" [disabled]="page>=totalPages-1" class="btn-secondary text-xs px-3">Next →</button>
+        </div>
+      </div>
+    }
+    <app-result-viewer [error]="error" [loading]="loading" />
+  </div>
+</div>

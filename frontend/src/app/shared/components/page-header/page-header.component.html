@@ -1,0 +1,16 @@
+<div class="mb-10 pb-6 border-b border-gold-500/20 relative">
+  <div class="absolute -left-4 top-0 w-1 h-full bg-gradient-to-b from-maroon-900 to-gold-500 rounded-full opacity-50"></div>
+  <div class="flex items-center gap-3 mb-2">
+    <span class="text-[10px] font-bold text-gold-600 bg-gold-500/10 px-2.5 py-1 rounded-full uppercase tracking-widest border border-gold-500/20">{{ developer }}</span>
+    <span class="text-gold-500/50">/</span>
+    <span class="text-[10px] font-bold text-maroon-800 bg-maroon-500/10 px-2.5 py-1 rounded-full uppercase tracking-widest border border-maroon-500/20">{{ moduleName }}</span>
+  </div>
+  <h1 class="text-4xl font-display font-black text-maroon-950 mt-4 tracking-tight">{{ title }}</h1>
+  <div class="flex items-center gap-3 mt-4">
+    <span [class]="'badge-' + method.toLowerCase() + ' shadow-sm'">{{ method }}</span>
+    <div class="flex items-center bg-maroon-50 px-3 py-1.5 rounded-lg border border-gold-100/50 shadow-inner">
+      <code class="text-xs font-mono text-maroon-900 font-bold tracking-tight">{{ endpoint }}</code>
+    </div>
+  </div>
+  <p class="text-maroon-900/60 text-base mt-4 leading-relaxed max-w-3xl font-medium italic">"{{ description }}"</p>
+</div>

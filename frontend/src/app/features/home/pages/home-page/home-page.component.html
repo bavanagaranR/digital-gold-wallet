@@ -1,0 +1,51 @@
+<div class="page-container">
+  <div class="mb-12 relative">
+    <div class="absolute -top-6 -left-6 w-32 h-32 bg-gold-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <p class="text-gold-600 text-xs font-bold uppercase tracking-[0.4em] mb-2 flex items-center gap-2">
+      <span class="w-8 h-px bg-gold-500/50"></span>
+      Welcome back, {{ auth.currentUser?.displayName }}
+    </p>
+    <h1 class="font-display font-black text-6xl text-maroon-950 tracking-tighter"> <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600">Dashboard</span></h1>
+
+    <div class="flex gap-4 mt-8">
+      <a routerLink="/endpoints" class="btn-primary !px-8 !py-4 uppercase tracking-widest text-xs font-bold">Endpoint Explorer</a>
+      <a routerLink="/modules" class="btn-secondary !px-8 !py-4 uppercase tracking-widest text-xs font-bold">All Modules</a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-8 mb-16">
+    <div class="card bg-gradient-to-br from-white to-beige-50">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 bg-maroon-900 rounded-lg flex items-center justify-center shadow-lg">
+          <span class="text-gold-400 text-xl">📋</span>
+        </div>
+        <h2 class="text-maroon-950 font-black text-2xl tracking-tight">Project Overview</h2>
+      </div>
+      <p class="text-maroon-900/70 text-lg leading-relaxed mb-8 font-medium">This portal demonstrates the <span class="text-maroon-900 font-bold border-b-2 border-gold-400/30">Digital Gold Wallet</span> backend. Each module was developed by a specific team member. Explore the live endpoints below or use the Explorer for a comprehensive view.</p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="bg-maroon-950 rounded-2xl p-6 text-center border border-gold-500/20 group hover:border-gold-500/50 transition-all duration-300 shadow-xl">
+          <div class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-gold-300 to-gold-600 group-hover:scale-110 transition-transform">5</div>
+          <div class="text-[10px] text-gold-500/70 uppercase tracking-[0.3em] mt-3 font-bold">Specialists</div>
+        </div>
+        <div class="bg-maroon-950 rounded-2xl p-6 text-center border border-gold-500/20 group hover:border-gold-500/50 transition-all duration-300 shadow-xl">
+          <div class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-gold-300 to-gold-600 group-hover:scale-110 transition-transform">7</div>
+          <div class="text-[10px] text-gold-500/70 uppercase tracking-[0.3em] mt-3 font-bold">Core Modules</div>
+        </div>
+        <div class="bg-maroon-950 rounded-2xl p-6 text-center border border-gold-500/20 group hover:border-gold-500/50 transition-all duration-300 shadow-xl">
+          <div class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-gold-300 to-gold-600 group-hover:scale-110 transition-transform">35</div>
+          <div class="text-[10px] text-gold-500/70 uppercase tracking-[0.3em] mt-3 font-bold">API Endpoints</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-4 mb-8">
+    <h2 class="text-3xl font-display font-black text-maroon-950 tracking-tight whitespace-nowrap">Developer Contributions</h2>
+    <div class="h-px bg-gold-500/20 w-full"></div>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    @for (dev of visibleDevelopers; track dev.id) {
+      <app-developer-card [dev]="dev" />
+    }
+  </div>
+</div>

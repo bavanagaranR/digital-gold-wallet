@@ -1,0 +1,23 @@
+<div class="page-container">
+  <div class="mb-6 pb-4 border-b border-slate-100">
+    <span class="text-xs font-medium text-primary-600 bg-primary-50 px-2 py-0.5 rounded">Caitlyn Mary</span>
+    <h1 class="font-heading text-3xl text-slate-900 mt-2">Vendor & Branch Module</h1>
+    <p class="text-slate-500 text-sm mt-2">com.goldwallet.digitalgoldwallet.modules.vendor</p>
+    <p class="text-slate-600 mt-3 text-sm leading-relaxed">
+      Manages vendor information and their branches. Supports creating vendors, listing all vendors, fetching a vendor by ID,
+      updating vendor details, checking vendor gold price, adding branches to vendors, viewing branch details,
+      listing branches under a vendor, and checking branch inventory.
+    </p>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    @for (ep of endpoints; track ep.path) {
+      <a [routerLink]="ep.route" class="card hover:border-gold-600 transition-all flex items-start gap-3">
+        <span [class]="'badge-' + ep.method.toLowerCase() + ' mt-0.5 shrink-0'">{{ ep.method }}</span>
+        <div>
+          <code class="text-sm text-slate-800 break-all">{{ ep.path }}</code>
+          <p class="text-xs text-slate-500 mt-1">{{ ep.purpose }}</p>
+        </div>
+      </a>
+    }
+  </div>
+</div>

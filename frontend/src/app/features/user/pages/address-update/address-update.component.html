@@ -1,0 +1,44 @@
+<div class="page-container max-w-2xl">
+  <app-page-header title="Update Address" developer="Pavithra" moduleName="User" method="PUT"
+    endpoint="/api/v1/addresses/{id}" description="Updates an existing address record by its ID. Fill in the fields you want to change." />
+  <div class="card">
+    <div class="mb-4">
+      <label class="block text-sm text-slate-500 mb-1">Address ID *</label>
+      <input [(ngModel)]="addressId" type="number" class="input-field" placeholder="Enter Address ID" />
+    </div>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="grid grid-cols-1 gap-4">
+        <div><label class="block text-sm text-slate-500 mb-1">Street</label><input formControlName="street" class="input-field" /></div>
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="block text-sm text-slate-500 mb-1">City</label><input formControlName="city" class="input-field" /></div>
+          <div><label class="block text-sm text-slate-500 mb-1">State</label><input formControlName="state" class="input-field" /></div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-slate-500 mb-1">Postal Code</label>
+            <input formControlName="postalCode" class="input-field" [class.border-red-500]="form.get('postalCode')?.invalid && form.get('postalCode')?.touched" />
+            @if (form.get('postalCode')?.invalid && form.get('postalCode')?.touched) {
+              <span class="text-xs text-red-500 mt-1 block">Invalid postal code format</span>
+            }
+          </div>
+          <div><label class="block text-sm text-slate-500 mb-1">Country</label><input formControlName="country" class="input-field" /></div>
+        </div>
+      </div>
+      <button type="submit" class="btn-primary mt-4" [disabled]="loading">{{ loading ? 'Updating...' : 'Update Address' }}</button>
+    </form>
+    @if (result && !loading) {
+      <div class="mt-6 border border-slate-100 rounded-lg p-4 bg-white/80">
+        <h3 class="text-slate-900 font-medium mb-4 border-b border-slate-100 pb-2">Updated Address Details</h3>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div><span class="text-slate-400 block mb-1">Address ID</span><span class="text-slate-800">{{result.addressId}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Street</span><span class="text-slate-800">{{result.street}}</span></div>
+          <div><span class="text-slate-400 block mb-1">City</span><span class="text-slate-800">{{result.city}}</span></div>
+          <div><span class="text-slate-400 block mb-1">State</span><span class="text-slate-800">{{result.state}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Postal Code</span><span class="text-slate-800">{{result.postalCode || '—'}}</span></div>
+          <div><span class="text-slate-400 block mb-1">Country</span><span class="text-slate-800">{{result.country}}</span></div>
+        </div>
+      </div>
+    }
+    <app-result-viewer [error]="error" [loading]="loading" />
+  </div>
+</div>

@@ -1,0 +1,59 @@
+<div class="page-container max-w-4xl">
+  <app-page-header title="Wallet Balance" developer="Bavanagaran" moduleName="Wallet" method="GET"
+    endpoint="/api/v1/wallets/{userId}/balance"
+    description="Returns the current wallet balance of a specific user. This is the real-time available balance." />
+  <div class="card border-gold-200/50 shadow-2xl relative overflow-hidden">
+    <div class="absolute -right-20 -top-20 w-64 h-64 bg-gold-500/5 rounded-full blur-3xl"></div>
+    <div class="flex flex-col md:flex-row gap-6 items-center mb-10">
+      <div class="relative w-full md:w-64">
+         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gold-600 font-bold text-xs uppercase tracking-widest">User ID</span>
+         <input [(ngModel)]="userId" type="number" class="input-field !pl-20" placeholder="Enter User ID" />
+      </div>
+      <button (click)="submit()" class="btn-primary !py-3.5 !px-10 uppercase tracking-[0.2em] text-xs font-black shadow-gold-500/20" [disabled]="loading">
+        {{ loading ? '...' : 'Check Balance' }}
+      </button>
+    </div>
+
+    @if (balance !== null && !loading) {
+      <div class="relative max-w-md mx-auto">
+         <!-- Metallic Card Effect -->
+         <div class="bg-maroon-950 rounded-3xl p-8 border border-gold-500/40 shadow-[0_20px_50px_rgba(74,14,26,0.3)] relative overflow-hidden group">
+            <div class="absolute inset-0 bg-gradient-to-tr from-maroon-900/50 via-transparent to-gold-500/10 opacity-50"></div>
+            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-gold-600 opacity-5 blur-[80px]"></div>
+            
+            <div class="relative flex justify-between items-start mb-12">
+               <div class="flex flex-col">
+                  <span class="text-gold-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-1">Wallet Balance</span>
+                  <span class="text-gold-100 text-sm font-mono tracking-widest">User ID: {{ userId }}</span>
+               </div>
+               <div class="w-12 h-12 bg-gradient-to-br from-gold-300 to-gold-600 rounded-lg shadow-lg flex items-center justify-center">
+                  <span class="text-maroon-950 font-black text-xl">G</span>
+               </div>
+            </div>
+
+            <div class="relative mb-8">
+               <span class="text-gold-500/50 text-[10px] font-bold uppercase tracking-[0.2em] block mb-2">Balance</span>
+               <div class="flex items-baseline gap-2">
+                  <span class="text-gold-500 text-2xl font-bold">₹</span>
+                  <span class="text-gold-100 text-5xl font-black tracking-tighter">{{ balance | number:'1.2-2' }}</span>
+               </div>
+            </div>
+
+            <div class="relative flex justify-between items-end border-t border-gold-500/10 pt-6">
+               <div>
+                  <span class="text-gold-500/50 text-[8px] font-bold uppercase tracking-[0.2em] block">Card Holder</span>
+                  <span class="text-gold-200 text-xs font-bold uppercase tracking-widest">PREMIUM MEMBER</span>
+               </div>
+               <div class="flex gap-1">
+                  <div class="w-8 h-8 rounded-full bg-gold-500/20 animate-pulse"></div>
+               </div>
+            </div>
+         </div>
+         
+         <!-- Decorative elements -->
+         <div class="absolute -left-4 -bottom-4 w-full h-full border border-gold-500/10 rounded-3xl -z-10 translate-x-2 translate-y-2"></div>
+      </div>
+    }
+    <app-result-viewer [error]="error" [loading]="loading" />
+  </div>
+</div>
