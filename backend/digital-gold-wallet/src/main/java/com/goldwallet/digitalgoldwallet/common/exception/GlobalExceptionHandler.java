@@ -39,14 +39,7 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getMessage()));
     }
 
-//    @ExceptionHandler(MethodArgumentNotValidException.class)
-//    public ResponseEntity<ApiResponse<Void>> handleValidationErrors(MethodArgumentNotValidException ex) {
-//        String errorMessage = ex.getBindingResult().getAllErrors().stream()
-//                .map(org.springframework.context.support.DefaultMessageSourceResolvable::getDefaultMessage)
-//                .collect(java.util.stream.Collectors.joining(", "));
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//                .body(ApiResponse.error(errorMessage));
-//    }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleValidationErrors(MethodArgumentNotValidException ex) {
