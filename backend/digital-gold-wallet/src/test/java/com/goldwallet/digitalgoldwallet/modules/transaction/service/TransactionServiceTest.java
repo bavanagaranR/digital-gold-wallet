@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,10 +41,11 @@ class TransactionServiceTest {
     @InjectMocks
     private TransactionServiceImpl transactionService;
 
-    // ---------- GET BY ID ----------
+    // ================= POSITIVE TESTS (10) =================
 
+    // 1 - Get transaction by ID returns correct transaction
     @Test
-    void testGetTransactionById_success() {
+    void testGetTransactionById_success_returnsTransaction() {
         TransactionHistory tx = new TransactionHistory();
         tx.setTransactionId(1L);
 
@@ -56,150 +56,22 @@ class TransactionServiceTest {
         assertEquals(1L, response.getTransactionId());
     }
 
+    // 2 - Get transaction by ID verifies repository is called once
     @Test
-    void testGetTransactionById_notFound() {
-        when(transactionHistoryRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> transactionService.getTransactionById(1L));
-    }
-
-    @Test
-    void testGetTransactionById_verifyRepositoryCall() {
+    void testGetTransactionById_success_repositoryCalledOnce() {
         TransactionHistory tx = new TransactionHistory();
         tx.setTransactionId(1L);
 
-        when(transactionHistoryRepository.findById(1L))
-                .thenReturn(Optional.of(tx));
+        when(transactionHistoryRepository.findById(1L)).thenReturn(Optional.of(tx));
 
         transactionService.getTransactionById(1L);
 
         verify(transactionHistoryRepository, times(1)).findById(1L);
     }
 
-    // ---------- USER TRANSACTIONS ----------
-
+    // 3 - Get transaction by ID maps user and branch correctly
     @Test
-    void testGetUserTransactions_success() {
-        when(userRepository.existsById(1L)).thenReturn(true);
-
-        TransactionHistory tx = new TransactionHistory();
-        tx.setTransactionId(1L);
-
-        when(transactionHistoryRepository.findByUserUserIdOrderByCreatedAtDesc(eq(1L), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(tx)));
-
-        assertEquals(1, transactionService.getUserTransactions(1L, Pageable.unpaged()).getContent().size());
-    }
-
-    @Test
-    void testGetUserTransactions_userNotFound() {
-        when(userRepository.existsById(1L)).thenReturn(false);
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> transactionService.getUserTransactions(1L, Pageable.unpaged()));
-    }
-
-    @Test
-    void testGetUserTransactions_emptyList() {
-        when(userRepository.existsById(1L)).thenReturn(true);
-
-        when(transactionHistoryRepository.findByUserUserIdOrderByCreatedAtDesc(eq(1L), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of()));
-
-        assertTrue(transactionService.getUserTransactions(1L, Pageable.unpaged()).isEmpty());
-    }
-
-    @Test
-    void testGetUserTransactions_multipleTransactions() {
-        when(userRepository.existsById(1L)).thenReturn(true);
-
-        TransactionHistory tx1 = new TransactionHistory();
-        tx1.setTransactionId(1L);
-
-        TransactionHistory tx2 = new TransactionHistory();
-        tx2.setTransactionId(2L);
-
-        when(transactionHistoryRepository.findByUserUserIdOrderByCreatedAtDesc(eq(1L), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(tx1, tx2)));
-
-        Page<TransactionResponse> response =
-                transactionService.getUserTransactions(1L, Pageable.unpaged());
-
-        assertEquals(2, response.getContent().size());
-    }
-
-    // ---------- BRANCH TRANSACTIONS ----------
-
-    @Test
-    void testGetBranchTransactions_success() {
-        when(branchRepository.existsById(1L)).thenReturn(true);
-
-        TransactionHistory tx = new TransactionHistory();
-        tx.setTransactionId(1L);
-
-        when(transactionHistoryRepository.findByBranchBranchIdOrderByCreatedAtDesc(eq(1L), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(tx)));
-
-        assertEquals(1, transactionService.getBranchTransactions(1L, Pageable.unpaged()).getContent().size());
-    }
-
-    @Test
-    void testGetBranchTransactions_branchNotFound() {
-        when(branchRepository.existsById(1L)).thenReturn(false);
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> transactionService.getBranchTransactions(1L, Pageable.unpaged()));
-    }
-
-    @Test
-    void testGetBranchTransactions_emptyList() {
-        when(branchRepository.existsById(1L)).thenReturn(true);
-
-        when(transactionHistoryRepository.findByBranchBranchIdOrderByCreatedAtDesc(eq(1L), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of()));
-
-        assertTrue(transactionService.getBranchTransactions(1L, Pageable.unpaged()).isEmpty());
-    }
-
-    @Test
-    void testGetBranchTransactions_multipleTransactions() {
-        when(branchRepository.existsById(1L)).thenReturn(true);
-
-        TransactionHistory tx1 = new TransactionHistory();
-        tx1.setTransactionId(1L);
-
-        TransactionHistory tx2 = new TransactionHistory();
-        tx2.setTransactionId(2L);
-
-        when(transactionHistoryRepository.findByBranchBranchIdOrderByCreatedAtDesc(eq(1L), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(tx1, tx2)));
-
-        Page<TransactionResponse> response =
-                transactionService.getBranchTransactions(1L, Pageable.unpaged());
-
-        assertEquals(2, response.getContent().size());
-    }
-
-    // ---------- MAPPING TEST ----------
-
-    @Test
-    void testMapping_userAndBranchNull() {
-        TransactionHistory tx = new TransactionHistory();
-        tx.setTransactionId(1L);
-        tx.setUser(null);
-        tx.setBranch(null);
-
-        when(transactionHistoryRepository.findById(1L)).thenReturn(Optional.of(tx));
-
-        TransactionResponse response = transactionService.getTransactionById(1L);
-
-        assertNull(response.getUserId());
-        assertNull(response.getBranchId());
-    }
-
-    @Test
-    void testMapping_fullData() {
+    void testGetTransactionById_success_mapsUserAndBranch() {
         User user = new User();
         user.setUserId(10L);
         user.setName("Cathy");
@@ -223,50 +95,150 @@ class TransactionServiceTest {
         assertEquals(20L, res.getBranchId());
     }
 
+    // 4 - Get transaction by ID maps amount field
     @Test
-    void testMapping_amountField() {
+    void testGetTransactionById_success_amountMapped() {
         TransactionHistory tx = new TransactionHistory();
         tx.setTransactionId(1L);
         tx.setAmount(new BigDecimal("1000"));
 
-        when(transactionHistoryRepository.findById(1L))
-                .thenReturn(Optional.of(tx));
+        when(transactionHistoryRepository.findById(1L)).thenReturn(Optional.of(tx));
 
-        TransactionResponse response =
-                transactionService.getTransactionById(1L);
+        TransactionResponse response = transactionService.getTransactionById(1L);
 
         assertEquals(new BigDecimal("1000"), response.getAmount());
     }
 
+    // 5 - Get user transactions returns paginated results
     @Test
-    void testMapping_quantityField() {
+    void testGetUserTransactions_success_returnsSingleTransaction() {
+        when(userRepository.existsById(1L)).thenReturn(true);
+
         TransactionHistory tx = new TransactionHistory();
         tx.setTransactionId(1L);
-        tx.setQuantity(new BigDecimal("5"));
 
-        when(transactionHistoryRepository.findById(1L))
-                .thenReturn(Optional.of(tx));
+        when(transactionHistoryRepository.findByUserUserIdOrderByCreatedAtDesc(eq(1L), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(tx)));
 
-        TransactionResponse response =
-                transactionService.getTransactionById(1L);
-
-        assertEquals(new BigDecimal("5"), response.getQuantity());
+        assertEquals(1, transactionService.getUserTransactions(1L, Pageable.unpaged()).getContent().size());
     }
 
+    // 6 - Get user transactions returns empty page when no transactions exist
     @Test
-    void testMapping_createdAtField() {
-        LocalDateTime time = LocalDateTime.now();
+    void testGetUserTransactions_success_emptyList() {
+        when(userRepository.existsById(1L)).thenReturn(true);
+
+        when(transactionHistoryRepository.findByUserUserIdOrderByCreatedAtDesc(eq(1L), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        assertTrue(transactionService.getUserTransactions(1L, Pageable.unpaged()).isEmpty());
+    }
+
+    // 7 - Get user transactions returns multiple transactions
+    @Test
+    void testGetUserTransactions_success_multipleTransactions() {
+        when(userRepository.existsById(1L)).thenReturn(true);
+
+        TransactionHistory tx1 = new TransactionHistory();
+        tx1.setTransactionId(1L);
+
+        TransactionHistory tx2 = new TransactionHistory();
+        tx2.setTransactionId(2L);
+
+        when(transactionHistoryRepository.findByUserUserIdOrderByCreatedAtDesc(eq(1L), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(tx1, tx2)));
+
+        Page<TransactionResponse> response =
+                transactionService.getUserTransactions(1L, Pageable.unpaged());
+
+        assertEquals(2, response.getContent().size());
+    }
+
+    // 8 - Get branch transactions returns paginated results
+    @Test
+    void testGetBranchTransactions_success_returnsSingleTransaction() {
+        when(branchRepository.existsById(1L)).thenReturn(true);
 
         TransactionHistory tx = new TransactionHistory();
         tx.setTransactionId(1L);
-        tx.setCreatedAt(time);
 
-        when(transactionHistoryRepository.findById(1L))
-                .thenReturn(Optional.of(tx));
+        when(transactionHistoryRepository.findByBranchBranchIdOrderByCreatedAtDesc(eq(1L), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(tx)));
 
-        TransactionResponse response =
-                transactionService.getTransactionById(1L);
+        assertEquals(1, transactionService.getBranchTransactions(1L, Pageable.unpaged()).getContent().size());
+    }
 
-        assertEquals(time, response.getCreatedAt());
+    // 9 - Get branch transactions returns empty page
+    @Test
+    void testGetBranchTransactions_success_emptyList() {
+        when(branchRepository.existsById(1L)).thenReturn(true);
+
+        when(transactionHistoryRepository.findByBranchBranchIdOrderByCreatedAtDesc(eq(1L), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        assertTrue(transactionService.getBranchTransactions(1L, Pageable.unpaged()).isEmpty());
+    }
+
+    // 10 - Get transaction handles null user and branch gracefully
+    @Test
+    void testGetTransactionById_success_nullUserAndBranchMapped() {
+        TransactionHistory tx = new TransactionHistory();
+        tx.setTransactionId(1L);
+        tx.setUser(null);
+        tx.setBranch(null);
+
+        when(transactionHistoryRepository.findById(1L)).thenReturn(Optional.of(tx));
+
+        TransactionResponse response = transactionService.getTransactionById(1L);
+
+        assertNull(response.getUserId());
+        assertNull(response.getBranchId());
+    }
+
+    // ================= NEGATIVE TESTS (5) =================
+
+    // 11 - Get transaction by ID throws when not found
+    @Test
+    void testGetTransactionById_notFound_throwsException() {
+        when(transactionHistoryRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> transactionService.getTransactionById(99L));
+    }
+
+    // 12 - Get user transactions throws when user does not exist
+    @Test
+    void testGetUserTransactions_userNotFound_throwsException() {
+        when(userRepository.existsById(1L)).thenReturn(false);
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> transactionService.getUserTransactions(1L, Pageable.unpaged()));
+    }
+
+    // 13 - Get branch transactions throws when branch does not exist
+    @Test
+    void testGetBranchTransactions_branchNotFound_throwsException() {
+        when(branchRepository.existsById(1L)).thenReturn(false);
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> transactionService.getBranchTransactions(1L, Pageable.unpaged()));
+    }
+
+    // 14 - Get user transactions throws for non-existent user ID
+    @Test
+    void testGetUserTransactions_unknownUserId_throwsException() {
+        when(userRepository.existsById(999L)).thenReturn(false);
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> transactionService.getUserTransactions(999L, Pageable.unpaged()));
+    }
+
+    // 15 - Get branch transactions throws for non-existent branch ID
+    @Test
+    void testGetBranchTransactions_unknownBranchId_throwsException() {
+        when(branchRepository.existsById(999L)).thenReturn(false);
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> transactionService.getBranchTransactions(999L, Pageable.unpaged()));
     }
 }

@@ -24,7 +24,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,9 +46,11 @@ class VendorServiceTest {
     @InjectMocks
     private VendorServiceImpl vendorService;
 
-    // ----------- 1. CREATE VENDOR ----------
+    // ================= POSITIVE TESTS (10) =================
+
+    // 1 - Create vendor successfully returns correct name and phone
     @Test
-    void testCreateVendor_success() {
+    void testCreateVendor_success_returnsVendorDetails() {
         CreateVendorRequest req = new CreateVendorRequest();
         req.setVendorName("TestVendor");
         req.setContactEmail("test@vendor.com");
@@ -70,9 +71,9 @@ class VendorServiceTest {
         assertEquals("9876543210", response.getContactPhone());
     }
 
-    // ----------- 2. CREATE VENDOR DEFAULT PRICE ----------
+    // 2 - Create vendor sets a default gold price
     @Test
-    void testCreateVendor_defaultPrice() {
+    void testCreateVendor_success_defaultPriceSet() {
         CreateVendorRequest req = new CreateVendorRequest();
         req.setVendorName("Test");
         req.setContactPhone("9876543210");
@@ -90,9 +91,9 @@ class VendorServiceTest {
         assertEquals(0, response.getCurrentGoldPrice().compareTo(new BigDecimal("5700.00")));
     }
 
-    // ----------- 3. GET VENDOR SUCCESS ----------
+    // 3 - Get vendor by ID returns correct vendor
     @Test
-    void testGetVendorById_success() {
+    void testGetVendorById_success_returnsVendor() {
         Vendor v = Vendor.builder()
                 .vendorId(1L)
                 .vendorName("Gold")
@@ -105,18 +106,9 @@ class VendorServiceTest {
         assertEquals("Gold", response.getVendorName());
     }
 
-    // ----------- 4. GET VENDOR NOT FOUND ----------
+    // 4 - Get all vendors returns paginated list of vendors
     @Test
-    void testGetVendorById_notFound() {
-        when(vendorRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> vendorService.getVendorById(1L));
-    }
-
-    // ----------- 5. GET ALL VENDORS ----------
-    @Test
-    void testGetAllVendors() {
+    void testGetAllVendors_success_returnsAllVendors() {
         List<Vendor> vendors = List.of(
                 Vendor.builder().vendorId(1L).vendorName("A").contactPhone("9876543210").build(),
                 Vendor.builder().vendorId(2L).vendorName("B").contactPhone("9876543211").build()
@@ -129,9 +121,9 @@ class VendorServiceTest {
         assertEquals(2, response.getContent().size());
     }
 
-    // ----------- 6. UPDATE VENDOR SUCCESS ----------
+    // 5 - Update vendor name successfully
     @Test
-    void testUpdateVendor_success() {
+    void testUpdateVendor_success_nameUpdated() {
         Vendor v = Vendor.builder()
                 .vendorId(1L)
                 .vendorName("Old")
@@ -148,18 +140,9 @@ class VendorServiceTest {
         assertEquals("New", response.getVendorName());
     }
 
-    // ----------- 7. UPDATE VENDOR NOT FOUND ----------
+    // 6 - Get vendor gold price returns correct value
     @Test
-    void testUpdateVendor_notFound() {
-        when(vendorRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> vendorService.updateVendor(1L, new UpdateVendorRequest()));
-    }
-
-    // ----------- 8. GET GOLD PRICE ----------
-    @Test
-    void testGetGoldPrice() {
+    void testGetVendorGoldPrice_success_returnsPrice() {
         Vendor v = Vendor.builder()
                 .vendorId(1L)
                 .currentGoldPrice(new BigDecimal("6000"))
@@ -171,23 +154,23 @@ class VendorServiceTest {
         assertEquals(0, new BigDecimal("6000").compareTo(vendorService.getVendorGoldPrice(1L)));
     }
 
-    // ----------- 9. ADD BRANCH SUCCESS ----------
+    // 7 - Add branch to vendor successfully
     @Test
-    void testAddBranch_success() {
+    void testAddBranch_success_returnsBranchWithId() {
         Vendor vendor = Vendor.builder().vendorId(1L).vendorName("Vendor1").contactPhone("9876543210").build();
         Address address = new Address();
         address.setAddressId(1L);
 
         when(vendorRepository.findById(1L)).thenReturn(Optional.of(vendor));
         when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
-        
+
         VendorBranch branch = VendorBranch.builder()
                 .branchId(1L)
                 .vendor(vendor)
                 .address(address)
                 .quantity(new BigDecimal("100"))
                 .build();
-        
+
         when(branchRepository.save(any(VendorBranch.class))).thenReturn(branch);
         when(branchRepository.findByVendorVendorId(1L)).thenReturn(List.of(branch));
         when(vendorRepository.save(any(Vendor.class))).thenReturn(vendor);
@@ -201,18 +184,74 @@ class VendorServiceTest {
         assertEquals(1L, response.getBranchId());
     }
 
-    // ----------- 10. ADD BRANCH VENDOR NOT FOUND ----------
+    // 8 - Get branch by ID returns correct branch
     @Test
-    void testAddBranch_vendorNotFound() {
+    void testGetBranchById_success_returnsBranch() {
+        Vendor vendor = Vendor.builder().vendorId(1L).vendorName("Gold").contactPhone("9876543210").build();
+        VendorBranch b = VendorBranch.builder().branchId(1L).vendor(vendor).build();
+
+        when(branchRepository.findById(1L)).thenReturn(Optional.of(b));
+
+        BranchResponse response = vendorService.getBranchById(1L);
+        assertEquals(1L, response.getBranchId());
+    }
+
+    // 9 - Get branch inventory returns correct quantity
+    @Test
+    void testGetBranchInventory_success_returnsQuantity() {
+        VendorBranch b = VendorBranch.builder()
+                .branchId(1L)
+                .quantity(new BigDecimal("100"))
+                .build();
+
+        when(branchRepository.findById(1L)).thenReturn(Optional.of(b));
+
+        assertEquals(0, new BigDecimal("100").compareTo(vendorService.getBranchInventory(1L)));
+    }
+
+    // 10 - Get all vendors returns empty page when no vendors exist
+    @Test
+    void testGetAllVendors_success_emptyPage() {
+        Page<Vendor> emptyPage = new PageImpl<>(List.of());
+
+        when(vendorRepository.findAll(any(Pageable.class))).thenReturn(emptyPage);
+
+        Page<VendorResponse> response = vendorService.getAllVendors(PageRequest.of(0, 10));
+        assertTrue(response.isEmpty());
+    }
+
+    // ================= NEGATIVE TESTS (5) =================
+
+    // 11 - Get vendor by ID throws when vendor not found
+    @Test
+    void testGetVendorById_notFound_throwsException() {
+        when(vendorRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> vendorService.getVendorById(1L));
+    }
+
+    // 12 - Update vendor throws when vendor not found
+    @Test
+    void testUpdateVendor_notFound_throwsException() {
+        when(vendorRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> vendorService.updateVendor(1L, new UpdateVendorRequest()));
+    }
+
+    // 13 - Add branch throws when vendor not found
+    @Test
+    void testAddBranch_vendorNotFound_throwsException() {
         when(vendorRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
                 () -> vendorService.addBranch(1L, new CreateBranchRequest()));
     }
 
-    // ----------- 11. ADD BRANCH ADDRESS NOT FOUND ----------
+    // 14 - Add branch throws when address not found
     @Test
-    void testAddBranch_addressNotFound() {
+    void testAddBranch_addressNotFound_throwsException() {
         Vendor vendor = Vendor.builder().vendorId(1L).build();
 
         when(vendorRepository.findById(1L)).thenReturn(Optional.of(vendor));
@@ -225,37 +264,12 @@ class VendorServiceTest {
                 () -> vendorService.addBranch(1L, req));
     }
 
-    // ----------- 12. GET BRANCH SUCCESS ----------
+    // 15 - Get branch by ID throws when branch not found
     @Test
-    void testGetBranchById_success() {
-        Vendor vendor = Vendor.builder().vendorId(1L).vendorName("Gold").contactPhone("9876543210").build();
-        VendorBranch b = VendorBranch.builder().branchId(1L).vendor(vendor).build();
-
-        when(branchRepository.findById(1L)).thenReturn(Optional.of(b));
-
-        BranchResponse response = vendorService.getBranchById(1L);
-        assertEquals(1L, response.getBranchId());
-    }
-
-    // ----------- 13. GET BRANCH NOT FOUND ----------
-    @Test
-    void testGetBranchById_notFound() {
+    void testGetBranchById_notFound_throwsException() {
         when(branchRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
                 () -> vendorService.getBranchById(1L));
-    }
-
-    // ----------- 14. GET BRANCH INVENTORY ----------
-    @Test
-    void testGetBranchInventory() {
-        VendorBranch b = VendorBranch.builder()
-                .branchId(1L)
-                .quantity(new BigDecimal("100"))
-                .build();
-
-        when(branchRepository.findById(1L)).thenReturn(Optional.of(b));
-
-        assertEquals(0, new BigDecimal("100").compareTo(vendorService.getBranchInventory(1L)));
     }
 }

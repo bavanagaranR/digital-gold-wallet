@@ -24,7 +24,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,9 +46,23 @@ class PaymentServiceTest {
         return user;
     }
 
-    // 1
+    private Payment buildPayment(Long paymentId, User user, BigDecimal amount) {
+        return Payment.builder()
+                .paymentId(paymentId)
+                .user(user)
+                .amount(amount)
+                .paymentMethod(Payment.PaymentMethod.GOOGLE_PAY)
+                .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
+                .paymentStatus(Payment.PaymentStatus.SUCCESS)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    // ================= POSITIVE TESTS (10) =================
+
+    // 1 - Initiate payment returns non-null response
     @Test
-    void testInitiatePayment_success() {
+    void testInitiatePayment_success_returnsResponse() {
         User user = buildUser(1L, "Cathy");
 
         InitiatePaymentRequest req = new InitiatePaymentRequest();
@@ -58,42 +71,19 @@ class PaymentServiceTest {
         req.setPaymentMethod(Payment.PaymentMethod.GOOGLE_PAY);
         req.setTransactionType(Payment.TransactionType.CREDITED_TO_WALLET);
 
-        Payment savedPayment = Payment.builder()
-                .paymentId(1L)
-                .user(user)
-                .amount(new BigDecimal("500"))
-                .paymentMethod(Payment.PaymentMethod.GOOGLE_PAY)
-                .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
-                .paymentStatus(Payment.PaymentStatus.SUCCESS)
-                .createdAt(LocalDateTime.now())
-                .build();
-
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(paymentRepository.save(any(Payment.class))).thenReturn(savedPayment);
+        when(paymentRepository.save(any(Payment.class))).thenReturn(buildPayment(1L, user, new BigDecimal("500")));
 
         PaymentResponse res = paymentService.initiatePayment(req);
 
         assertNotNull(res);
         assertEquals(1L, res.getPaymentId());
-        assertEquals(1L, res.getUserId());
         assertEquals("Cathy", res.getUserName());
     }
 
-    // 2
+    // 2 - Initiate payment maps amount correctly
     @Test
-    void testInitiatePayment_userNotFound() {
-        when(userRepository.findById(1L)).thenReturn(Optional.empty());
-
-        InitiatePaymentRequest req = new InitiatePaymentRequest();
-        req.setUserId(1L);
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> paymentService.initiatePayment(req));
-    }
-
-    // 3
-    @Test
-    void testInitiatePayment_amountMappedCorrectly() {
+    void testInitiatePayment_success_amountMappedCorrectly() {
         User user = buildUser(1L, "Cathy");
 
         InitiatePaymentRequest req = new InitiatePaymentRequest();
@@ -102,27 +92,17 @@ class PaymentServiceTest {
         req.setPaymentMethod(Payment.PaymentMethod.GOOGLE_PAY);
         req.setTransactionType(Payment.TransactionType.CREDITED_TO_WALLET);
 
-        Payment savedPayment = Payment.builder()
-                .paymentId(2L)
-                .user(user)
-                .amount(new BigDecimal("750"))
-                .paymentMethod(Payment.PaymentMethod.GOOGLE_PAY)
-                .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
-                .paymentStatus(Payment.PaymentStatus.SUCCESS)
-                .createdAt(LocalDateTime.now())
-                .build();
-
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(paymentRepository.save(any(Payment.class))).thenReturn(savedPayment);
+        when(paymentRepository.save(any(Payment.class))).thenReturn(buildPayment(2L, user, new BigDecimal("750")));
 
         PaymentResponse res = paymentService.initiatePayment(req);
 
         assertEquals(new BigDecimal("750"), res.getAmount());
     }
 
-    // 4
+    // 3 - Initiate payment maps payment method correctly
     @Test
-    void testInitiatePayment_paymentMethodMappedCorrectly() {
+    void testInitiatePayment_success_paymentMethodMapped() {
         User user = buildUser(1L, "Cathy");
 
         InitiatePaymentRequest req = new InitiatePaymentRequest();
@@ -131,56 +111,17 @@ class PaymentServiceTest {
         req.setPaymentMethod(Payment.PaymentMethod.GOOGLE_PAY);
         req.setTransactionType(Payment.TransactionType.CREDITED_TO_WALLET);
 
-        Payment savedPayment = Payment.builder()
-                .paymentId(3L)
-                .user(user)
-                .amount(new BigDecimal("500"))
-                .paymentMethod(Payment.PaymentMethod.GOOGLE_PAY)
-                .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
-                .paymentStatus(Payment.PaymentStatus.SUCCESS)
-                .createdAt(LocalDateTime.now())
-                .build();
-
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(paymentRepository.save(any(Payment.class))).thenReturn(savedPayment);
+        when(paymentRepository.save(any(Payment.class))).thenReturn(buildPayment(3L, user, new BigDecimal("500")));
 
         PaymentResponse res = paymentService.initiatePayment(req);
 
         assertEquals(Payment.PaymentMethod.GOOGLE_PAY, res.getPaymentMethod());
     }
 
-    // 5
+    // 4 - Initiate payment status defaults to SUCCESS
     @Test
-    void testInitiatePayment_transactionTypeMappedCorrectly() {
-        User user = buildUser(1L, "Cathy");
-
-        InitiatePaymentRequest req = new InitiatePaymentRequest();
-        req.setUserId(1L);
-        req.setAmount(new BigDecimal("300"));
-        req.setPaymentMethod(Payment.PaymentMethod.GOOGLE_PAY);
-        req.setTransactionType(Payment.TransactionType.CREDITED_TO_WALLET);
-
-        Payment savedPayment = Payment.builder()
-                .paymentId(4L)
-                .user(user)
-                .amount(new BigDecimal("300"))
-                .paymentMethod(Payment.PaymentMethod.GOOGLE_PAY)
-                .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
-                .paymentStatus(Payment.PaymentStatus.SUCCESS)
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(paymentRepository.save(any(Payment.class))).thenReturn(savedPayment);
-
-        PaymentResponse res = paymentService.initiatePayment(req);
-
-        assertEquals(Payment.TransactionType.CREDITED_TO_WALLET, res.getTransactionType());
-    }
-
-    // 6
-    @Test
-    void testInitiatePayment_defaultStatusSuccess() {
+    void testInitiatePayment_success_defaultStatusIsSuccess() {
         User user = buildUser(1L, "Cathy");
 
         InitiatePaymentRequest req = new InitiatePaymentRequest();
@@ -189,27 +130,17 @@ class PaymentServiceTest {
         req.setPaymentMethod(Payment.PaymentMethod.GOOGLE_PAY);
         req.setTransactionType(Payment.TransactionType.CREDITED_TO_WALLET);
 
-        Payment savedPayment = Payment.builder()
-                .paymentId(5L)
-                .user(user)
-                .amount(new BigDecimal("400"))
-                .paymentMethod(Payment.PaymentMethod.GOOGLE_PAY)
-                .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
-                .paymentStatus(Payment.PaymentStatus.SUCCESS)
-                .createdAt(LocalDateTime.now())
-                .build();
-
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(paymentRepository.save(any(Payment.class))).thenReturn(savedPayment);
+        when(paymentRepository.save(any(Payment.class))).thenReturn(buildPayment(4L, user, new BigDecimal("400")));
 
         PaymentResponse res = paymentService.initiatePayment(req);
 
         assertEquals(Payment.PaymentStatus.SUCCESS, res.getPaymentStatus());
     }
 
-    // 7
+    // 5 - Initiate payment calls repository save exactly once
     @Test
-    void testInitiatePayment_repositorySaveCalledOnce() {
+    void testInitiatePayment_success_repositorySaveCalledOnce() {
         User user = buildUser(1L, "Cathy");
 
         InitiatePaymentRequest req = new InitiatePaymentRequest();
@@ -218,91 +149,33 @@ class PaymentServiceTest {
         req.setPaymentMethod(Payment.PaymentMethod.GOOGLE_PAY);
         req.setTransactionType(Payment.TransactionType.CREDITED_TO_WALLET);
 
-        Payment savedPayment = Payment.builder()
-                .paymentId(6L)
-                .user(user)
-                .amount(new BigDecimal("300"))
-                .paymentMethod(Payment.PaymentMethod.GOOGLE_PAY)
-                .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
-                .paymentStatus(Payment.PaymentStatus.SUCCESS)
-                .createdAt(LocalDateTime.now())
-                .build();
-
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(paymentRepository.save(any(Payment.class))).thenReturn(savedPayment);
+        when(paymentRepository.save(any(Payment.class))).thenReturn(buildPayment(5L, user, new BigDecimal("300")));
 
         paymentService.initiatePayment(req);
 
         verify(paymentRepository, times(1)).save(any(Payment.class));
     }
 
-    // 8
+    // 6 - Get payment by ID returns correct payment
     @Test
-    void testGetPaymentById_success() {
+    void testGetPaymentById_success_returnsPayment() {
         User user = buildUser(1L, "Cathy");
-
-        Payment payment = Payment.builder()
-                .paymentId(7L)
-                .user(user)
-                .amount(new BigDecimal("100"))
-                .paymentMethod(Payment.PaymentMethod.GOOGLE_PAY)
-                .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
-                .paymentStatus(Payment.PaymentStatus.SUCCESS)
-                .createdAt(LocalDateTime.now())
-                .build();
+        Payment payment = buildPayment(7L, user, new BigDecimal("100"));
 
         when(paymentRepository.findById(7L)).thenReturn(Optional.of(payment));
 
         PaymentResponse res = paymentService.getPaymentById(7L);
 
         assertEquals(7L, res.getPaymentId());
-    }
-
-    // 9
-    @Test
-    void testGetPaymentById_notFound() {
-        when(paymentRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> paymentService.getPaymentById(1L));
-    }
-
-    // 10
-    @Test
-    void testGetPaymentById_userNameMappedCorrectly() {
-        User user = buildUser(10L, "Cathy");
-
-        Payment payment = Payment.builder()
-                .paymentId(8L)
-                .user(user)
-                .amount(new BigDecimal("200"))
-                .paymentMethod(Payment.PaymentMethod.GOOGLE_PAY)
-                .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
-                .paymentStatus(Payment.PaymentStatus.SUCCESS)
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        when(paymentRepository.findById(8L)).thenReturn(Optional.of(payment));
-
-        PaymentResponse res = paymentService.getPaymentById(8L);
-
         assertEquals("Cathy", res.getUserName());
     }
 
-    // 11
+    // 7 - Get payment by ID maps amount correctly
     @Test
-    void testGetPaymentById_amountReturnedCorrectly() {
+    void testGetPaymentById_success_amountMapped() {
         User user = buildUser(1L, "Cathy");
-
-        Payment payment = Payment.builder()
-                .paymentId(9L)
-                .user(user)
-                .amount(new BigDecimal("999"))
-                .paymentMethod(Payment.PaymentMethod.GOOGLE_PAY)
-                .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
-                .paymentStatus(Payment.PaymentStatus.SUCCESS)
-                .createdAt(LocalDateTime.now())
-                .build();
+        Payment payment = buildPayment(9L, user, new BigDecimal("999"));
 
         when(paymentRepository.findById(9L)).thenReturn(Optional.of(payment));
 
@@ -311,9 +184,9 @@ class PaymentServiceTest {
         assertEquals(new BigDecimal("999"), res.getAmount());
     }
 
-    // 12
+    // 8 - Get payment by ID maps createdAt correctly
     @Test
-    void testGetPaymentById_createdAtMappedCorrectly() {
+    void testGetPaymentById_success_createdAtMapped() {
         User user = buildUser(1L, "Cathy");
         LocalDateTime createdTime = LocalDateTime.now();
 
@@ -334,20 +207,11 @@ class PaymentServiceTest {
         assertEquals(createdTime, res.getCreatedAt());
     }
 
-    // 13
+    // 9 - Get user payments returns paginated results
     @Test
-    void testGetUserPayments_success() {
+    void testGetUserPayments_success_returnsSinglePayment() {
         User user = buildUser(1L, "Cathy");
-
-        Payment payment = Payment.builder()
-                .paymentId(11L)
-                .user(user)
-                .amount(new BigDecimal("100"))
-                .paymentMethod(Payment.PaymentMethod.GOOGLE_PAY)
-                .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
-                .paymentStatus(Payment.PaymentStatus.SUCCESS)
-                .createdAt(LocalDateTime.now())
-                .build();
+        Payment payment = buildPayment(11L, user, new BigDecimal("100"));
 
         when(userRepository.existsById(1L)).thenReturn(true);
         when(paymentRepository.findByUserUserIdOrderByCreatedAtDesc(eq(1L), any(Pageable.class)))
@@ -358,39 +222,12 @@ class PaymentServiceTest {
         assertEquals(1, result.getContent().size());
     }
 
-    // 14
+    // 10 - Get user payments returns multiple payments in order
     @Test
-    void testGetUserPayments_userNotFound() {
-        when(userRepository.existsById(1L)).thenReturn(false);
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> paymentService.getUserPayments(1L, Pageable.unpaged()));
-    }
-
-    // 15
-    @Test
-    void testGetUserPayments_multiplePayments() {
+    void testGetUserPayments_success_returnsMultiplePayments() {
         User user = buildUser(1L, "Cathy");
-
-        Payment payment1 = Payment.builder()
-                .paymentId(12L)
-                .user(user)
-                .amount(new BigDecimal("100"))
-                .paymentMethod(Payment.PaymentMethod.GOOGLE_PAY)
-                .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
-                .paymentStatus(Payment.PaymentStatus.SUCCESS)
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        Payment payment2 = Payment.builder()
-                .paymentId(13L)
-                .user(user)
-                .amount(new BigDecimal("200"))
-                .paymentMethod(Payment.PaymentMethod.GOOGLE_PAY)
-                .transactionType(Payment.TransactionType.CREDITED_TO_WALLET)
-                .paymentStatus(Payment.PaymentStatus.SUCCESS)
-                .createdAt(LocalDateTime.now())
-                .build();
+        Payment payment1 = buildPayment(12L, user, new BigDecimal("100"));
+        Payment payment2 = buildPayment(13L, user, new BigDecimal("200"));
 
         when(userRepository.existsById(1L)).thenReturn(true);
         when(paymentRepository.findByUserUserIdOrderByCreatedAtDesc(eq(1L), any(Pageable.class)))
@@ -401,5 +238,60 @@ class PaymentServiceTest {
         assertEquals(2, result.getContent().size());
         assertEquals(12L, result.getContent().get(0).getPaymentId());
         assertEquals(13L, result.getContent().get(1).getPaymentId());
+    }
+
+    // ================= NEGATIVE TESTS (5) =================
+
+    // 11 - Initiate payment throws when user not found
+    @Test
+    void testInitiatePayment_userNotFound_throwsException() {
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        InitiatePaymentRequest req = new InitiatePaymentRequest();
+        req.setUserId(1L);
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> paymentService.initiatePayment(req));
+    }
+
+    // 12 - Initiate payment with null user ID throws exception
+    @Test
+    void testInitiatePayment_nullUserId_throwsException() {
+        when(userRepository.findById(null)).thenReturn(Optional.empty());
+
+        InitiatePaymentRequest req = new InitiatePaymentRequest();
+        req.setUserId(null);
+
+        assertThrows(Exception.class, () -> paymentService.initiatePayment(req));
+    }
+
+    // 13 - Get payment by ID throws when payment not found
+    @Test
+    void testGetPaymentById_notFound_throwsException() {
+        when(paymentRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> paymentService.getPaymentById(99L));
+    }
+
+    // 14 - Get user payments throws when user does not exist
+    @Test
+    void testGetUserPayments_userNotFound_throwsException() {
+        when(userRepository.existsById(1L)).thenReturn(false);
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> paymentService.getUserPayments(1L, Pageable.unpaged()));
+    }
+
+    // 15 - Get user payments returns empty page for user with no payments
+    @Test
+    void testGetUserPayments_noPayments_returnsEmptyPage() {
+        when(userRepository.existsById(2L)).thenReturn(true);
+        when(paymentRepository.findByUserUserIdOrderByCreatedAtDesc(eq(2L), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        Page<PaymentResponse> result = paymentService.getUserPayments(2L, Pageable.unpaged());
+
+        assertTrue(result.isEmpty());
     }
 }

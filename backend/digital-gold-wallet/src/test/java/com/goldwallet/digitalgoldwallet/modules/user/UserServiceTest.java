@@ -1,4 +1,5 @@
 package com.goldwallet.digitalgoldwallet.modules.user;
+
 import com.goldwallet.digitalgoldwallet.common.exception.BusinessException;
 import com.goldwallet.digitalgoldwallet.common.exception.ResourceNotFoundException;
 import com.goldwallet.digitalgoldwallet.modules.user.dto.request.*;
@@ -32,32 +33,25 @@ public class UserServiceTest {
     @InjectMocks
     private UserServiceImpl userService;
 
-    // -------- USER TESTS --------
+    // ================= POSITIVE TESTS (10) =================
 
+    // 1 - Create user successfully
     @Test
-    void testCreateUser_success() {
+    void testCreateUser_success_returnsUserWithName() {
         CreateUserRequest req = new CreateUserRequest();
         req.setName("Cathy");
         req.setEmail("cathy@test.com");
 
         when(userRepository.existsByEmail(req.getEmail())).thenReturn(false);
-        when(userRepository.save(any())).thenReturn(User.builder().userId(1L).name("Cathy").email("cathy@test.com").build());
+        when(userRepository.save(any())).thenReturn(
+                User.builder().userId(1L).name("Cathy").email("cathy@test.com").build());
 
         assertEquals("Cathy", userService.createUser(req).getName());
     }
 
+    // 2 - Create user with address links the address
     @Test
-    void testCreateUser_emailExists() {
-        CreateUserRequest req = new CreateUserRequest();
-        req.setEmail("test@mail.com");
-
-        when(userRepository.existsByEmail(req.getEmail())).thenReturn(true);
-
-        assertThrows(BusinessException.class, () -> userService.createUser(req));
-    }
-
-    @Test
-    void testCreateUser_withAddress() {
+    void testCreateUser_withAddress_success() {
         CreateUserRequest req = new CreateUserRequest();
         req.setEmail("test@mail.com");
         req.setAddressId(1L);
@@ -69,43 +63,29 @@ public class UserServiceTest {
         assertNotNull(userService.createUser(req));
     }
 
+    // 3 - Get user by ID returns correct user
     @Test
-    void testCreateUser_addressNotFound() {
-        CreateUserRequest req = new CreateUserRequest();
-        req.setEmail("test@mail.com");
-        req.setAddressId(1L);
-
-        when(userRepository.existsByEmail(req.getEmail())).thenReturn(false);
-        when(addressRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class, () -> userService.createUser(req));
-    }
-
-    @Test
-    void testGetUserById_success() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(User.builder().userId(1L).build()));
+    void testGetUserById_success_returnsUser() {
+        when(userRepository.findById(1L)).thenReturn(
+                Optional.of(User.builder().userId(1L).build()));
 
         assertEquals(1L, userService.getUserById(1L).getUserId());
     }
 
+    // 4 - Get all users returns paginated list
     @Test
-    void testGetUserById_notFound() {
-        when(userRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class, () -> userService.getUserById(1L));
-    }
-
-    @Test
-    void testGetAllUsers() {
-        Page<User> page = new PageImpl<>(java.util.List.of(User.builder().userId(1L).build()));
+    void testGetAllUsers_success_returnsPage() {
+        Page<User> page = new PageImpl<>(
+                java.util.List.of(User.builder().userId(1L).build()));
 
         when(userRepository.findAll(any(Pageable.class))).thenReturn(page);
 
         assertEquals(1, userService.getAllUsers(PageRequest.of(0, 10)).getContent().size());
     }
 
+    // 5 - Update user name successfully
     @Test
-    void testUpdateUser_success() {
+    void testUpdateUser_success_nameUpdated() {
         User user = User.builder().userId(1L).email("old@mail.com").build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
@@ -117,8 +97,90 @@ public class UserServiceTest {
         assertEquals("Updated", userService.updateUser(1L, req).getName());
     }
 
+    // 6 - Get wallet balance returns correct value
     @Test
-    void testUpdateUser_emailExists() {
+    void testGetWalletBalance_success_returnsBalance() {
+        User user = User.builder().balance(new BigDecimal("500")).build();
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        assertEquals(new BigDecimal("500"), userService.getWalletBalance(1L));
+    }
+
+    // 7 - Create address returns non-null response
+    @Test
+    void testCreateAddress_success_returnsAddress() {
+        when(addressRepository.save(any())).thenReturn(new Address());
+
+        assertNotNull(userService.createAddress(new CreateAddressRequest()));
+    }
+
+    // 8 - Get address by ID returns correct address
+    @Test
+    void testGetAddressById_success_returnsAddress() {
+        when(addressRepository.findById(1L)).thenReturn(Optional.of(new Address()));
+
+        assertNotNull(userService.getAddressById(1L));
+    }
+
+    // 9 - Update address successfully
+    @Test
+    void testUpdateAddress_success_returnsUpdatedAddress() {
+        Address address = new Address();
+
+        when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
+        when(addressRepository.save(any())).thenReturn(address);
+
+        assertNotNull(userService.updateAddress(1L, new UpdateAddressRequest()));
+    }
+
+    // 10 - Get all users returns empty page when no users exist
+    @Test
+    void testGetAllUsers_success_emptyPage() {
+        Page<User> emptyPage = new PageImpl<>(java.util.List.of());
+
+        when(userRepository.findAll(any(Pageable.class))).thenReturn(emptyPage);
+
+        assertTrue(userService.getAllUsers(PageRequest.of(0, 10)).isEmpty());
+    }
+
+    // ================= NEGATIVE TESTS (5) =================
+
+    // 11 - Create user throws when email already exists
+    @Test
+    void testCreateUser_emailAlreadyExists_throwsException() {
+        CreateUserRequest req = new CreateUserRequest();
+        req.setEmail("test@mail.com");
+
+        when(userRepository.existsByEmail(req.getEmail())).thenReturn(true);
+
+        assertThrows(BusinessException.class, () -> userService.createUser(req));
+    }
+
+    // 12 - Create user throws when address ID is not found
+    @Test
+    void testCreateUser_addressNotFound_throwsException() {
+        CreateUserRequest req = new CreateUserRequest();
+        req.setEmail("test@mail.com");
+        req.setAddressId(1L);
+
+        when(userRepository.existsByEmail(req.getEmail())).thenReturn(false);
+        when(addressRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> userService.createUser(req));
+    }
+
+    // 13 - Get user by ID throws when user does not exist
+    @Test
+    void testGetUserById_notFound_throwsException() {
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> userService.getUserById(1L));
+    }
+
+    // 14 - Update user throws when new email is already in use by another account
+    @Test
+    void testUpdateUser_emailAlreadyExists_throwsException() {
         User user = User.builder().userId(1L).email("old@mail.com").build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
@@ -130,59 +192,12 @@ public class UserServiceTest {
         assertThrows(BusinessException.class, () -> userService.updateUser(1L, req));
     }
 
+    // 15 - Get address by ID throws when address does not exist
     @Test
-    void testUpdateUser_addressNotFound() {
-        User user = User.builder().userId(1L).build();
-
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(addressRepository.findById(1L)).thenReturn(Optional.empty());
-
-        UpdateUserRequest req = new UpdateUserRequest();
-        req.setAddressId(1L);
-
-        assertThrows(ResourceNotFoundException.class, () -> userService.updateUser(1L, req));
-    }
-
-    @Test
-    void testGetWalletBalance() {
-        User user = User.builder().balance(new BigDecimal("500")).build();
-
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-
-        assertEquals(new BigDecimal("500"), userService.getWalletBalance(1L));
-    }
-
-    // -------- ADDRESS TESTS --------
-
-    @Test
-    void testCreateAddress() {
-        when(addressRepository.save(any())).thenReturn(new Address());
-
-        assertNotNull(userService.createAddress(new CreateAddressRequest()));
-    }
-
-    @Test
-    void testGetAddressById_success() {
-        when(addressRepository.findById(1L)).thenReturn(Optional.of(new Address()));
-
-        assertNotNull(userService.getAddressById(1L));
-    }
-
-    @Test
-    void testGetAddressById_notFound() {
+    void testGetAddressById_notFound_throwsException() {
         when(addressRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
                 () -> userService.getAddressById(1L));
-    }
-
-    @Test
-    void testUpdateAddress() {
-        Address address = new Address();
-
-        when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
-        when(addressRepository.save(any())).thenReturn(address);
-
-        assertNotNull(userService.updateAddress(1L, new UpdateAddressRequest()));
     }
 }
