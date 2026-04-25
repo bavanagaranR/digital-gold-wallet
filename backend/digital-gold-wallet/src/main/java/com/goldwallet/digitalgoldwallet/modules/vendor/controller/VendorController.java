@@ -37,7 +37,7 @@ public class VendorController {
     }
 
 
-    //  Pagination added
+
     @GetMapping("/vendors")
     public ResponseEntity<ApiResponse<Page<VendorResponse>>> getAllVendors(Pageable pageable) {
         return ResponseEntity.ok(
@@ -45,12 +45,6 @@ public class VendorController {
         );
     }
 
-//    @PutMapping("/vendors/{id}")
-//    public ResponseEntity<ApiResponse<VendorResponse>> updateVendor(
-//            @PathVariable Long id,
-//            @Valid @RequestBody CreateVendorRequest request) {
-//        return ResponseEntity.ok(ApiResponse.success("Vendor updated", vendorService.updateVendor(id, request)));
-//    }
 
     @PutMapping("/vendors/{id}")
     public ResponseEntity<ApiResponse<VendorResponse>> updateVendor(
@@ -58,8 +52,7 @@ public class VendorController {
             @Valid @RequestBody UpdateVendorRequest request) {
 
         return ResponseEntity.ok(
-                ApiResponse.success("Vendor updated",
-                        vendorService.updateVendor(id, request))
+                ApiResponse.success("Vendor updated",vendorService.updateVendor(id, request))
         );
     }
 

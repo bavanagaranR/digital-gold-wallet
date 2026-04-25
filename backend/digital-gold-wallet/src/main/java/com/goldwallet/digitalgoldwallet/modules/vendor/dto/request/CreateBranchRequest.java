@@ -11,6 +11,7 @@ public class CreateBranchRequest {
     @NotNull(message = "Address ID cannot be null")
     private Long addressId;
 
+    @NotNull(message = "Quantity cannot be null")
     @DecimalMin(value = "0.00", inclusive = true, message = "Quantity cannot be negative")
     @Digits(integer = 16, fraction = 2, message = "Invalid quantity format")
     private BigDecimal quantity;

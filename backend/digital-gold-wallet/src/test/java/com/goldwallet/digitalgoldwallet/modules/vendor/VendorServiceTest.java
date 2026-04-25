@@ -1,5 +1,6 @@
 package com.goldwallet.digitalgoldwallet.modules.vendor;
 
+import com.goldwallet.digitalgoldwallet.common.exception.BusinessException;
 import com.goldwallet.digitalgoldwallet.common.exception.ResourceNotFoundException;
 import com.goldwallet.digitalgoldwallet.modules.user.entity.Address;
 import com.goldwallet.digitalgoldwallet.modules.user.repository.AddressRepository;
@@ -228,12 +229,26 @@ class VendorServiceTest {
     // ----------- 12. GET BRANCH SUCCESS ----------
     @Test
     void testGetBranchById_success() {
-        Vendor vendor = Vendor.builder().vendorId(1L).vendorName("Gold").contactPhone("9876543210").build();
-        VendorBranch b = VendorBranch.builder().branchId(1L).vendor(vendor).build();
+
+        Vendor vendor = Vendor.builder()
+                .vendorId(1L)
+                .vendorName("Gold")
+                .contactPhone("9876543210")
+                .build();
+
+        Address address = new Address();
+        address.setAddressId(10L); // ✅ add this
+
+        VendorBranch b = VendorBranch.builder()
+                .branchId(1L)
+                .vendor(vendor)
+                .address(address) // ✅ fix
+                .build();
 
         when(branchRepository.findById(1L)).thenReturn(Optional.of(b));
 
         BranchResponse response = vendorService.getBranchById(1L);
+
         assertEquals(1L, response.getBranchId());
     }
 
@@ -257,5 +272,20 @@ class VendorServiceTest {
         when(branchRepository.findById(1L)).thenReturn(Optional.of(b));
 
         assertEquals(0, new BigDecimal("100").compareTo(vendorService.getBranchInventory(1L)));
+    }
+
+
+    //-------------------------15 . Negative test: ensures duplicate vendor name is not allowed---------------
+    @Test
+    void testCreateVendor_duplicateName() {
+
+        CreateVendorRequest req = new CreateVendorRequest();
+        req.setVendorName("Gold");
+        req.setContactPhone("9876543210");
+
+        // Simulate duplicate name in DB
+        when(vendorRepository.existsByVendorNameIgnoreCase("Gold")).thenReturn(true);
+
+        assertThrows(BusinessException.class, () -> vendorService.createVendor(req));
     }
 }

@@ -1,6 +1,6 @@
 package com.goldwallet.digitalgoldwallet.modules.vendor.dto.request;
 
-import jakarta.persistence.Column;
+
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.URL;
 
@@ -23,13 +23,6 @@ public class CreateVendorRequest {
     @Size(max = 100, message = "Email must be less than 100 characters")
     private String contactEmail;
 
-//    @NotBlank(message = "Phone number is required")
-//    //    @Pattern(regexp = "^[0-9]{10,15}$", message = "Invalid phone number (10–15 digits only)")
-//    @Pattern(
-//            regexp = "^(\\+\\d{1,3}\\s?)?[0-9]{10}$|^$",
-//            message = "Invalid phone number"
-//    )
-//    private String contactPhone;
 
     @NotBlank(message = "Phone number is required")
     @Pattern(

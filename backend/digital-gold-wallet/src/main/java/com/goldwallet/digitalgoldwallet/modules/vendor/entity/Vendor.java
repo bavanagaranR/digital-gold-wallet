@@ -52,9 +52,6 @@ public class Vendor {
     @Column(name = "website_url")
     private String websiteUrl;
 
-    @NotNull(message = "Total gold quantity cannot be null")
-    @DecimalMin(value = "0.00", inclusive = true, message = "Gold quantity cannot be negative")
-    @Digits(integer = 16, fraction = 2, message = "Invalid quantity format")
     @Column(name = "total_gold_quantity", precision = 18, scale = 2)
     @Builder.Default
     private BigDecimal totalGoldQuantity = BigDecimal.ZERO;
