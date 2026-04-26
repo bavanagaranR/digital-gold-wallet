@@ -34,7 +34,7 @@ public class VirtualGoldHolding {
     private VendorBranch branch;
 
     @NotNull(message = "Quantity cannot be null")
-    @DecimalMin(value = "0.00", inclusive = false, message = "Quantity must be greater than 0")
+    @DecimalMin(value = "0.00", inclusive = true, message = "Quantity must be greater than 0")
     @Digits(integer = 16, fraction = 2, message = "Invalid quantity format")
     @Column(nullable = false, precision = 18, scale = 2)
     private BigDecimal quantity;

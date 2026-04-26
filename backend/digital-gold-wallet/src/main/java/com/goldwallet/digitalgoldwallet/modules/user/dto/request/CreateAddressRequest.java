@@ -14,6 +14,7 @@ public class CreateAddressRequest {
     @NotBlank(message = "State is required")
     private String state;
 
+    @NotBlank(message = "Postal Code is required")
     @Pattern(regexp = "^[1-9][0-9]{5}$", message = "Invalid postal code")
     private String postalCode;
 

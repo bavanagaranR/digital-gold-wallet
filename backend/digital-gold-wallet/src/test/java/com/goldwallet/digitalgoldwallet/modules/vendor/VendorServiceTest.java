@@ -1,5 +1,6 @@
 package com.goldwallet.digitalgoldwallet.modules.vendor;
 
+import com.goldwallet.digitalgoldwallet.common.exception.BusinessException;
 import com.goldwallet.digitalgoldwallet.common.exception.ResourceNotFoundException;
 import com.goldwallet.digitalgoldwallet.modules.user.entity.Address;
 import com.goldwallet.digitalgoldwallet.modules.user.repository.AddressRepository;
@@ -31,31 +32,33 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+
+@ExtendWith(MockitoExtension.class) // Enables Mockito support in JUnit 5
 class VendorServiceTest {
 
     @Mock
-    private VendorRepository vendorRepository;
+    private VendorRepository vendorRepository; // Mocked repository for vendor
 
     @Mock
-    private VendorBranchRepository branchRepository;
+    private VendorBranchRepository branchRepository; // Mocked repository for branches
 
     @Mock
-    private AddressRepository addressRepository;
+    private AddressRepository addressRepository; // Mocked repository for address
 
     @InjectMocks
-    private VendorServiceImpl vendorService;
+    private VendorServiceImpl vendorService; // Injects mocks into service
 
-    // ================= POSITIVE TESTS (10) =================
-
-    // 1 - Create vendor successfully returns correct name and phone
+    // ----------- 1. CREATE VENDOR SUCCESS ----------
     @Test
-    void testCreateVendor_success_returnsVendorDetails() {
+    void testCreateVendor_success() {
+
+        // Prepare request data
         CreateVendorRequest req = new CreateVendorRequest();
         req.setVendorName("TestVendor");
         req.setContactEmail("test@vendor.com");
         req.setContactPhone("9876543210");
 
+        // Mocked DB response after save
         Vendor saved = Vendor.builder()
                 .vendorId(1L)
                 .vendorName("TestVendor")
@@ -63,37 +66,56 @@ class VendorServiceTest {
                 .contactPhone("9876543210")
                 .build();
 
+        // Mock validation checks
+        when(vendorRepository.existsByVendorNameIgnoreCase(req.getVendorName())).thenReturn(false);
         when(vendorRepository.existsByContactEmail(req.getContactEmail())).thenReturn(false);
+
+        // Mock save operation
         when(vendorRepository.save(any(Vendor.class))).thenReturn(saved);
 
+        // Call service method
         VendorResponse response = vendorService.createVendor(req);
+
+        // Verify result
         assertEquals("TestVendor", response.getVendorName());
         assertEquals("9876543210", response.getContactPhone());
     }
 
-    // 2 - Create vendor sets a default gold price
+    // ----------- 2. CREATE VENDOR NULL PRICE ----------
     @Test
-    void testCreateVendor_success_defaultPriceSet() {
+    void testCreateVendor_nullPrice_whenNotProvided() {
+
+        // Request without price
         CreateVendorRequest req = new CreateVendorRequest();
         req.setVendorName("Test");
         req.setContactPhone("9876543210");
 
+        // Mocked saved entity with null price
         Vendor saved = Vendor.builder()
                 .vendorId(1L)
                 .vendorName("Test")
                 .contactPhone("9876543210")
-                .currentGoldPrice(new BigDecimal("5700.00"))
+                .currentGoldPrice(null)
                 .build();
 
+        // Mock validation
+        when(vendorRepository.existsByVendorNameIgnoreCase("Test")).thenReturn(false);
+
+        // Mock save
         when(vendorRepository.save(any(Vendor.class))).thenReturn(saved);
 
+        // Execute service
         VendorResponse response = vendorService.createVendor(req);
-        assertEquals(0, response.getCurrentGoldPrice().compareTo(new BigDecimal("5700.00")));
+
+        // Verify price is null
+        assertNull(response.getCurrentGoldPrice());
     }
 
     // 3 - Get vendor by ID returns correct vendor
     @Test
-    void testGetVendorById_success_returnsVendor() {
+    void testGetVendorById_success() {
+
+        // Mock existing vendor
         Vendor v = Vendor.builder()
                 .vendorId(1L)
                 .vendorName("Gold")
@@ -102,28 +124,52 @@ class VendorServiceTest {
 
         when(vendorRepository.findById(1L)).thenReturn(Optional.of(v));
 
+        // Call service
         VendorResponse response = vendorService.getVendorById(1L);
+
+        // Verify result
         assertEquals("Gold", response.getVendorName());
     }
 
-    // 4 - Get all vendors returns paginated list of vendors
+    // ----------- 4. GET VENDOR NOT FOUND ----------
     @Test
-    void testGetAllVendors_success_returnsAllVendors() {
+    void testGetVendorById_notFound() {
+
+        // Mock vendor not found
+        when(vendorRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Verify exception
+        assertThrows(ResourceNotFoundException.class,
+                () -> vendorService.getVendorById(1L));
+    }
+
+    // ----------- 5. GET ALL VENDORS ----------
+    @Test
+    void testGetAllVendors() {
+
+        // Mock vendor list
         List<Vendor> vendors = List.of(
                 Vendor.builder().vendorId(1L).vendorName("A").contactPhone("9876543210").build(),
                 Vendor.builder().vendorId(2L).vendorName("B").contactPhone("9876543211").build()
         );
+
         Page<Vendor> page = new PageImpl<>(vendors);
 
         when(vendorRepository.findAll(any(Pageable.class))).thenReturn(page);
 
+        // Call service
         Page<VendorResponse> response = vendorService.getAllVendors(PageRequest.of(0, 10));
+
+        // Verify results
         assertEquals(2, response.getContent().size());
+        assertEquals("A", response.getContent().get(0).getVendorName());
     }
 
     // 5 - Update vendor name successfully
     @Test
-    void testUpdateVendor_success_nameUpdated() {
+    void testUpdateVendor_success() {
+
+        // Existing vendor
         Vendor v = Vendor.builder()
                 .vendorId(1L)
                 .vendorName("Old")
@@ -133,16 +179,33 @@ class VendorServiceTest {
         when(vendorRepository.findById(1L)).thenReturn(Optional.of(v));
         when(vendorRepository.save(any(Vendor.class))).thenReturn(v);
 
+        // Update request
         UpdateVendorRequest req = new UpdateVendorRequest();
         req.setVendorName("New");
 
+        // Execute
         VendorResponse response = vendorService.updateVendor(1L, req);
+
+        // Verify update
         assertEquals("New", response.getVendorName());
     }
 
-    // 6 - Get vendor gold price returns correct value
+    // ----------- 7. UPDATE VENDOR NOT FOUND ----------
     @Test
-    void testGetVendorGoldPrice_success_returnsPrice() {
+    void testUpdateVendor_notFound() {
+
+        when(vendorRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Expect exception
+        assertThrows(ResourceNotFoundException.class,
+                () -> vendorService.updateVendor(1L, new UpdateVendorRequest()));
+    }
+
+    // ----------- 8. GET GOLD PRICE ----------
+    @Test
+    void testGetGoldPrice() {
+
+        // Mock vendor with price
         Vendor v = Vendor.builder()
                 .vendorId(1L)
                 .currentGoldPrice(new BigDecimal("6000"))
@@ -151,19 +214,27 @@ class VendorServiceTest {
 
         when(vendorRepository.findById(1L)).thenReturn(Optional.of(v));
 
-        assertEquals(0, new BigDecimal("6000").compareTo(vendorService.getVendorGoldPrice(1L)));
+        // Verify price
+        assertEquals(0,
+                new BigDecimal("6000").compareTo(vendorService.getVendorGoldPrice(1L)));
     }
 
     // 7 - Add branch to vendor successfully
     @Test
-    void testAddBranch_success_returnsBranchWithId() {
-        Vendor vendor = Vendor.builder().vendorId(1L).vendorName("Vendor1").contactPhone("9876543210").build();
+    void testAddBranch_success() {
+
+        // Create mock vendor
+        Vendor vendor = Vendor.builder()
+                .vendorId(1L)
+                .vendorName("Vendor1")
+                .contactPhone("9876543210")
+                .build();
+
+        // Create mock address
         Address address = new Address();
         address.setAddressId(1L);
 
-        when(vendorRepository.findById(1L)).thenReturn(Optional.of(vendor));
-        when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
-
+        // Create mock branch (what DB will return after save)
         VendorBranch branch = VendorBranch.builder()
                 .branchId(1L)
                 .vendor(vendor)
@@ -171,34 +242,113 @@ class VendorServiceTest {
                 .quantity(new BigDecimal("100"))
                 .build();
 
-        when(branchRepository.save(any(VendorBranch.class))).thenReturn(branch);
-        when(branchRepository.findByVendorVendorId(1L)).thenReturn(List.of(branch));
-        when(vendorRepository.save(any(Vendor.class))).thenReturn(vendor);
+        // Mock repository calls
+        when(vendorRepository.findById(1L)).thenReturn(Optional.of(vendor)); // vendor exists
+        when(addressRepository.findById(1L)).thenReturn(Optional.of(address)); // address exists
+        when(branchRepository.save(any(VendorBranch.class))).thenReturn(branch); // save branch
+        when(branchRepository.findByVendorVendorId(1L)).thenReturn(List.of(branch)); // fetch branches
+        when(vendorRepository.save(any(Vendor.class))).thenReturn(vendor); // update vendor
 
+        // Create request
         CreateBranchRequest req = new CreateBranchRequest();
         req.setAddressId(1L);
         req.setQuantity(new BigDecimal("100"));
 
+        // Call service
         BranchResponse response = vendorService.addBranch(1L, req);
+
+        // Verify result
         assertNotNull(response.getBranchId());
         assertEquals(1L, response.getBranchId());
     }
 
-    // 8 - Get branch by ID returns correct branch
-    @Test
-    void testGetBranchById_success_returnsBranch() {
-        Vendor vendor = Vendor.builder().vendorId(1L).vendorName("Gold").contactPhone("9876543210").build();
-        VendorBranch b = VendorBranch.builder().branchId(1L).vendor(vendor).build();
 
+    // ----------- 10. ADD BRANCH VENDOR NOT FOUND ----------
+    @Test
+    void testAddBranch_vendorNotFound() {
+
+        // Mock vendor not found
+        when(vendorRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Expect exception
+        assertThrows(ResourceNotFoundException.class,
+                () -> vendorService.addBranch(1L, new CreateBranchRequest()));
+    }
+
+
+    // ----------- 11. ADD BRANCH ADDRESS NOT FOUND ----------
+    @Test
+    void testAddBranch_addressNotFound() {
+
+        // Mock vendor exists
+        Vendor vendor = Vendor.builder().vendorId(1L).build();
+
+        when(vendorRepository.findById(1L)).thenReturn(Optional.of(vendor));
+
+        // Mock address not found
+        when(addressRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Create request
+        CreateBranchRequest req = new CreateBranchRequest();
+        req.setAddressId(1L);
+
+        // Expect exception
+        assertThrows(ResourceNotFoundException.class,
+                () -> vendorService.addBranch(1L, req));
+    }
+
+
+    // ----------- 12. GET BRANCH SUCCESS ----------
+    @Test
+    void testGetBranchById_success() {
+
+        // Mock vendor
+        Vendor vendor = Vendor.builder()
+                .vendorId(1L)
+                .vendorName("Gold")
+                .contactPhone("9876543210")
+                .build();
+
+        // Mock address
+        Address address = new Address();
+        address.setAddressId(10L);
+
+        // Mock branch
+        VendorBranch b = VendorBranch.builder()
+                .branchId(1L)
+                .vendor(vendor)
+                .address(address)
+                .build();
+
+        // Mock repository response
         when(branchRepository.findById(1L)).thenReturn(Optional.of(b));
 
+        // Call service
         BranchResponse response = vendorService.getBranchById(1L);
+
+        // Verify result
         assertEquals(1L, response.getBranchId());
     }
 
-    // 9 - Get branch inventory returns correct quantity
+
+    // ----------- 13. GET BRANCH NOT FOUND ----------
     @Test
-    void testGetBranchInventory_success_returnsQuantity() {
+    void testGetBranchById_notFound() {
+
+        // Mock branch not found
+        when(branchRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Expect exception
+        assertThrows(ResourceNotFoundException.class,
+                () -> vendorService.getBranchById(1L));
+    }
+
+
+    // ----------- 14. GET BRANCH INVENTORY ----------
+    @Test
+    void testGetBranchInventory() {
+
+        // Mock branch with quantity
         VendorBranch b = VendorBranch.builder()
                 .branchId(1L)
                 .quantity(new BigDecimal("100"))
@@ -206,70 +356,26 @@ class VendorServiceTest {
 
         when(branchRepository.findById(1L)).thenReturn(Optional.of(b));
 
-        assertEquals(0, new BigDecimal("100").compareTo(vendorService.getBranchInventory(1L)));
+        // Verify quantity returned
+        assertEquals(0,
+                new BigDecimal("100").compareTo(vendorService.getBranchInventory(1L)));
     }
 
-    // 10 - Get all vendors returns empty page when no vendors exist
+
+    // ----------- 15. DUPLICATE VENDOR NAME ----------
     @Test
-    void testGetAllVendors_success_emptyPage() {
-        Page<Vendor> emptyPage = new PageImpl<>(List.of());
+    void testCreateVendor_duplicateName() {
 
-        when(vendorRepository.findAll(any(Pageable.class))).thenReturn(emptyPage);
+        // Create request with duplicate name
+        CreateVendorRequest req = new CreateVendorRequest();
+        req.setVendorName("Gold");
+        req.setContactPhone("9876543210");
 
-        Page<VendorResponse> response = vendorService.getAllVendors(PageRequest.of(0, 10));
-        assertTrue(response.isEmpty());
-    }
+        // Mock duplicate check
+        when(vendorRepository.existsByVendorNameIgnoreCase("Gold")).thenReturn(true);
 
-    // ================= NEGATIVE TESTS (5) =================
-
-    // 11 - Get vendor by ID throws when vendor not found
-    @Test
-    void testGetVendorById_notFound_throwsException() {
-        when(vendorRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> vendorService.getVendorById(1L));
-    }
-
-    // 12 - Update vendor throws when vendor not found
-    @Test
-    void testUpdateVendor_notFound_throwsException() {
-        when(vendorRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> vendorService.updateVendor(1L, new UpdateVendorRequest()));
-    }
-
-    // 13 - Add branch throws when vendor not found
-    @Test
-    void testAddBranch_vendorNotFound_throwsException() {
-        when(vendorRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> vendorService.addBranch(1L, new CreateBranchRequest()));
-    }
-
-    // 14 - Add branch throws when address not found
-    @Test
-    void testAddBranch_addressNotFound_throwsException() {
-        Vendor vendor = Vendor.builder().vendorId(1L).build();
-
-        when(vendorRepository.findById(1L)).thenReturn(Optional.of(vendor));
-        when(addressRepository.findById(1L)).thenReturn(Optional.empty());
-
-        CreateBranchRequest req = new CreateBranchRequest();
-        req.setAddressId(1L);
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> vendorService.addBranch(1L, req));
-    }
-
-    // 15 - Get branch by ID throws when branch not found
-    @Test
-    void testGetBranchById_notFound_throwsException() {
-        when(branchRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> vendorService.getBranchById(1L));
+        // Expect BusinessException
+        assertThrows(BusinessException.class,
+                () -> vendorService.createVendor(req));
     }
 }

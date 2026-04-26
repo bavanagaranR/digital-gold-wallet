@@ -3,10 +3,7 @@ package com.goldwallet.digitalgoldwallet.modules.user.dto.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 
-//user request
-@Data
 public class CreateUserRequest {
     @NotBlank(message = "Name is required")
     private String name;
