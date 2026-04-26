@@ -83,35 +83,37 @@ class VendorServiceTest {
 
     // ----------- 2. CREATE VENDOR NULL PRICE ----------
     @Test
-    void testCreateVendor_nullPrice_whenNotProvided() {
+    void testCreateVendor_validPrice() {
 
-        // Request without price
+        // Request with valid price
         CreateVendorRequest req = new CreateVendorRequest();
         req.setVendorName("Test");
         req.setContactPhone("9876543210");
+        req.setCurrentGoldPrice(new BigDecimal("5700"));
 
-        // Mocked saved entity with null price
+        // Mock saved entity
         Vendor saved = Vendor.builder()
                 .vendorId(1L)
                 .vendorName("Test")
                 .contactPhone("9876543210")
-                .currentGoldPrice(null)
+                .currentGoldPrice(new BigDecimal("5700"))
                 .build();
 
-        // Mock validation
+        // Mock validations
         when(vendorRepository.existsByVendorNameIgnoreCase("Test")).thenReturn(false);
 
         // Mock save
         when(vendorRepository.save(any(Vendor.class))).thenReturn(saved);
 
-        // Execute service
+        // Execute
         VendorResponse response = vendorService.createVendor(req);
 
-        // Verify price is null
-        assertNull(response.getCurrentGoldPrice());
+        // Verify
+        assertEquals(0,
+                response.getCurrentGoldPrice().compareTo(new BigDecimal("5700")));
     }
 
-    // 3 - Get vendor by ID returns correct vendor
+    // --------------------- 3 Get vendor by ID returns correct vendor-------------
     @Test
     void testGetVendorById_success() {
 
@@ -152,7 +154,7 @@ class VendorServiceTest {
                 Vendor.builder().vendorId(1L).vendorName("A").contactPhone("9876543210").build(),
                 Vendor.builder().vendorId(2L).vendorName("B").contactPhone("9876543211").build()
         );
-
+        //Mocked Page of Vendor returned from repository
         Page<Vendor> page = new PageImpl<>(vendors);
 
         when(vendorRepository.findAll(any(Pageable.class))).thenReturn(page);
@@ -219,7 +221,7 @@ class VendorServiceTest {
                 new BigDecimal("6000").compareTo(vendorService.getVendorGoldPrice(1L)));
     }
 
-    // 7 - Add branch to vendor successfully
+    // -------------------9 - Add branch to vendor successfully--------------
     @Test
     void testAddBranch_success() {
 
@@ -234,7 +236,7 @@ class VendorServiceTest {
         Address address = new Address();
         address.setAddressId(1L);
 
-        // Create mock branch (what DB will return after save)
+        // Create mock branch (DB response after save)
         VendorBranch branch = VendorBranch.builder()
                 .branchId(1L)
                 .vendor(vendor)
@@ -245,9 +247,12 @@ class VendorServiceTest {
         // Mock repository calls
         when(vendorRepository.findById(1L)).thenReturn(Optional.of(vendor)); // vendor exists
         when(addressRepository.findById(1L)).thenReturn(Optional.of(address)); // address exists
-        when(branchRepository.save(any(VendorBranch.class))).thenReturn(branch); // save branch
+        when(branchRepository.save(any(VendorBranch.class))).thenReturn(branch); // branch saved
         when(branchRepository.findByVendorVendorId(1L)).thenReturn(List.of(branch)); // fetch branches
-        when(vendorRepository.save(any(Vendor.class))).thenReturn(vendor); // update vendor
+
+        // Return updated vendor object after modification
+        when(vendorRepository.save(any(Vendor.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         // Create request
         CreateBranchRequest req = new CreateBranchRequest();
@@ -257,9 +262,13 @@ class VendorServiceTest {
         // Call service
         BranchResponse response = vendorService.addBranch(1L, req);
 
-        // Verify result
+        // Verify branch creation
         assertNotNull(response.getBranchId());
         assertEquals(1L, response.getBranchId());
+
+        // Verify total gold quantity updated
+        assertEquals(0,
+                vendor.getTotalGoldQuantity().compareTo(new BigDecimal("100")));
     }
 
 
