@@ -18,11 +18,15 @@
 
 
 
-    @Entity
-    @Table(name = "payments")
+/**
+ * Entity class representing a Payment transaction.
+ * Maps to the 'payments' table in the database and stores details like amount, method, and status.
+ */
+@Entity
+@Table(name = "payments")
 
-    @Builder
-    public class Payment {
+@Builder
+public class Payment {
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
