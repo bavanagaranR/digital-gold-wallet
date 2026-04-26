@@ -8,7 +8,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 //payment request dto updated
-@Data
+
 public class InitiatePaymentRequest {
     @NotNull(message = "User ID is required")
     private Long userId;
@@ -54,4 +54,6 @@ public class InitiatePaymentRequest {
     public void setTransactionType(Payment.TransactionType transactionType) {
         this.transactionType = transactionType;
     }
+
+
 }
