@@ -6,9 +6,10 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-
+// DTO used to send branch details in response
 @Builder
 public class BranchResponse {
+
     private Long branchId;
     private Long vendorId;
     private String vendorName;

@@ -1,14 +1,13 @@
 package com.goldwallet.digitalgoldwallet.modules.vendor.dto.response;
 
 import lombok.Builder;
-import lombok.Data;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-
+// DTO used to send vendor details in response
 @Builder
 public class VendorResponse {
+
     private Long vendorId;
     private String vendorName;
     private String description;
