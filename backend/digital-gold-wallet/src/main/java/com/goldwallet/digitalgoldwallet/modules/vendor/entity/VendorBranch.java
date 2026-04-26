@@ -13,39 +13,40 @@ import jakarta.validation.constraints.*;
 
 
 @Entity
-@Table(name = "vendor_branches")
-@Builder
+@Table(name = "vendor_branches") // Maps this class to vendor_branches table
+@Builder // Enables builder pattern for object creation
 public class VendorBranch {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-increment primary key
     @Column(name = "branch_id")
     private Long branchId;
 
-    @NotNull(message = "Vendor cannot be null")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vendor_id", nullable = false)
+    @NotNull(message = "Vendor cannot be null") // Vendor is mandatory
+    @ManyToOne(fetch = FetchType.LAZY) // Many branches belong to one vendor
+    @JoinColumn(name = "vendor_id", nullable = false) // Foreign key to vendor table
     private Vendor vendor;
 
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "address_id")
+    @ManyToOne(fetch = FetchType.LAZY) // Many branches can share same address
+    @JoinColumn(name = "address_id", nullable = false) // Foreign key to address table
     private Address address;
 
-    @NotNull(message = "Quantity cannot be null")
-    @DecimalMin(value = "0.00", inclusive = true, message = "Quantity cannot be negative")
-    @Digits(integer = 16, fraction = 2, message = "Invalid quantity format")
-    @Column(precision = 18, scale = 2)
+    @NotNull(message = "Quantity cannot be null") // Quantity is required
+    @DecimalMin(value = "0.00", inclusive = true, message = "Quantity cannot be negative") // No negative values
+    @Digits(integer = 16, fraction = 2, message = "Invalid quantity format") // Precision control
+    @Column(precision = 18, scale = 2) // Database column precision
     @Builder.Default
-    private BigDecimal quantity = BigDecimal.ZERO;
+    private BigDecimal quantity = BigDecimal.ZERO; // Default value = 0
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @CreationTimestamp // Automatically sets creation time
+    @Column(name = "created_at", updatable = false) // Cannot be updated later
     private LocalDateTime createdAt;
 
+    // Default constructor required by JPA
     public VendorBranch() {
     }
 
+    // Parameterized constructor for manual object creation
     public VendorBranch(Long branchId, Vendor vendor, Address address, BigDecimal quantity, LocalDateTime createdAt) {
         this.branchId = branchId;
         this.vendor = vendor;
@@ -53,6 +54,8 @@ public class VendorBranch {
         this.quantity = quantity;
         this.createdAt = createdAt;
     }
+
+    // Getters and setters for accessing and modifying fields
 
     public Long getBranchId() {
         return branchId;
