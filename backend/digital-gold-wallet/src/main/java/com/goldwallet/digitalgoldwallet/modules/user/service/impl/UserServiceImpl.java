@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
-@Slf4j
+@Slf4j// Enables logging using log.info(), log.error(), etc.
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -38,18 +38,21 @@ public class UserServiceImpl implements UserService {
     private AddressRepository addressRepository;
 
     @Override
-    @Transactional
+    @Transactional// If any error happens, DB changes will rollback
+    // Check duplicate email before creating user
     public UserResponse createUser(CreateUserRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new BusinessException("Email already in use: " + request.getEmail());
         }
 
+        // Fetch address using addressId from request
         Address address = null;
         if (request.getAddressId() != null) {
             address = addressRepository.findById(request.getAddressId())
                     .orElseThrow(() -> new ResourceNotFoundException("Address not found: " + request.getAddressId()));
         }
 
+        // Convert request DTO to User entity
         User user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
@@ -57,9 +60,11 @@ public class UserServiceImpl implements UserService {
                 .balance(BigDecimal.ZERO)
                 .build();
 
+        // Save user entity into database
         User saved = userRepository.save(user);
         log.info("Created user with ID: {}", saved.getUserId());
 
+        // Convert saved entity to response DTO
         return mapToUserResponse(saved);
     }
 
@@ -68,11 +73,6 @@ public class UserServiceImpl implements UserService {
         User user = findUserOrThrow(userId);
         return mapToUserResponse(user);
     }
-
-//    @Override
-//    public Page<UserResponse> getAllUsers(Pageable pageable) {
-//        return userRepository.findAll(pageable).map(this::mapToUserResponse);
-//    }
 
     @Override
     public Page<UserResponse> getAllUsers(Pageable pageable) {
@@ -90,12 +90,14 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserResponse updateUser(Long userId, UpdateUserRequest request) {
-        User user = findUserOrThrow(userId);
+        User user = findUserOrThrow(userId);// Fetch existing user
 
+        // Update only provided fields
         if (request.getName() != null) {
             user.setName(request.getName());
         }
 
+        // Check duplicate email before updating
         if (request.getEmail() != null) {
             if (!request.getEmail().equals(user.getEmail()) &&
                     userRepository.existsByEmail(request.getEmail())) {
@@ -104,12 +106,14 @@ public class UserServiceImpl implements UserService {
             user.setEmail(request.getEmail());
         }
 
+        // Update address if addressId is provided
         if (request.getAddressId() != null) {
             Address address = addressRepository.findById(request.getAddressId())
                     .orElseThrow(() -> new ResourceNotFoundException("Address not found: " + request.getAddressId()));
             user.setAddress(address);
         }
 
+        // Save updated user and return response
         return mapToUserResponse(userRepository.save(user));
     }
 
@@ -121,6 +125,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public AddressResponse createAddress(CreateAddressRequest request) {
+
+        // Convert request DTO to Address entity
         Address address = Address.builder()
                 .street(request.getStreet())
                 .city(request.getCity())
@@ -142,6 +148,7 @@ public class UserServiceImpl implements UserService {
     public AddressResponse updateAddress(Long addressId, UpdateAddressRequest request) {
         Address address = findAddressOrThrow(addressId);
 
+        // Update only provided fields
         if (request.getStreet() != null) {
             address.setStreet(request.getStreet());
         }
@@ -162,6 +169,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private User findUserOrThrow(Long userId) {
+        // Common helper method to fetch user or throw not found error
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
     }
@@ -172,6 +180,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserResponse mapToUserResponse(User user) {
+        // Convert User entity to UserResponse DTO
         return UserResponse.builder()
                 .userId(user.getUserId())
                 .name(user.getName())
@@ -183,6 +192,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private AddressResponse mapToAddressResponse(Address address) {
+        // Convert Address entity to AddressResponse DTO
         return AddressResponse.builder()
                 .addressId(address.getAddressId())
                 .street(address.getStreet())

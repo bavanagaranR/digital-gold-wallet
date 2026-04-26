@@ -1,13 +1,11 @@
 package com.goldwallet.digitalgoldwallet.modules.user.dto.response;
 
 import lombok.Builder;
-import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Builder
-@Data
 public class UserResponse {
     private Long userId;
     private String name;

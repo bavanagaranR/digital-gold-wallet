@@ -111,7 +111,7 @@ class VendorServiceTest {
         assertNull(response.getCurrentGoldPrice());
     }
 
-    // ----------- 3. GET VENDOR SUCCESS ----------
+    // 3 - Get vendor by ID returns correct vendor
     @Test
     void testGetVendorById_success() {
 
@@ -165,7 +165,7 @@ class VendorServiceTest {
         assertEquals("A", response.getContent().get(0).getVendorName());
     }
 
-    // ----------- 6. UPDATE VENDOR SUCCESS ----------
+    // 5 - Update vendor name successfully
     @Test
     void testUpdateVendor_success() {
 
@@ -219,7 +219,7 @@ class VendorServiceTest {
                 new BigDecimal("6000").compareTo(vendorService.getVendorGoldPrice(1L)));
     }
 
-    // ----------- 9. ADD BRANCH SUCCESS ----------
+    // 7 - Add branch to vendor successfully
     @Test
     void testAddBranch_success() {
 
