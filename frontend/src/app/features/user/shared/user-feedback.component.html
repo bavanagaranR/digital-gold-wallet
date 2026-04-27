@@ -1,0 +1,61 @@
+@if (loading) {
+  <div class="mt-6 flex items-center justify-center gap-3 rounded-2xl border border-gold-500/20 bg-maroon-950/90 px-4 py-4 text-gold-100 shadow-lg">
+    <div class="spinner border-t-gold-500"></div>
+    <span class="text-sm font-medium">Processing request...</span>
+  </div>
+}
+
+@if (!loading && feedback.type === 'validation' && feedback.groupedMessages.length) {
+  <div class="mt-6 rounded-2xl border border-amber-500/30 bg-amber-50 px-4 py-4 shadow-lg">
+    <div class="flex items-start gap-3">
+      <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-500 text-white text-sm font-black">!</span>
+      <div class="min-w-0">
+        <p class="font-semibold text-amber-900">Validation issue</p>
+        <p class="mt-1 text-sm text-amber-800">Review the highlighted fields below.</p>
+        <ul class="mt-3 space-y-1">
+          @for (message of feedback.groupedMessages; track message) {
+            <li class="text-sm text-amber-900 flex items-start gap-2">
+              <span class="mt-0.5 font-black text-amber-700">!</span>
+              <span>{{ message }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+}
+
+@if (!loading && feedback.type === 'custom') {
+  <div class="mt-6 rounded-2xl border border-amber-400/40 bg-amber-50 px-4 py-4 shadow-lg">
+    <div class="flex items-start gap-3">
+      <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-500 text-white text-sm font-black">!</span>
+      <div class="min-w-0">
+        <p class="font-semibold text-amber-900">Request warning</p>
+        <p class="mt-1 text-sm text-amber-900">
+          @if (feedback.status) {
+            <span class="font-bold">HTTP {{ feedback.status }}:</span>
+          }
+          <span>{{ feedback.message }}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+}
+
+@if (!loading && feedback.type === 'system') {
+  <div class="mt-6 rounded-2xl border border-red-500/30 bg-red-50 px-4 py-4 shadow-lg">
+    <div class="flex items-start gap-3">
+      <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-600 text-white text-sm font-black">!</span>
+      <div class="min-w-0">
+        <p class="font-semibold text-red-900">System error</p>
+        <p class="mt-1 text-sm text-red-800">
+          @if (feedback.status) {
+            <span class="font-bold">HTTP {{ feedback.status }}:</span>
+          }
+          <span>{{ feedback.message }}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+}
+

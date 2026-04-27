@@ -1,45 +1,51 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators, FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { UserService } from '../../services/user.service';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
-import { ResultViewerComponent } from '../../../../shared/components/result-viewer/result-viewer.component';
+import { UserFeedbackComponent } from '../../shared/user-feedback.component';
+import { UserFormSupport, getControlErrorMessage, shouldShowControlError } from '../../shared/user-form-support';
 
 @Component({
   selector: 'app-user-balance',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, PageHeaderComponent, ResultViewerComponent],
+  imports: [CommonModule, ReactiveFormsModule, PageHeaderComponent, UserFeedbackComponent],
   templateUrl: './user-balance.component.html',
   styleUrl: './user-balance.component.css'
 })
-export class UserBalanceComponent {
+export class UserBalanceComponent extends UserFormSupport {
   private svc = inject(UserService);
-  userId = ''; 
-  balance: number | null = null; 
-  error = ''; 
+  private fb = inject(FormBuilder);
+  override form = this.fb.group({
+    userId: ['', [Validators.required, Validators.pattern(/^\d+$/), Validators.min(1)]],
+  });
+
+  balance: number | null = null;
   loading = false;
 
+  controlErrorMessage(field: string): string {
+    return getControlErrorMessage(this.form.get(field), field);
+  }
+
+  showControlError(field: string): boolean {
+    return shouldShowControlError(this.form.get(field), this.submitted);
+  }
+
   submit() {
-    if (parseInt(this.userId)<=0 ) {
-      this.error = 'User ID must be a greater than 0';
-      return;
-    
-    }
-   else if (!this.userId) {
-      this.error = 'User ID is required';
+    this.startSubmit();
+    if (this.form.invalid) {
       return;
     }
-    this.loading = true; 
-    this.error = ''; 
+    this.loading = true;
     this.balance = null;
-    this.svc.getUserBalance(+this.userId).subscribe({
-      next: r => { 
-        this.balance = (r.data as any)?.balance ?? r.data; 
-        this.loading = false; 
+    this.svc.getUserBalance(+this.form.getRawValue().userId!).subscribe({
+      next: r => {
+        this.balance = (r.data as any)?.balance ?? r.data;
+        this.loading = false;
       },
-      error: e => { 
-        this.error = e.error?.message || e.message || 'Failed'; 
-        this.loading = false; 
+      error: e => {
+        this.applyServerError(e);
+        this.loading = false;
       }
     });
   }
