@@ -47,4 +47,3 @@ public interface UserRepository extends JpaRepository<User, Long> {// save(user)
     @Query("SELECT COUNT(u) FROM User u WHERE u.address.city = :city")
     long countUsersByCity(@Param("city") String city);
 }
-

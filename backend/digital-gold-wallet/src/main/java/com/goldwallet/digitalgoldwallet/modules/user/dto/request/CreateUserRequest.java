@@ -1,18 +1,21 @@
 package com.goldwallet.digitalgoldwallet.modules.user.dto.request;
 
-import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 public class CreateUserRequest {
+    @Pattern(regexp = "^[A-Za-z]+$",message = "Name must contain only letters")
     @NotBlank(message = "Name is required")
     private String name;
 
     @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
+    @Pattern(regexp = "^$|^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$", message = "Invalid email format")
     private String email;
 
     @NotNull(message = "Address ID is required")
+    @Min(value = 1, message = "Address ID must be greater than 0")
     private Long addressId;
 
     public String getName() {
