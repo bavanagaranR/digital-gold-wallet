@@ -19,7 +19,10 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// payment service implementation class
+
+// Implementation of PaymentService.
+// Handles the business logic for processing payments and updating wallet balances.
+
 @Slf4j
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -30,12 +33,19 @@ public class PaymentServiceImpl implements PaymentService {
     @Autowired
     private UserRepository userRepository;
 
+
+//     Processes a new payment initiation.
+//     Validates the user, creates a payment record, and updates the user's wallet balance.
+//     Transactional to ensure data consistency between payment creation and wallet updates.
+
     @Override
     @Transactional
     public PaymentResponse initiatePayment(InitiatePaymentRequest request) {
+        // Fetch the user to ensure they exist before processing
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + request.getUserId()));
 
+        // Build the payment entity based on the request
         Payment payment = Payment.builder()
                 .user(user)
                 .amount(request.getAmount())
@@ -44,21 +54,28 @@ public class PaymentServiceImpl implements PaymentService {
                 .paymentStatus(Payment.PaymentStatus.SUCCESS)
                 .build();
 
-        // Update user's wallet balance
+        // Update user's wallet balance based on the transaction type
         if (request.getTransactionType() == Payment.TransactionType.CREDITED_TO_WALLET) {
             user.setBalance(user.getBalance().add(request.getAmount()));
         } else if (request.getTransactionType() == Payment.TransactionType.DEBITED_FROM_WALLET) {
+            // Validate sufficient balance before debiting
             if (user.getBalance().compareTo(request.getAmount()) < 0) {
                 throw new BusinessException("Insufficient wallet balance for this transaction");
             }
             user.setBalance(user.getBalance().subtract(request.getAmount()));
         }
+        // Save the updated user balance
+
         userRepository.save(user);
 
+        // Persist the payment record
         Payment saved = paymentRepository.save(payment);
         log.info("Payment {} initiated for user {}. New balance: {}", saved.getPaymentId(), user.getUserId(), user.getBalance());
         return mapToResponse(saved);
     }
+
+
+//    Retrieves a specific payment record by its ID.
 
     @Override
     public PaymentResponse getPaymentById(Long paymentId) {
@@ -67,8 +84,12 @@ public class PaymentServiceImpl implements PaymentService {
         return mapToResponse(payment);
     }
 
+
+//      Retrieves a paginated list of payments associated with a specific user.
+
     @Override
     public Page<PaymentResponse> getUserPayments(Long userId, Pageable pageable) {
+        // Validate user existence before fetching payments
         if (!userRepository.existsById(userId)) {
             throw new ResourceNotFoundException("User not found: " + userId);
         }

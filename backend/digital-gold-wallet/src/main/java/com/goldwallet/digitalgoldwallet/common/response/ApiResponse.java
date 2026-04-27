@@ -8,13 +8,13 @@ import java.time.LocalDateTime;
 
 
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)  //To exclude null fields from the response and keep it clean.
 public class ApiResponse<T> {
 
     private boolean success;
     private String message;
-    private T data;
-    private LocalDateTime timestamp;
+    private T data; //actual response
+    private LocalDateTime timestamp;  //when response is created
 
     public static <T> ApiResponse<T> success(String message, T data) {
         return ApiResponse.<T>builder()
@@ -25,7 +25,7 @@ public class ApiResponse<T> {
                 .build();
     }
 
-    public static <T> ApiResponse<T> success(T data) {
+    public static <T> ApiResponse<T> success(T data) {  //optional helper method for default success responses
         return success("Operation successful", data);
     }
 

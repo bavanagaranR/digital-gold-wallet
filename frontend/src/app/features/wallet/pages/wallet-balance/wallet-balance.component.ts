@@ -20,10 +20,15 @@ export class WalletBalanceComponent {
   loading = false;
 
   submit() {
-    if (!this.userId) {
-      this.error = 'User ID is required';
+     if(parseInt(this.userId) <= 0)
+    {
+      this.error = 'User ID must be a greater than 0';
       return;
     }
+   else if (!this.userId) {
+      this.error = 'User ID is required';
+      return;
+    } 
     this.loading = true; 
     this.error = ''; 
     this.balance = null;

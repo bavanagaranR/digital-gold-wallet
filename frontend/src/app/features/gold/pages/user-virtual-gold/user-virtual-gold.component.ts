@@ -23,7 +23,15 @@ export class UserVirtualGoldComponent {
   loading = false;
 
   load() {
-    if (!this.userId) return; 
+   if(parseInt(this.userId) <= 0)
+    {
+      this.error = 'UserID must be greater than 0';
+      return;
+    }
+    else  if (!this.userId) {
+      this.error = 'UserID  is required *';
+      return;
+    } 
     this.loading = true; 
     this.error = ''; 
     this.holdings = [];
