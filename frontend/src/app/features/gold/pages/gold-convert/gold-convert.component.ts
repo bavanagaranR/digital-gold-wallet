@@ -1,10 +1,12 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { GoldService } from '../../services/gold.service';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { ResultViewerComponent } from '../../../../shared/components/result-viewer/result-viewer.component';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { createEmptyGoldUiErrorState, GoldUiErrorState, mapGoldApiError } from '../../utils/gold-error.utils';
 
 @Component({
   selector: 'app-gold-convert',
@@ -14,35 +16,103 @@ import { NotificationService } from '../../../../core/services/notification.serv
   styleUrl: './gold-convert.component.css'
 })
 export class GoldConvertComponent {
-  private svc = inject(GoldService); 
-  private notify = inject(NotificationService); 
+  private svc = inject(GoldService);
+  private notify = inject(NotificationService);
   private fb = inject(FormBuilder);
-  
-  form = this.fb.group({ 
-    userId: ['', Validators.required], 
-    branchId: ['', Validators.required], 
-    quantity: ['', Validators.required], 
-    deliveryAddressId: ['', Validators.required] 
+
+  readonly knownFields = ['userId', 'branchId', 'quantity', 'deliveryAddressId'];
+  submitted = false;
+
+  form = this.fb.group({
+    userId: ['', [Validators.required, Validators.min(1), Validators.pattern(/^\d+$/)]],
+    branchId: ['', [Validators.required, Validators.min(1), Validators.pattern(/^\d+$/)]],
+    quantity: ['', [Validators.required, Validators.min(0.01)]],
+    deliveryAddressId: ['', [Validators.required, Validators.min(1), Validators.pattern(/^\d+$/)]]
   });
-  
-  result: any = null; 
-  error = ''; 
+
+  result: any = null;
+  error = '';
+  apiErrors: GoldUiErrorState = createEmptyGoldUiErrorState();
   loading = false;
 
   submit() {
-    this.loading = true; 
-    this.error = ''; 
+    this.submitted = true;
+    this.clearErrors();
+    this.result = null;
+
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    this.loading = true;
     this.result = null;
     this.svc.convertToPhysical(this.form.value as any).subscribe({
-      next: r => { 
-        this.result = r.data ? { ...r.data, message: r.message } : r; 
-        this.loading = false; 
-        this.notify.show('Gold converted to physical successfully'); 
+      next: r => {
+        this.result = r.data ? { ...r.data, message: r.message } : r;
+        this.loading = false;
+        this.notify.show('Gold converted to physical successfully');
       },
-      error: e => { 
-        this.error = e.error?.message || e.message || 'Conversion failed'; 
-        this.loading = false; 
+      error: (e: HttpErrorResponse) => {
+        this.apiErrors = mapGoldApiError(e, this.knownFields);
+        this.error = this.apiErrors.footerMessage;
+        this.loading = false;
       }
     });
+  }
+
+  control(name: 'userId' | 'branchId' | 'quantity' | 'deliveryAddressId'): AbstractControl | null {
+    return this.form.get(name);
+  }
+
+  showFieldValidation(name: 'userId' | 'branchId' | 'quantity' | 'deliveryAddressId'): boolean {
+    const control = this.control(name);
+    return !!control && control.invalid && (control.touched || this.submitted);
+  }
+
+  validationMessage(name: 'userId' | 'branchId' | 'quantity' | 'deliveryAddressId'): string {
+    const control = this.control(name);
+    if (!control?.errors) {
+      return '';
+    }
+
+    if (control.errors['required']) {
+      return this.labelFor(name) + ' is required';
+    }
+
+    if (control.errors['min']) {
+      return this.labelFor(name) + ' must be greater than 0';
+    }
+
+    if (control.errors['pattern']) {
+      return this.labelFor(name) + ' must be a whole number';
+    }
+
+    return 'Invalid value';
+  }
+
+  backendFieldErrors(name: 'userId' | 'branchId' | 'quantity' | 'deliveryAddressId'): string[] {
+    return this.apiErrors.fieldErrors[name] ?? [];
+  }
+
+  private clearErrors(): void {
+    this.error = '';
+    this.apiErrors = createEmptyGoldUiErrorState();
+  }
+
+  private labelFor(name: 'userId' | 'branchId' | 'quantity' | 'deliveryAddressId'): string {
+    if (name === 'userId') {
+      return 'User ID';
+    }
+
+    if (name === 'branchId') {
+      return 'Branch ID';
+    }
+
+    if (name === 'deliveryAddressId') {
+      return 'Delivery Address ID';
+    }
+
+    return 'Quantity';
   }
 }

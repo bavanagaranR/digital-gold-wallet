@@ -5,13 +5,27 @@
   </div>
 }
 @if (error) {
-  <div class="bg-red-100/20 border border-red-800/50 rounded-lg p-4 mt-4 flex items-start gap-3 shadow-lg">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
+  <div class="rounded-lg p-4 mt-4 flex items-start gap-3 shadow-lg"
+    [class.bg-amber-50]="errorType === 'warning'"
+    [class.border-amber-300]="errorType === 'warning'"
+    [class.bg-red-50]="errorType !== 'warning'"
+    [class.border-red-300]="errorType !== 'warning'"
+    [class.border]="true">
+    <span class="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold text-white shrink-0"
+      [class.bg-amber-500]="errorType === 'warning'"
+      [class.bg-red-500]="errorType !== 'warning'">!*</span>
     <div>
-      <p class="text-red-400 text-sm font-medium">Operation Failed</p>
-      <p class="text-red-300 text-sm mt-1">{{ error }}</p>
+      <p class="text-sm font-medium"
+        [class.text-amber-900]="errorType === 'warning'"
+        [class.text-red-700]="errorType !== 'warning'">
+        {{ errorType === 'warning' ? 'Request issue' : 'System error' }}
+        @if (errorStatusCode) {
+          <span>(HTTP {{ errorStatusCode }})</span>
+        }
+      </p>
+      <p class="text-sm mt-1"
+        [class.text-amber-800]="errorType === 'warning'"
+        [class.text-red-600]="errorType !== 'warning'">{{ error }}</p>
     </div>
   </div>
 }

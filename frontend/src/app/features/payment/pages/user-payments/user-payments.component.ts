@@ -5,6 +5,12 @@ import { PaymentService } from '../../services/payment.service';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { ResultViewerComponent } from '../../../../shared/components/result-viewer/result-viewer.component';
 
+interface ErrorState {
+  type: 'validation' | 'custom' | 'system';
+  message: string;
+  statusCode?: number;
+}
+
 @Component({
   selector: 'app-user-payments',
   standalone: true,
@@ -20,22 +26,27 @@ export class UserPaymentsComponent {
   payments: any[] = []; 
   totalPages = 0; 
   totalElements = 0; 
-  error = ''; 
+  errorState: ErrorState | null = null;
+  validationError = ''; 
   loading = false;
 
   load() {
-    if(parseInt(this.userId) <= 0)
-    {
-      this.error = 'user ID must be a greater than 0';
-      return;
-    }
-   else if (!this.userId) {
-      this.error = 'User ID is required';
-      return;
-    } 
+    this.validationError = '';
+    
+    if (!this.userId) {
+  this.validationError = 'Payment ID is required';
+  return;
+}
+
+
+
+if (parseInt(this.userId) <= 0) {
+  this.validationError = 'Payment ID must be greater than 0';
+  return;
+}
      
     this.loading = true; 
-    this.error = ''; 
+    this.errorState = null; 
     this.payments = [];
     this.svc.getUserPayments(+this.userId, this.page, this.size).subscribe({
       next: r => { 
@@ -46,7 +57,15 @@ export class UserPaymentsComponent {
         this.loading = false; 
       },
       error: e => { 
-        this.error = e.error?.message || e.message || 'Failed'; 
+        const status = e.status;
+        const msg = e.error?.message || e.message || 'Failed';
+        if (status === 400) {
+            this.errorState = { type: 'validation', message: msg, statusCode: status };
+        } else if (status > 400 && status < 500) {
+            this.errorState = { type: 'custom', message: msg, statusCode: status };
+        } else {
+            this.errorState = { type: 'system', message: 'An unexpected system error occurred. Please try again later.' };
+        }
         this.loading = false; 
       }
     });

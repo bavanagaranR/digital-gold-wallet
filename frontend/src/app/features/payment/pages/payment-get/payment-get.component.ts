@@ -5,6 +5,12 @@ import { PaymentService } from '../../services/payment.service';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { ResultViewerComponent } from '../../../../shared/components/result-viewer/result-viewer.component';
 
+interface ErrorState {
+  type: 'validation' | 'custom' | 'system';
+  message: string;
+  statusCode?: number;
+}
+
 @Component({
   selector: 'app-payment-get',
   standalone: true,
@@ -16,23 +22,26 @@ export class PaymentGetComponent {
   private svc = inject(PaymentService);
   paymentId = ''; 
   result: any = null; 
-  error = ''; 
+  errorState: ErrorState | null = null;
+  validationError = ''; 
   loading = false;
 
   submit() {
-    if(parseInt(this.paymentId) <= 0)
-    {
-      this.error = 'Payment ID must be a greater than 0';
-      return;
-    }
-   else if (!this.paymentId) {
-      this.error = 'Payment ID is required';
-      return;
-    }
-    
+    this.validationError = '';
+   if (!this.paymentId) {
+  this.validationError = 'Payment ID is required';
+  return;
+}
+
+
+
+if (parseInt(this.paymentId) <= 0) {
+  this.validationError = 'Payment ID must be greater than 0';
+  return;
+}
     
     this.loading = true; 
-    this.error = ''; 
+    this.errorState = null; 
     this.result = null;
     this.svc.getPaymentById(+this.paymentId).subscribe({ 
       next: r => { 
@@ -40,7 +49,15 @@ export class PaymentGetComponent {
         this.loading = false; 
       }, 
       error: e => { 
-        this.error = e.error?.message || e.message || 'Not found'; 
+        const status = e.status;
+        const msg = e.error?.message || e.message || 'Not found';
+        if (status === 400) {
+            this.errorState = { type: 'validation', message: msg, statusCode: status };
+        } else if (status > 400 && status < 500) {
+            this.errorState = { type: 'custom', message: msg, statusCode: status };
+        } else {
+            this.errorState = { type: 'system', message: 'An unexpected system error occurred. Please try again later.' };
+        }
         this.loading = false; 
       } 
     });

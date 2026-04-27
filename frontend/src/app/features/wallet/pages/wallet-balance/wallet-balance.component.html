@@ -4,14 +4,19 @@
     description="Returns the current wallet balance of a specific user. This is the real-time available balance." />
   <div class="card border-gold-200/50 shadow-2xl relative overflow-hidden">
     <div class="absolute -right-20 -top-20 w-64 h-64 bg-gold-500/5 rounded-full blur-3xl"></div>
-    <div class="flex flex-col md:flex-row gap-6 items-center mb-10">
-      <div class="relative w-full md:w-64">
-         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gold-600 font-bold text-xs uppercase tracking-widest">User ID</span>
-         <input [(ngModel)]="userId" type="number" class="input-field !pl-20" placeholder="Enter User ID" />
+    <div class="flex flex-col gap-1 mb-10 max-w-xl">
+      <div class="flex flex-col md:flex-row gap-6 items-center">
+        <div class="relative w-full md:w-64">
+           <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gold-600 font-bold text-xs uppercase tracking-widest">User ID</span>
+           <input [(ngModel)]="userId" type="number" class="input-field !pl-20" placeholder="Enter User ID" />
+        </div>
+        <button (click)="submit()" class="btn-primary !py-3.5 !px-10 uppercase tracking-[0.2em] text-xs font-black shadow-gold-500/20" [disabled]="loading">
+          {{ loading ? '...' : 'Check Balance' }}
+        </button>
       </div>
-      <button (click)="submit()" class="btn-primary !py-3.5 !px-10 uppercase tracking-[0.2em] text-xs font-black shadow-gold-500/20" [disabled]="loading">
-        {{ loading ? '...' : 'Check Balance' }}
-      </button>
+      @if(validationError) {
+        <div class="text-red-500 text-xs flex items-center gap-1 font-medium mt-1"><span class="bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold">!</span> {{validationError}}</div>
+      }
     </div>
 
     @if (balance !== null && !loading) {
@@ -54,6 +59,39 @@
          <div class="absolute -left-4 -bottom-4 w-full h-full border border-gold-500/10 rounded-3xl -z-10 translate-x-2 translate-y-2"></div>
       </div>
     }
-    <app-result-viewer [error]="error" [loading]="loading" />
+
+    @if (errorState) {
+      @if (errorState.type === 'validation') {
+        <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mt-4 flex items-start gap-3 shadow-sm max-w-xl">
+          <div class="bg-orange-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">!</div>
+          <div>
+            <p class="text-orange-800 text-sm font-semibold mb-1">Validation Error</p>
+            <p class="text-orange-700 text-sm">{{ errorState.message }}</p>
+          </div>
+        </div>
+      }
+      @if (errorState.type === 'custom') {
+        <div class="bg-red-50 border border-blue-200 rounded-lg p-4 mt-4 flex items-start gap-3 shadow-sm max-w-xl">
+          <div class="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">!</div>
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <p class="text-red-800 text-sm font-semibold">Request Failed</p>
+              @if(errorState.statusCode) { <span class="bg-red-200 text-red-800 text-[10px] px-1.5 py-0.5 rounded font-bold">HTTP {{errorState.statusCode}}</span> }
+            </div>
+            <p class="text-red-700 text-sm">{{ errorState.message }}</p>
+          </div>
+        </div>
+      }
+      @if (errorState.type === 'system') {
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mt-4 flex items-start gap-3 shadow-sm max-w-xl">
+          <div class="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">!</div>
+          <div>
+            <p class="text-red-800 text-sm font-semibold mb-1">System Error</p>
+            <p class="text-red-700 text-sm">{{ errorState.message }}</p>
+          </div>
+        </div>
+      }
+    }
+    <app-result-viewer [loading]="loading" />
   </div>
 </div>

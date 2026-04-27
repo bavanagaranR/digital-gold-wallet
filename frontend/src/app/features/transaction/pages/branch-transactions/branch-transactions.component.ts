@@ -20,17 +20,29 @@ export class BranchTransactionsComponent {
   txns: any[] = []; 
   totalPages = 0; 
   totalElements = 0; 
-  error = ''; 
+  validationError = '';
+  backendError = '';
+  systemError = '';
+  statusCode: number | null = null;
   loading = false;
 
   load() {
+    this.validationError = '';
+    this.backendError = '';
+    this.systemError = '';
+    this.statusCode = null;
+    this.txns = [];
+
     if (!this.branchId) {
-      this.error = 'Branch ID is required';
+      this.validationError = 'Branch ID is required';
+      return;
+    }
+    else if(parseInt(this.branchId) <= 0)
+    {
+      this.validationError = 'Branch ID must be a positive number';
       return;
     }
     this.loading = true; 
-    this.error = ''; 
-    this.txns = [];
     this.svc.getBranchTransactions(+this.branchId, this.page, this.size).subscribe({
       next: r => { 
         const d = r.data as any; 
@@ -40,7 +52,15 @@ export class BranchTransactionsComponent {
         this.loading = false; 
       },
       error: e => { 
-        this.error = e.error?.message || e.message || 'Failed'; 
+        this.statusCode = e.status;
+        const msg = e.error?.message || e.error || 'Something went wrong';
+        if (e.status === 400) {
+          this.backendError = msg;
+        } else if (e.status === 500) {
+          this.systemError = 'System Exception: ' + msg;
+        } else {
+          this.systemError = e.status === 0 ? 'Network unreachable' : msg;
+        }
         this.loading = false; 
       }
     });
