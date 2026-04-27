@@ -23,7 +23,15 @@ export class BranchVirtualGoldComponent {
   loading = false;
 
   load() {
-    if (!this.branchId) return; 
+ if(parseInt(this.branchId) <= 0)
+    {
+      this.error = 'BranchID must be greater than 0';
+      return;
+    }
+    else  if (!this.branchId) {
+      this.error = 'BranchID  is required *';
+      return;
+    } 
     this.loading = true; 
     this.error = ''; 
     this.holdings = [];

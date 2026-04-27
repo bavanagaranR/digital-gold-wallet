@@ -195,9 +195,55 @@ class TransactionServiceTest {
         assertNull(response.getBranchId());
     }
 
+    // 11 - Get transactions by status returns filtered results
+    @Test
+    void testGetTransactionsByStatus_success_returnsTransactions() {
+        TransactionHistory tx = new TransactionHistory();
+        tx.setTransactionStatus(TransactionHistory.TransactionStatus.SUCCESS);
+
+        when(transactionHistoryRepository.findByStatus(eq(TransactionHistory.TransactionStatus.SUCCESS), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(tx)));
+
+        Page<TransactionResponse> result = transactionService.getTransactionsByStatus("SUCCESS", Pageable.unpaged());
+
+        assertFalse(result.isEmpty());
+        assertEquals(TransactionHistory.TransactionStatus.SUCCESS, result.getContent().get(0).getTransactionStatus());
+    }
+
+    // 12 - Get transactions by type returns filtered results
+    @Test
+    void testGetTransactionsByType_success_returnsTransactions() {
+        TransactionHistory tx = new TransactionHistory();
+        tx.setTransactionType(TransactionHistory.TransactionType.BUY);
+
+        when(transactionHistoryRepository.findByTransactionType(eq(TransactionHistory.TransactionType.BUY), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(tx)));
+
+        Page<TransactionResponse> result = transactionService.getTransactionsByType("BUY", Pageable.unpaged());
+
+        assertFalse(result.isEmpty());
+        assertEquals(TransactionHistory.TransactionType.BUY, result.getContent().get(0).getTransactionType());
+    }
+
+    // 13 - Get transactions greater than amount returns filtered results
+    @Test
+    void testGetTransactionsGreaterThanAmount_success_returnsTransactions() {
+        BigDecimal amount = new BigDecimal("1000");
+        TransactionHistory tx = new TransactionHistory();
+        tx.setAmount(new BigDecimal("1500"));
+
+        when(transactionHistoryRepository.findTransactionsGreaterThan(eq(amount), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(tx)));
+
+        Page<TransactionResponse> result = transactionService.getTransactionsGreaterThanAmount(amount, Pageable.unpaged());
+
+        assertFalse(result.isEmpty());
+        assertTrue(result.getContent().get(0).getAmount().compareTo(amount) >= 0);
+    }
+
     // ================= NEGATIVE TESTS (5) =================
 
-    // 11 - Get transaction by ID throws when not found
+    // 14 - Get transaction by ID throws when not found
     @Test
     void testGetTransactionById_notFound_throwsException() {
         when(transactionHistoryRepository.findById(99L)).thenReturn(Optional.empty());
@@ -206,7 +252,7 @@ class TransactionServiceTest {
                 () -> transactionService.getTransactionById(99L));
     }
 
-    // 12 - Get user transactions throws when user does not exist
+    // 15 - Get user transactions throws when user does not exist
     @Test
     void testGetUserTransactions_userNotFound_throwsException() {
         when(userRepository.existsById(1L)).thenReturn(false);
@@ -215,7 +261,7 @@ class TransactionServiceTest {
                 () -> transactionService.getUserTransactions(1L, Pageable.unpaged()));
     }
 
-    // 13 - Get branch transactions throws when branch does not exist
+    // 16 - Get branch transactions throws when branch does not exist
     @Test
     void testGetBranchTransactions_branchNotFound_throwsException() {
         when(branchRepository.existsById(1L)).thenReturn(false);
@@ -224,7 +270,7 @@ class TransactionServiceTest {
                 () -> transactionService.getBranchTransactions(1L, Pageable.unpaged()));
     }
 
-    // 14 - Get user transactions throws for non-existent user ID
+    // 17 - Get user transactions throws for non-existent user ID
     @Test
     void testGetUserTransactions_unknownUserId_throwsException() {
         when(userRepository.existsById(999L)).thenReturn(false);
@@ -233,12 +279,26 @@ class TransactionServiceTest {
                 () -> transactionService.getUserTransactions(999L, Pageable.unpaged()));
     }
 
-    // 15 - Get branch transactions throws for non-existent branch ID
+    // 18 - Get branch transactions throws for non-existent branch ID
     @Test
     void testGetBranchTransactions_unknownBranchId_throwsException() {
         when(branchRepository.existsById(999L)).thenReturn(false);
 
         assertThrows(ResourceNotFoundException.class,
                 () -> transactionService.getBranchTransactions(999L, Pageable.unpaged()));
+    }
+
+    // 19 - Get transactions by status throws for invalid status string
+    @Test
+    void testGetTransactionsByStatus_invalidStatus_throwsException() {
+        assertThrows(RuntimeException.class,
+                () -> transactionService.getTransactionsByStatus("INVALID_STATUS", Pageable.unpaged()));
+    }
+
+    // 20 - Get transactions by type throws for invalid type string
+    @Test
+    void testGetTransactionsByType_invalidType_throwsException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> transactionService.getTransactionsByType("INVALID_TYPE", Pageable.unpaged()));
     }
 }
