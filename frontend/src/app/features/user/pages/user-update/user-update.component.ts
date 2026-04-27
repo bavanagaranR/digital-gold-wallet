@@ -30,12 +30,28 @@ export class UserUpdateComponent extends UserFormSupport {
   loading = false;
 
   submit() {
+<<<<<<< pavithra
     this.startSubmit();
     if (this.form.invalid) {
+=======
+    if (parseInt(this.userId)<=0 ) {
+      this.error = 'User ID must be a greater than 0';
+>>>>>>> dev
+      return;
+    
+    }
+<<<<<<< pavithra
+    
+    this.loading = true;
+=======
+   else if (!this.userId) {
+      this.error = 'User ID is required';
       return;
     }
     
-    this.loading = true;
+    this.loading = true; 
+    this.error = ''; 
+>>>>>>> dev
     this.result = null;
     const { userId, ...body } = this.form.getRawValue();
     const requestBody = Object.fromEntries(Object.entries(body).filter(([, v]) => v !== '' && v != null));

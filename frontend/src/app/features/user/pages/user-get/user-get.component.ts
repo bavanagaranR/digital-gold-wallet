@@ -32,11 +32,25 @@ export class UserGetComponent extends UserFormSupport {
   }
 
   submit() {
+<<<<<<< pavithra
     this.startSubmit();
     if (this.form.invalid) {
       return;
     }
     this.loading = true;
+=======
+    if (parseInt(this.userId)<=0 ) {
+      this.error = 'User ID must be a greater than 0';
+      return;
+    
+    }
+   else if (!this.userId) {
+      this.error = 'User ID  is required *';
+      return;
+    }
+    this.loading = true; 
+    this.error = ''; 
+>>>>>>> dev
     this.result = null;
     this.svc.getUserById(+this.form.getRawValue().userId!).subscribe({
       next: r => {

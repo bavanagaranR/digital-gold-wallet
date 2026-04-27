@@ -20,7 +20,16 @@ export class VendorGetComponent {
   loading = false;
 
   submit() {
-    if (!this.vendorId) return; 
+    
+    if (parseInt(this.vendorId)<=0 ) {
+      this.error = 'vendorId must be a greater than 0';
+      return;
+    }
+  
+   else if (!this.vendorId) {
+      this.error = 'vendorId  is required *';
+      return;
+    };
     this.loading = true; 
     this.error = ''; 
     this.result = null;
