@@ -29,6 +29,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleInsufficientBalance(InsufficientBalanceException ex) {
         log.error("Insufficient balance: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+
                 .body(ApiResponse.error(ex.getMessage()));
     }
 

@@ -19,10 +19,10 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Implementation of PaymentService.
- * Handles the business logic for processing payments and updating wallet balances.
- */
+
+// Implementation of PaymentService.
+// Handles the business logic for processing payments and updating wallet balances.
+
 @Slf4j
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -33,11 +33,11 @@ public class PaymentServiceImpl implements PaymentService {
     @Autowired
     private UserRepository userRepository;
 
-    /**
-     * Processes a new payment initiation.
-     * Validates the user, creates a payment record, and updates the user's wallet balance.
-     * Transactional to ensure data consistency between payment creation and wallet updates.
-     */
+
+//     Processes a new payment initiation.
+//     Validates the user, creates a payment record, and updates the user's wallet balance.
+//     Transactional to ensure data consistency between payment creation and wallet updates.
+
     @Override
     @Transactional
     public PaymentResponse initiatePayment(InitiatePaymentRequest request) {
@@ -65,6 +65,7 @@ public class PaymentServiceImpl implements PaymentService {
             user.setBalance(user.getBalance().subtract(request.getAmount()));
         }
         // Save the updated user balance
+
         userRepository.save(user);
 
         // Persist the payment record
@@ -73,9 +74,9 @@ public class PaymentServiceImpl implements PaymentService {
         return mapToResponse(saved);
     }
 
-    /**
-     * Retrieves a specific payment record by its ID.
-     */
+
+//    Retrieves a specific payment record by its ID.
+
     @Override
     public PaymentResponse getPaymentById(Long paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
@@ -83,9 +84,9 @@ public class PaymentServiceImpl implements PaymentService {
         return mapToResponse(payment);
     }
 
-    /**
-     * Retrieves a paginated list of payments associated with a specific user.
-     */
+
+//      Retrieves a paginated list of payments associated with a specific user.
+
     @Override
     public Page<PaymentResponse> getUserPayments(Long userId, Pageable pageable) {
         // Validate user existence before fetching payments

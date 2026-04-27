@@ -33,9 +33,9 @@ public class VirtualGoldHolding {
     private VendorBranch branch;
 
     @NotNull(message = "Quantity cannot be null")
-    @DecimalMin(value = "0.00", inclusive = false)            // ensures quantity > 0
-    @Digits(integer = 16, fraction = 2)                      // ensures correct format (max 16 digits + 2 decimal)
-    @Column(nullable = false, precision = 18, scale = 2)    // precision = total digits, scale = decimal places, SQL: quantity DECIMAL(18,2) NOT NULL
+    @DecimalMin(value = "0.00", inclusive = true, message = "Quantity must be greater than 0")
+    @Digits(integer = 16, fraction = 2, message = "Invalid quantity format")
+    @Column(nullable = false, precision = 18, scale = 2)
     private BigDecimal quantity;
 
     @CreationTimestamp                                        // automatically sets current timestamp when record is inserted
