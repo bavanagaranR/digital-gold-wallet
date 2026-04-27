@@ -28,6 +28,11 @@ export class TransactionByAmountComponent {
       this.error = 'Amount is required';
       return;
     }
+    else if(parseInt(this.amount) <= 0)
+    {
+      this.error = 'Amount must be a greater than zero';
+      return;
+    }
     this.loading = true; 
     this.error = ''; 
     this.txns = [];

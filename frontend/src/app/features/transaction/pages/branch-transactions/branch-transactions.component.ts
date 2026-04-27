@@ -28,6 +28,11 @@ export class BranchTransactionsComponent {
       this.error = 'Branch ID is required';
       return;
     }
+    else if(parseInt(this.branchId) <= 0)
+    {
+      this.error = 'Branch ID must be a positive number';
+      return;
+    }
     this.loading = true; 
     this.error = ''; 
     this.txns = [];

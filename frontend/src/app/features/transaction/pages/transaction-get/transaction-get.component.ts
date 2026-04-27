@@ -24,6 +24,11 @@ export class TransactionGetComponent {
       this.error = 'Transaction ID is required';
       return;
     }
+    else if(parseInt(this.txId) <= 0)
+    {
+      this.error = 'Transaction ID must be a positive number';
+      return;
+    }
     this.loading = true; 
     this.error = ''; 
     this.result = null;

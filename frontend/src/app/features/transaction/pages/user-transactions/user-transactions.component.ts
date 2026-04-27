@@ -28,6 +28,11 @@ export class UserTransactionsComponent {
       this.error = 'User ID is required';
       return;
     }
+    else if(parseInt(this.userId) <= 0)
+    {
+      this.error = 'User ID must be a greater number';
+      return;
+    }
     this.loading = true; 
     this.error = ''; 
     this.txns = [];
