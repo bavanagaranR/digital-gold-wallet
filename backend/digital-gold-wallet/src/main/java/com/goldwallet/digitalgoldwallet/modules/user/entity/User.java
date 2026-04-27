@@ -25,7 +25,7 @@ public class User {
     private Long userId;
 
     @NotBlank(message = "Email cannot be empty")
-    @Email(message = "Invalid email format")
+    @Pattern(regexp = "^$|^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$", message = "Invalid email format")
     @Column(unique = true, nullable = false, length = 100)
     private String email;
 
@@ -34,15 +34,19 @@ public class User {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    // Many users can be linked to one address record,Example: multiple users from same family can share one address
+    // Improves performance by avoiding unnecessary DB queries
+    @ManyToOne(fetch = FetchType.LAZY)// LAZY = Address data is not loaded immediately with User,Address loads only when user.getAddress() is called
+    // Use address_id column in users table as foreign key,This column references address_id primary key in addresses table
     @JoinColumn(name = "address_id")
+    // Address object linked to this user,Access like: user.getAddress().getCity()
     private Address address;
 
     @NotNull(message = "Balance cannot be null")
     @DecimalMin(value = "0.0", inclusive = true, message = "Balance cannot be negative")
     @Column(precision = 18, scale = 2)
-    @Builder.Default
-    private BigDecimal balance = BigDecimal.ZERO;
+    @Builder.Default// Keeps default field value when object is created using @Builder,Without this builder may ignore initialized value and set null/default
+    private BigDecimal balance = BigDecimal.ZERO;//Yes, BigDecimal is a class,we should create object for it
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
