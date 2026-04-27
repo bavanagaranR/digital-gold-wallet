@@ -67,7 +67,7 @@ public class Vendor {
     @Digits(integer = 16, fraction = 2, message = "Invalid price format")
     @Column(name = "current_gold_price", precision = 18, scale = 2)
     @Builder.Default
-    private BigDecimal currentGoldPrice = new BigDecimal("5700.00");
+    private BigDecimal currentGoldPrice ;
 
     // Auto-generated timestamp when record is created
     @CreationTimestamp
