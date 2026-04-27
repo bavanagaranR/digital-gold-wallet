@@ -66,7 +66,6 @@ public class Vendor {
     @DecimalMin(value = "0.01", inclusive = true, message = "Gold price must be greater than 0")
     @Digits(integer = 16, fraction = 2, message = "Invalid price format")
     @Column(name = "current_gold_price", precision = 18, scale = 2)
-    @Builder.Default
     private BigDecimal currentGoldPrice ;
 
     // Auto-generated timestamp when record is created

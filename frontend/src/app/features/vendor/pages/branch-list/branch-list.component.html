@@ -2,12 +2,20 @@
   <app-page-header title="Vendor Branches" developer="Caitlyn Mary" moduleName="Vendor" method="GET"
     endpoint="/api/v1/vendors/{vendorId}/branches" description="Lists all branches belonging to a specific vendor with pagination support." />
   <div class="card">
-    <div class="flex items-center gap-3 mb-4">
-      <input [(ngModel)]="vendorId" type="number" class="input-field w-40" placeholder="Vendor ID" />
-      <div class="flex items-center gap-2"><label class="text-sm text-slate-500">Page:</label><input [(ngModel)]="page" type="number" min="0" class="input-field w-16" /></div>
-      <div class="flex items-center gap-2"><label class="text-sm text-slate-500">Size:</label><input [(ngModel)]="size" type="number" min="1" class="input-field w-16" /></div>
-      <button (click)="load()" class="btn-primary" [disabled]="loading">{{ loading ? '...' : 'Load' }}</button>
-    </div>
+    <form (ngSubmit)="load()" class="mb-4">
+      <div class="flex items-center gap-3">
+        <input [(ngModel)]="vendorId" name="vendorId" type="number" class="input-field w-40" placeholder="Vendor ID" />
+        <div class="flex items-center gap-2"><label class="text-sm text-slate-500">Page:</label><input [(ngModel)]="page" name="page" type="number" min="0" class="input-field w-16" /></div>
+        <div class="flex items-center gap-2"><label class="text-sm text-slate-500">Size:</label><input [(ngModel)]="size" name="size" type="number" min="1" class="input-field w-16" /></div>
+        <button type="submit" class="btn-primary" [disabled]="loading">{{ loading ? '...' : 'Load' }}</button>
+      </div>
+      @if (getVendorIdError()) {
+        <p class="mt-2 text-sm text-red-600 flex items-center gap-2"><span class="font-black">!</span><span>{{ getVendorIdError() }}</span></p>
+      }
+      @if (getPaginationError()) {
+        <p class="mt-2 text-sm text-red-600 flex items-center gap-2"><span class="font-black">!</span><span>{{ getPaginationError() }}</span></p>
+      }
+    </form>
     @if (branches.length) {
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
@@ -27,6 +35,6 @@
         </div>
       </div>
     }
-    <app-result-viewer [error]="error" [loading]="loading" />
+    <app-result-viewer [error]="resultError.message" [errorTitle]="resultError.title" [errorType]="resultError.type" [statusCode]="resultError.statusCode" [loading]="loading" />
   </div>
 </div>

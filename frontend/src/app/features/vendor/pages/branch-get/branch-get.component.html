@@ -2,10 +2,15 @@
   <app-page-header title="Get Branch by ID" developer="Caitlyn Mary" moduleName="Vendor" method="GET"
     endpoint="/api/v1/branches/{branchId}" description="Fetches full details of a specific vendor branch by its unique branch ID." />
   <div class="card">
-    <div class="flex gap-3">
-      <input [(ngModel)]="branchId" type="number" class="input-field" placeholder="Enter Branch ID" />
-      <button (click)="submit()" class="btn-primary" [disabled]="loading">{{ loading ? '...' : 'Fetch' }}</button>
-    </div>
+    <form (ngSubmit)="submit()">
+      <div class="flex gap-3">
+        <input [(ngModel)]="branchId" name="branchId" type="number" class="input-field" placeholder="Enter Branch ID" />
+        <button type="submit" class="btn-primary" [disabled]="loading">{{ loading ? '...' : 'Fetch' }}</button>
+      </div>
+      @if (getBranchIdError()) {
+        <p class="mt-2 text-sm text-red-600 flex items-center gap-2"><span class="font-black">!</span><span>{{ getBranchIdError() }}</span></p>
+      }
+    </form>
     @if (result && !loading) {
       <div class="mt-6 border border-slate-100 rounded-lg p-4 bg-white/80">
         <h3 class="text-slate-900 font-medium mb-4 border-b border-slate-100 pb-2">Branch Details</h3>
@@ -19,6 +24,6 @@
         </div>
       </div>
     }
-    <app-result-viewer [error]="error" [loading]="loading" />
+    <app-result-viewer [error]="resultError.message" [errorTitle]="resultError.title" [errorType]="resultError.type" [statusCode]="resultError.statusCode" [loading]="loading" />
   </div>
 </div>

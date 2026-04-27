@@ -13,7 +13,7 @@ public class CreateBranchRequest {
     private Long addressId;
 
     @NotNull(message = "Quantity cannot be null")  // Quantity is required and must follow validation rules
-    @DecimalMin(value = "0.00", inclusive = true, message = "Quantity cannot be negative")// Ensures quantity is not negative (>= 0.00)
+    @DecimalMin(value = "0.01", inclusive = true, message = "Quantity must be greater than 0")// Ensures quantity is not negative (>= 0.00)
     @Digits(integer = 16, fraction = 2, message = "Invalid quantity format")
     private BigDecimal quantity;
 
