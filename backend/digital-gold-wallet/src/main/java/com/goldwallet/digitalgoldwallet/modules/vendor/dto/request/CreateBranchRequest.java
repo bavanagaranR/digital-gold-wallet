@@ -11,15 +11,14 @@ public class CreateBranchRequest {
     @NotNull(message = "Address ID cannot be null")
     private Long addressId;
 
-    // Quantity is required and must follow validation rules
-    @NotNull(message = "Quantity cannot be null")
 
-    // Ensures quantity is not negative (>= 0.00)
-    @DecimalMin(value = "0.00", inclusive = true, message = "Quantity cannot be negative")
 
-    // Ensures proper number format (max 16 digits, 2 decimal places)
-    @Digits(integer = 16, fraction = 2, message = "Invalid quantity format")
+    @NotNull(message = "Quantity cannot be null")  // Quantity is required and must follow validation rules
+    @DecimalMin(value = "0.00", inclusive = true, message = "Quantity cannot be negative")// Ensures quantity is not negative (>= 0.00)
+    @Digits(integer = 16, fraction = 2, message = "Invalid quantity format")// Ensures proper number format (max 16 digits, 2 decimal places)
     private BigDecimal quantity;
+
+
 
     // Getter for addressId
     public Long getAddressId() {
