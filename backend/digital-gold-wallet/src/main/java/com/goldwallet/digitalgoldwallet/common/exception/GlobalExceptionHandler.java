@@ -9,7 +9,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import jakarta.validation.ConstraintViolationException;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -38,41 +39,16 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getMessage()));
     }
 
-    // ✅ Handles @Valid (DTO validation)
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleValidationErrors(MethodArgumentNotValidException ex) {
         Map<String, String> fieldErrors = new LinkedHashMap<>();
-
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
             fieldErrors.putIfAbsent(error.getField(), error.getDefaultMessage());
         }
-
         String errorMessage = String.join(", ", fieldErrors.values());
-
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(errorMessage));
-    }
-
-    // ✅ Handles @PathVariable, @RequestParam validation
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiResponse<Void>> handleConstraintViolationException(ConstraintViolationException ex) {
-        log.error("Constraint violation: {}", ex.getMessage());
-
-        String errorMessage = ex.getConstraintViolations()
-                .stream()
-                .map(violation -> violation.getMessage())
-                .findFirst()
-                .orElse("Validation error");
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(errorMessage));
-    }
-
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ApiResponse<Void>> handleValidationException(ValidationException ex) {
-        log.error("Validation Error: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)

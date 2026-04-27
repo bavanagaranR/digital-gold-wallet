@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { GoldService } from '../../services/gold.service';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { ResultViewerComponent } from '../../../../shared/components/result-viewer/result-viewer.component';
+import { createEmptyGoldUiErrorState, mapGoldApiError } 
+from '../../utils/gold-error.utils';
 
 @Component({
   selector: 'app-user-virtual-gold',
@@ -13,53 +15,65 @@ import { ResultViewerComponent } from '../../../../shared/components/result-view
   styleUrl: './user-virtual-gold.component.css'
 })
 export class UserVirtualGoldComponent {
+
   private svc = inject(GoldService);
-  userId = ''; 
-  page = 0; 
-  size = 10; 
-  holdings: any[] = []; 
-  totalPages = 0; 
-  error = ''; 
+
+  userId: number | null = null;
+  page = 0;
+  size = 10;
+
+  holdings: any[] = [];
+  totalPages = 0;
+
   loading = false;
 
+  // ✅ new structured error handling
+  apiErrors = createEmptyGoldUiErrorState();
+
+  // ✅ frontend validation helper
+  isInvalidUserId(): boolean {
+    return !this.userId || this.userId <= 0;
+  }
+
   load() {
-   if(parseInt(this.userId) <= 0)
-    {
-      this.error = 'UserID must be greater than 0';
+
+    // ❌ stop API call if invalid
+    if (this.isInvalidUserId()) {
+      this.apiErrors = createEmptyGoldUiErrorState();
       return;
     }
-    else  if (!this.userId) {
-      this.error = 'UserID  is required *';
-      return;
-    } 
-    this.loading = true; 
-    this.error = ''; 
+
+    this.loading = true;
     this.holdings = [];
-    this.svc.getUserVirtualGold(+this.userId, this.page, this.size).subscribe({
-      next: r => { 
-        const d = r.data as any; 
-        this.holdings = d?.content ?? (Array.isArray(d) ? d : [d].filter(Boolean)); 
-        this.totalPages = d?.totalPages ?? 1; 
-        this.loading = false; 
+    this.apiErrors = createEmptyGoldUiErrorState();
+
+    this.svc.getUserVirtualGold(this.userId!, this.page, this.size).subscribe({
+
+      next: r => {
+        const d = r.data as any;
+        this.holdings = d?.content ?? (Array.isArray(d) ? d : [d].filter(Boolean));
+        this.totalPages = d?.totalPages ?? 1;
+        this.loading = false;
       },
-      error: e => { 
-        this.error = e.error?.message || e.message || 'Failed'; 
-        this.loading = false; 
+
+      error: e => {
+        this.apiErrors = mapGoldApiError(e, ['userId']);
+        this.loading = false;
       }
     });
   }
 
-  prev() { 
-    if (this.page > 0) { 
-      this.page--; 
-      this.load(); 
-    } 
+  prev() {
+    if (this.page > 0) {
+      this.page--;
+      this.load();
+    }
   }
 
-  next() { 
-    if (this.page < this.totalPages - 1) { 
-      this.page++; 
-      this.load(); 
-    } 
+  next() {
+    if (this.page < this.totalPages - 1) {
+      this.page++;
+      this.load();
+    }
   }
 }

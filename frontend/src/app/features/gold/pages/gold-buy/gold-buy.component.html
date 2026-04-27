@@ -8,20 +8,66 @@
         <div class="grid grid-cols-1 gap-6">
           <div>
             <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">User ID</label>
-            <input formControlName="userId" type="number" class="input-field" placeholder="User ID" />
+            <input formControlName="userId" type="number" step="1" class="input-field" placeholder="User ID" />
+            @if (showFieldValidation('userId')) {
+              <p class="mt-2 flex items-center gap-2 text-sm text-red-600">
+                <span class="font-black">*</span>
+                {{ validationMessage('userId') }}
+              </p>
+            }
+            @for (message of backendFieldErrors('userId'); track message) {
+              <p class="mt-2 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                <span class="font-black">*</span>
+                {{ message }}
+              </p>
+            }
           </div>
           <div>
             <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">Branch ID</label>
-            <input formControlName="branchId" type="number" class="input-field" placeholder="Branch ID" />
+            <input formControlName="branchId" type="number" step="1" class="input-field" placeholder="Branch ID" />
+            @if (showFieldValidation('branchId')) {
+              <p class="mt-2 flex items-center gap-2 text-sm text-red-600">
+                <span class="font-black">*</span>
+                {{ validationMessage('branchId') }}
+              </p>
+            }
+            @for (message of backendFieldErrors('branchId'); track message) {
+              <p class="mt-2 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                <span class="font-black">*</span>
+                {{ message }}
+              </p>
+            }
           </div>
           <div>
             <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">Quantity (Grams)</label>
             <div class="relative">
-              <input formControlName="quantity" type="number" step="0.001" class="input-field !pr-12" placeholder="0.00" />
+              <input formControlName="quantity" type="number" step="0.01" class="input-field !pr-12" placeholder="0.00" />
               <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gold-600 font-bold text-xs">g</span>
             </div>
+            @if (showFieldValidation('quantity')) {
+              <p class="mt-2 flex items-center gap-2 text-sm text-red-600">
+                <span class="font-black">*</span>
+                {{ validationMessage('quantity') }}
+              </p>
+            }
+            @for (message of backendFieldErrors('quantity'); track message) {
+              <p class="mt-2 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                <span class="font-black">*</span>
+                {{ message }}
+              </p>
+            }
           </div>
         </div>
+        @if (apiErrors.groupedErrors.length) {
+          <div class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3">
+            @for (message of apiErrors.groupedErrors; track message) {
+              <p class="flex items-center gap-2 text-sm text-amber-800">
+                <span class="font-black">*</span>
+                {{ message }}
+              </p>
+            }
+          </div>
+        }
         <button type="submit" class="btn-primary w-full !bg-maroon-950 hover:!bg-maroon-900 border-gold-500/30 group py-4" [disabled]="loading">
           <span class="flex items-center justify-center gap-3">
             <span class="text-xl group-hover:rotate-12 transition-transform">🥇</span>
@@ -67,6 +113,10 @@
         </div>
       </div>
     </div>
-    <app-result-viewer [error]="error" [loading]="loading" />
+    <app-result-viewer
+      [error]="error"
+      [errorStatusCode]="apiErrors.footerStatusCode"
+      [errorType]="apiErrors.footerType"
+      [loading]="loading" />
   </div>
 </div>
