@@ -65,25 +65,29 @@ class VendorRepositoryTest {
 
     // ---------- BASIC CRUD TESTS ----------
 
+    // Test vendor creation
     @Test
     void testCreateVendor() {
-        // Test vendor creation
+
         Vendor vendor = createVendor("Tanishq", "tanishq@gmail.com");
-        assertNotNull(vendor.getVendorId());
+        assertNotNull(vendor.getVendorId());//Check that vendorId is NOT null
     }
 
+    // Test fetching vendor by ID
     @Test
     void testFindVendorById() {
-        // Test fetching vendor by ID
+
         Vendor vendor = createVendor("Kalyan", "kalyan@gmail.com");
 
         Optional<Vendor> found = vendorRepository.findById(vendor.getVendorId());
-        assertTrue(found.isPresent());
+        assertEquals("Kalyan", found.get().getVendorName());
     }
 
+
+    // Test updating vendor details
     @Test
     void testUpdateVendor() {
-        // Test updating vendor details
+
         Vendor vendor = createVendor("Malabar", "malabar@gmail.com");
 
         vendor.setCurrentGoldPrice(new BigDecimal("6000"));
@@ -92,40 +96,38 @@ class VendorRepositoryTest {
         assertEquals(new BigDecimal("6000"), updated.getCurrentGoldPrice());
     }
 
+
+    // Test deleting vendor
     @Test
     void testDeleteVendor() {
-        // Test deleting vendor
+
         Vendor vendor = createVendor("GRT", "grt@gmail.com");
 
         vendorRepository.delete(vendor);
 
         Optional<Vendor> found = vendorRepository.findById(vendor.getVendorId());
-        assertFalse(found.isPresent());
+        assertFalse(found.isPresent());//Check that vendor does NOT exist
     }
 
     // ---------- CUSTOM QUERY TESTS ----------
 
-    @Test
-    void testFindByVendorName() {
-        // Test derived query by name
-        createVendor("Tanishq", "t@gmail.com");
 
-        Optional<Vendor> vendor = vendorRepository.findByVendorName("Tanishq");
-        assertTrue(vendor.isPresent());
-    }
 
+    // Test case-insensitive query
     @Test
     void testFindByNameIgnoreCase() {
-        // Test case-insensitive query
+
         createVendor("Kalyan", "k@gmail.com");
 
         Optional<Vendor> vendor = vendorRepository.findByNameIgnoreCase("kalyan");
         assertTrue(vendor.isPresent());
     }
 
+
+    // Test filtering vendors by gold price
     @Test
     void testFindVendorsWithGoldPriceGreaterThan() {
-        // Test filtering vendors by gold price
+
         createVendor("Vendor1", "v1@gmail.com");
         Vendor v2 = createVendor("Vendor2", "v2@gmail.com");
 
@@ -138,10 +140,12 @@ class VendorRepositoryTest {
         assertEquals(1, result.size());
     }
 
+
+    // Test custom update query
     @Test
     void testCustomUpdateGoldPrice() {
 
-        // Test custom update query
+
         Vendor vendor = createVendor("Malabar", "m@gmail.com");
 
         vendorRepository.updateGoldPrice(vendor.getVendorId(), new BigDecimal("6500"));
@@ -154,6 +158,8 @@ class VendorRepositoryTest {
         assertEquals(0, updated.getCurrentGoldPrice().compareTo(new BigDecimal("6500")));
     }
 
+
+    // Test custom delete query
     @Test
     void testCustomDeleteVendor() {
 

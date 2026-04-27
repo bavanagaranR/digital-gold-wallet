@@ -15,7 +15,6 @@ import java.util.Optional;
 @Repository
 public interface VirtualGoldHoldingRepository extends JpaRepository<VirtualGoldHolding, Long> {
 
-    // AUTO DERIVED (fix for your error)
     List<VirtualGoldHolding> findByUserUserId(Long userId);
 
     List<VirtualGoldHolding> findByBranchBranchId(Long branchId);

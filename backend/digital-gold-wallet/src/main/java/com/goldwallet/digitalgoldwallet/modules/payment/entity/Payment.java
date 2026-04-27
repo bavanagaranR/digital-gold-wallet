@@ -18,10 +18,10 @@
 
 
 
-/**
- * Entity class representing a Payment transaction.
- * Maps to the 'payments' table in the database and stores details like amount, method, and status.
- */
+
+// Entity class representing a Payment transaction.
+// Maps to the 'payments' table in the database and stores details like amount, method, and status.
+
 @Entity
 @Table(name = "payments")
 
