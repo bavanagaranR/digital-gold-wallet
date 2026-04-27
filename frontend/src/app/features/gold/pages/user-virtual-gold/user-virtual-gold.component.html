@@ -1,28 +1,91 @@
 <div class="page-container">
-  <app-page-header title="User Virtual Gold" developer="Suba Harini" moduleName="Gold" method="GET"
+
+  <app-page-header
+    title="User Virtual Gold"
+    developer="Suba Harini"
+    moduleName="Gold"
+    method="GET"
     endpoint="/api/v1/users/{userId}/gold/virtual"
     description="Returns the virtual gold holding records for a specific user." />
+
   <div class="card border-gold-200/30">
+
+    <!-- INPUT -->
     <div class="flex flex-col md:flex-row items-center gap-6 mb-8 bg-beige-50 p-6 rounded-2xl border border-gold-100">
-       <div class="flex-1 w-full">
-          <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">User ID</label>
-          <input [(ngModel)]="userId" type="number" class="input-field" placeholder="Enter User ID" />
-       </div>
-       <div class="flex gap-4">
-          <div class="w-20">
-             <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">Page</label>
-             <input [(ngModel)]="page" type="number" min="0" class="input-field text-center" />
-          </div>
-          <div class="w-20">
-             <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">Size</label>
-             <input [(ngModel)]="size" type="number" min="1" class="input-field text-center" />
-          </div>
-       </div>
-       <button (click)="load()" class="btn-primary !py-3.5 !px-12 mt-6 md:mt-0" [disabled]="loading">{{ loading ? '...' : 'Load' }}</button>
+
+      <!-- USER ID -->
+      <div class="flex-1 w-full">
+        <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">
+          User ID
+        </label>
+
+        <input
+          [(ngModel)]="userId"
+          #uid="ngModel"
+          required
+          min="1"
+          type="number"
+          class="input-field"
+          placeholder="Enter User ID" />
+
+        <!-- ✅ FRONTEND VALIDATION -->
+        @if (uid.invalid && (uid.touched || uid.dirty)) {
+
+          @if (uid.errors?.['required']) {
+            <p class="mt-2 flex items-center gap-2 text-sm text-red-600">
+              * User ID is required
+            </p>
+          }
+
+          @if (uid.errors?.['min']) {
+            <p class="mt-2 flex items-center gap-2 text-sm text-red-600">
+              * User ID must be greater than 0
+            </p>
+          }
+        }
+
+        <!-- ✅ BACKEND FIELD VALIDATION (400) -->
+        @for (msg of apiErrors.fieldErrors['userId'] || []; track msg) {
+          <p class="mt-2 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+            * {{ msg }}
+          </p>
+        }
+      </div>
+
+      <!-- PAGE + SIZE -->
+      <div class="flex gap-4">
+
+        <div class="w-20">
+          <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">
+            Page
+          </label>
+          <input [(ngModel)]="page" type="number" min="0" class="input-field text-center" />
+        </div>
+
+        <div class="w-20">
+          <label class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2">
+            Size
+          </label>
+          <input [(ngModel)]="size" type="number" min="1" class="input-field text-center" />
+        </div>
+
+      </div>
+
+      <button
+        (click)="load()"
+        class="btn-primary !py-3.5 !px-12 mt-6 md:mt-0"
+        [disabled]="loading">
+
+        {{ loading ? '...' : 'Load' }}
+
+      </button>
     </div>
 
+    <!-- TABLE -->
     @if (holdings.length) {
+
       <div class="overflow-hidden rounded-2xl border border-gold-100 shadow-xl">
+
         <table class="w-full text-sm">
           <thead>
             <tr class="bg-maroon-950 text-gold-500 text-[10px] uppercase tracking-[0.2em]">
@@ -32,32 +95,76 @@
               <th class="py-5 px-6 text-left font-black">Created At</th>
             </tr>
           </thead>
+
           <tbody class="bg-white">
             @for (h of holdings; track h.holdingId) {
               <tr class="border-b border-gold-100/50 hover:bg-beige-50/50 transition-colors">
-                <td class="py-4 px-6 font-mono text-xs text-maroon-400">#{{h.holdingId}}</td>
-                <td class="py-4 px-6">
-                   <span class="px-3 py-1 rounded-full bg-maroon-50 text-maroon-900 text-[10px] font-bold border border-maroon-100">Branch {{h.branchId}}</span>
+
+                <td class="py-4 px-6 font-mono text-xs text-maroon-400">
+                  #{{h.holdingId}}
                 </td>
+
                 <td class="py-4 px-6">
-                   <span class="text-gold-600 font-black text-lg tracking-tighter">{{h.quantity}}g</span>
+                  <span class="px-3 py-1 rounded-full bg-maroon-50 text-maroon-900 text-[10px] font-bold border border-maroon-100">
+                    Branch {{h.branchId}}
+                  </span>
                 </td>
-                <td class="py-4 px-6 text-maroon-900/40 text-xs font-medium">{{h.createdAt || '—'}}</td>
+
+                <td class="py-4 px-6">
+                  <span class="text-gold-600 font-black text-lg tracking-tighter">
+                    {{h.quantity}}g
+                  </span>
+                </td>
+
+                <td class="py-4 px-6 text-maroon-900/40 text-xs font-medium">
+                  {{h.createdAt || '—'}}
+                </td>
+
               </tr>
             }
           </tbody>
         </table>
       </div>
+
+      <!-- PAGINATION -->
       <div class="flex items-center justify-between mt-8 px-2">
-        <span class="text-[10px] font-bold text-maroon-400 uppercase tracking-widest">Page {{ page+1 }} of {{ totalPages }}</span>
+
+        <span class="text-[10px] font-bold text-maroon-400 uppercase tracking-widest">
+          Page {{ page + 1 }} of {{ totalPages }}
+        </span>
+
         <div class="flex gap-3">
-          <button (click)="prev()" [disabled]="page===0" class="btn-secondary !py-2 !px-4 text-[10px] font-bold uppercase tracking-widest disabled:opacity-30">← Back</button>
-          <button (click)="next()" [disabled]="page>=totalPages-1" class="btn-secondary !py-2 !px-4 text-[10px] font-bold uppercase tracking-widest disabled:opacity-30">Next →</button>
+
+          <button
+            (click)="prev()"
+            [disabled]="page === 0"
+            class="btn-secondary !py-2 !px-4 text-[10px] font-bold uppercase tracking-widest disabled:opacity-30">
+            ← Back
+          </button>
+
+          <button
+            (click)="next()"
+            [disabled]="page >= totalPages - 1"
+            class="btn-secondary !py-2 !px-4 text-[10px] font-bold uppercase tracking-widest disabled:opacity-30">
+            Next →
+          </button>
+
         </div>
       </div>
+
     } @else if (!loading && userId) {
-       <div class="text-center py-12 opacity-40 italic text-maroon-900">No holdings found for this account</div>
+
+      <div class="text-center py-12 opacity-40 italic text-maroon-900">
+        No holdings found for this account
+      </div>
     }
-    <app-result-viewer [error]="error" [loading]="loading" />
+
+    <!-- ✅ GLOBAL BACKEND ERRORS -->
+    <app-result-viewer
+      [error]="apiErrors.footerMessage"
+      [errorStatusCode]="apiErrors.footerStatusCode"
+      [errorType]="apiErrors.footerType"
+      [loading]="loading" />
+
   </div>
 </div>

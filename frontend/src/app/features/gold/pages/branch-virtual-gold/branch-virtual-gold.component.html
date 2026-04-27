@@ -1,33 +1,158 @@
 <div class="page-container">
-  <app-page-header title="Branch Virtual Gold Holdings" developer="Suba Harini" moduleName="Gold" method="GET"
+  <app-page-header
+    title="Branch Virtual Gold Holdings"
+    developer="Suba Harini"
+    moduleName="Gold"
+    method="GET"
     endpoint="/api/v1/branches/{branchId}/gold/virtual"
-    description="Returns all virtual gold holding records associated with a specific branch. Shows how much gold each user holds at the branch." />
-  <div class="card">
-    <div class="flex items-center gap-3 mb-4">
-      <input [(ngModel)]="branchId" type="number" class="input-field w-40" placeholder="Branch ID" />
-      <div class="flex items-center gap-2"><label class="text-sm text-slate-500">Page:</label><input [(ngModel)]="page" type="number" min="0" class="input-field w-16" /></div>
-      <div class="flex items-center gap-2"><label class="text-sm text-slate-500">Size:</label><input [(ngModel)]="size" type="number" min="1" class="input-field w-16" /></div>
-      <button (click)="load()" class="btn-primary" [disabled]="loading">{{ loading ? '...' : 'Load' }}</button>
+    description="Returns all virtual gold holding records associated with a specific branch. Shows how much gold each user holds at the branch."
+  />
+
+  <div class="card border-gold-200/30">
+    <!-- INPUT SECTION -->
+    <div
+      class="flex flex-col md:flex-row items-center gap-6 mb-8 bg-beige-50 p-6 rounded-2xl border border-gold-100"
+    >
+      <!-- Branch ID -->
+      <div class="flex-1 w-full">
+        <label
+          class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2"
+        >
+          Branch ID
+        </label>
+
+        <input
+          [(ngModel)]="branchId"
+          (input)="validateBranchId()"
+          (blur)="validateBranchId()"
+          type="number"
+          class="input-field"
+          placeholder="Enter Branch ID"
+        />
+
+        <!-- ✅ FRONTEND VALIDATION -->
+        @if (apiErrors.fieldErrors["branchId"]?.length) {
+          @for (msg of apiErrors.fieldErrors["branchId"]; track msg) {
+            <p class="mt-2 flex items-center gap-2 text-sm text-red-600">
+              <span class="text-lg">* </span>
+              {{ msg }}
+            </p>
+          }
+        }
+      </div>
+
+      <!-- Pagination -->
+      <div class="flex gap-4">
+        <div class="w-20">
+          <label
+            class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2"
+            >Page</label
+          >
+          <input
+            [(ngModel)]="page"
+            type="number"
+            min="0"
+            class="input-field text-center"
+          />
+        </div>
+
+        <div class="w-20">
+          <label
+            class="block text-[10px] font-bold text-maroon-400 uppercase tracking-widest mb-2"
+            >Size</label
+          >
+          <input
+            [(ngModel)]="size"
+            type="number"
+            min="1"
+            class="input-field text-center"
+          />
+        </div>
+      </div>
+
+      <!-- Button -->
+      <button
+        (click)="load()"
+        class="btn-primary !py-3.5 !px-12 mt-6 md:mt-0"
+        [disabled]="loading"
+      >
+        {{ loading ? "..." : "Load" }}
+      </button>
     </div>
+
+    <!-- TABLE -->
     @if (holdings.length) {
-      <div class="overflow-x-auto">
+      <div class="overflow-hidden rounded-2xl border border-gold-100 shadow-xl">
         <table class="w-full text-sm">
-          <thead><tr class="text-left text-slate-400 border-b border-slate-100"><th class="pb-2 pr-4">Holding ID</th><th class="pb-2 pr-4">User ID</th><th class="pb-2">Total Grams</th></tr></thead>
-          <tbody>
+          <thead>
+            <tr
+              class="bg-maroon-950 text-gold-500 text-[10px] uppercase tracking-[0.2em]"
+            >
+              <th class="py-5 px-6 text-left font-black">Holding ID</th>
+              <th class="py-5 px-6 text-left font-black">User ID</th>
+              <th class="py-5 px-6 text-left font-black">Quantity</th>
+            </tr>
+          </thead>
+
+          <tbody class="bg-white">
             @for (h of holdings; track h.holdingId) {
-              <tr class="border-b border-slate-100"><td class="py-2 pr-4 text-slate-500">{{h.holdingId}}</td><td class="py-2 pr-4 text-slate-900">{{h.userId}}</td><td class="py-2 text-primary-600">{{h.quantity}}g</td></tr>
+              <tr
+                class="border-b border-gold-100/50 hover:bg-beige-50/50 transition-colors"
+              >
+                <td class="py-4 px-6 font-mono text-xs text-maroon-400">
+                  #{{ h.holdingId }}
+                </td>
+                <td class="py-4 px-6 text-maroon-900">{{ h.userId }}</td>
+                <td class="py-4 px-6 text-gold-600 font-black">
+                  {{ h.quantity }}g
+                </td>
+              </tr>
             }
           </tbody>
         </table>
       </div>
-      <div class="flex justify-between mt-4">
-        <span class="text-xs text-slate-400">Page {{ page+1 }} of {{ totalPages }}</span>
-        <div class="flex gap-2">
-          <button (click)="prev()" [disabled]="page===0" class="btn-secondary text-xs px-3">← Prev</button>
-          <button (click)="next()" [disabled]="page>=totalPages-1" class="btn-secondary text-xs px-3">Next →</button>
+
+      <!-- Pagination -->
+      <div class="flex items-center justify-between mt-8 px-2">
+        <span
+          class="text-[10px] font-bold text-maroon-400 uppercase tracking-widest"
+        >
+          Page {{ page + 1 }} of {{ totalPages }}
+        </span>
+
+        <div class="flex gap-3">
+          <button
+            (click)="prev()"
+            [disabled]="page === 0"
+            class="btn-secondary !py-2 !px-4 text-[10px] font-bold uppercase tracking-widest disabled:opacity-30"
+          >
+            ← Back
+          </button>
+
+          <button
+            (click)="next()"
+            [disabled]="page >= totalPages - 1"
+            class="btn-secondary !py-2 !px-4 text-[10px] font-bold uppercase tracking-widest disabled:opacity-30"
+          >
+            Next →
+          </button>
         </div>
       </div>
     }
-    <app-result-viewer [error]="error" [loading]="loading" />
+
+    <!-- EMPTY STATE -->
+    @else if (!loading && branchId) {
+      <div class="text-center py-12 opacity-40 italic text-maroon-900">
+        No holdings found for this branch
+      </div>
+    }
+
+    <!-- ✅ FOOTER ERROR (EXCEPTION / SYSTEM) -->
+    <app-result-viewer
+      [error]="apiErrors.footerMessage"
+      [errorStatusCode]="apiErrors.footerStatusCode"
+      [errorType]="apiErrors.footerType"
+      [loading]="loading"
+    />
   </div>
 </div>

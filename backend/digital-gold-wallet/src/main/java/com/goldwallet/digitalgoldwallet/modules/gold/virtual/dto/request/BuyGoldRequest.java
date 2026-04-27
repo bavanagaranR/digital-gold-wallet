@@ -20,7 +20,6 @@ public class BuyGoldRequest {
     @NotNull(message = "Quantity is required")
     @DecimalMin(value = "0.01", message = "Quantity must be greater than 0")
     @Digits(integer = 16, fraction = 2, message = "Invalid quantity format")
-
     private BigDecimal quantity;
 
     public Long getUserId() {
