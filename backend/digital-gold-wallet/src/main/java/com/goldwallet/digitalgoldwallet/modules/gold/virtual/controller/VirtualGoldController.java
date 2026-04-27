@@ -6,13 +6,16 @@ import com.goldwallet.digitalgoldwallet.modules.gold.virtual.dto.response.Virtua
 import com.goldwallet.digitalgoldwallet.modules.gold.virtual.service.VirtualGoldService;
 import com.goldwallet.digitalgoldwallet.common.response.ApiResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController     //marks this class as spring mvc controller, Handles response → JSON
+@RestController  //marks this class as spring mvc controller, Handles response → JSON
+@Validated
 public class VirtualGoldController {
 
     @Autowired      //field injection
@@ -36,14 +39,14 @@ public class VirtualGoldController {
 
     @GetMapping("/api/v1/users/{userId}/gold/virtual")
     public ResponseEntity<ApiResponse<List<VirtualGoldResponse>>> getUserHoldings(
-            @PathVariable Long userId) {           //“Return a list of user gold holdings wrapped inside ApiResponse, with HTTP response control”
+            @PathVariable @Min(value = 1, message = "UserID should be greater than 0") Long userId) {           //“Return a list of user gold holdings wrapped inside ApiResponse, with HTTP response control”
         return ResponseEntity.ok(                  //PathVariable: Extracts value from URL
                 ApiResponse.success(virtualGoldService.getUserGoldHoldings(userId)));
     }
 
     @GetMapping("/api/v1/branches/{branchId}/gold/virtual")
     public ResponseEntity<ApiResponse<List<VirtualGoldResponse>>> getBranchHoldings(
-            @PathVariable Long branchId) {
+            @PathVariable @Min(value = 1, message = "BranchID should be greater than 0") Long branchId) {
         return ResponseEntity.ok(
                 ApiResponse.success(virtualGoldService.getBranchGoldHoldings(branchId)));
     }
