@@ -29,13 +29,13 @@ export class UserCreateComponent {
   loading = false;
 
   submit() {
-     if (parseInt(this.addressId)<=0 ) {
-      this.error = 'Address ID must be a greater than 0';
+    const addrId = this.form.get('addressId')?.value;
+    if (!addrId) {
+      this.error = 'Address Id is required';
       return;
-    
     }
-   else if (!this.addressId) {
-      this.error = 'Address Id  is required';
+    if (parseInt(addrId) <= 0) {
+      this.error = 'Address ID must be a greater than 0';
       return;
     }
     this.loading = true; 
