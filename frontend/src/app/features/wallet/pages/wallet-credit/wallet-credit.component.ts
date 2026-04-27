@@ -6,6 +6,12 @@ import { PageHeaderComponent } from '../../../../shared/components/page-header/p
 import { ResultViewerComponent } from '../../../../shared/components/result-viewer/result-viewer.component';
 import { NotificationService } from '../../../../core/services/notification.service';
 
+interface ErrorState {
+  type: 'validation' | 'custom' | 'system';
+  message: string;
+  statusCode?: number;
+}
+
 @Component({
   selector: 'app-wallet-credit',
   standalone: true,
@@ -24,22 +30,32 @@ export class WalletCreditComponent {
   });
   
   result: any = null; 
-  error = ''; 
+  errorState: ErrorState | null = null;
+  validationError = ''; 
   loading = false;
 
   submit() {
-     if(parseInt(this.userId) <= 0)
-    {
-      this.error = 'User ID must be a greater than 0';
-      return;
-    }
-    else if (!this.userId) {
-      this.error = 'User ID is required';
+    this.validationError = '';
+    this.form.markAllAsTouched();
+
+     if (!this.userId) {
+  this.validationError = 'Payment ID is required';
+  return;
+}
+
+
+
+if (parseInt(this.userId) <= 0) {
+  this.validationError = 'Payment ID must be greater than 0';
+  return;
+}
+    
+    if (this.form.invalid) {
       return;
     }
      
     this.loading = true; 
-    this.error = ''; 
+    this.errorState = null; 
     this.result = null;
     this.svc.credit(+this.userId, this.form.value as any).subscribe({
       next: r => { 
@@ -48,7 +64,15 @@ export class WalletCreditComponent {
         this.notify.show('Wallet credited successfully!'); 
       },
       error: e => { 
-        this.error = e.error?.message || e.message || 'Failed'; 
+        const status = e.status;
+        const msg = e.error?.message || e.message || 'Failed';
+        if (status === 400) {
+            this.errorState = { type: 'validation', message: msg, statusCode: status };
+        } else if (status > 400 && status < 500) {
+            this.errorState = { type: 'custom', message: msg, statusCode: status };
+        } else {
+            this.errorState = { type: 'system', message: 'An unexpected system error occurred. Please try again later.' };
+        }
         this.loading = false; 
       }
     });

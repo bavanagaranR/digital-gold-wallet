@@ -6,6 +6,12 @@ import { PageHeaderComponent } from '../../../../shared/components/page-header/p
 import { ResultViewerComponent } from '../../../../shared/components/result-viewer/result-viewer.component';
 import { NotificationService } from '../../../../core/services/notification.service';
 
+interface ErrorState {
+  type: 'validation' | 'custom' | 'system';
+  message: string;
+  statusCode?: number;
+}
+
 @Component({
   selector: 'app-payment-create',
   standalone: true,
@@ -26,12 +32,16 @@ export class PaymentCreateComponent {
   });
 
   result: any = null; 
-  error = ''; 
+  errorState: ErrorState | null = null; 
   loading = false;
 
   submit() {
+    this.form.markAllAsTouched();
+    if (this.form.invalid) {
+      return;
+    }
     this.loading = true; 
-    this.error = ''; 
+    this.errorState = null; 
     this.result = null;
     this.svc.initiatePayment(this.form.value as any).subscribe({
       next: r => { 
@@ -40,7 +50,15 @@ export class PaymentCreateComponent {
         this.notify.show('Payment initiated!'); 
       },
       error: e => { 
-        this.error = e.error?.message || e.message || 'Payment failed'; 
+        const status = e.status;
+        const msg = e.error?.message || e.message || 'Payment failed';
+        if (status === 400) {
+            this.errorState = { type: 'validation', message: msg, statusCode: status };
+        } else if (status > 400 && status < 500) {
+            this.errorState = { type: 'custom', message: msg, statusCode: status };
+        } else {
+            this.errorState = { type: 'system', message: 'An unexpected system error occurred. Please try again later.' };
+        }
         this.loading = false; 
       }
     });
