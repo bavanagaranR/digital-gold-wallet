@@ -1,13 +1,16 @@
 package com.goldwallet.digitalgoldwallet.modules.user.dto.request;
 
-import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 
 public class UpdateUserRequest {
+    @Pattern (regexp = "^[A-Za-z]+$", message = "Name must contain only letters")
     private String name;
 
-    @Email(message = "Invalid email format")
+    @Pattern(regexp = "^$|^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$", message = "Invalid email format")
     private String email;
 
+    @Min(value = 1, message = "User ID must be greater than 0")
     private Long addressId;
 
     public String getName() {
