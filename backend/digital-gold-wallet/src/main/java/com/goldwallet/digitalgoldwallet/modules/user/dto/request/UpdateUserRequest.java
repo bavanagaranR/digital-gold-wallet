@@ -1,12 +1,11 @@
 package com.goldwallet.digitalgoldwallet.modules.user.dto.request;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Pattern;
 
 public class UpdateUserRequest {
     private String name;
 
-    @Pattern(regexp = "^$|^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$", message = "Invalid email format")
+    @Email(message = "Invalid email format")
     private String email;
 
     private Long addressId;

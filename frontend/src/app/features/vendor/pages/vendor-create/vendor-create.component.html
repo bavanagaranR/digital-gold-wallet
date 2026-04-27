@@ -57,24 +57,24 @@
          <div class="bg-beige-50 rounded-3xl p-8 border border-gold-200">
             <div class="flex items-center gap-4 mb-8">
                <div class="w-12 h-12 bg-maroon-950 rounded-xl flex items-center justify-center text-gold-400 font-black">ID</div>
-               <span class="text-maroon-950 font-mono text-xl font-black">VND-{{result.vendorId}}</span>
+               <span class="text-maroon-950 font-mono text-xl font-black">VENDOR ID-{{result.vendorId}}</span>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                <div>
-                  <span class="text-[9px] font-bold text-maroon-400 uppercase tracking-widest block mb-1">Entity</span>
+                  <span class="text-[9px] font-bold text-maroon-400 uppercase tracking-widest block mb-1">VENDOR NAME</span>
                   <span class="text-maroon-950 font-bold text-sm">{{result.vendorName}}</span>
                </div>
                <div>
-                  <span class="text-[9px] font-bold text-maroon-400 uppercase tracking-widest block mb-1">Valuation</span>
+                  <span class="text-[9px] font-bold text-maroon-400 uppercase tracking-widest block mb-1">GOLD PRICE</span>
                   <span class="text-gold-600 font-black text-sm tracking-tight">₹{{result.currentGoldPrice | number:'1.2-2'}}/g</span>
                </div>
                <div>
-                  <span class="text-[9px] font-bold text-maroon-400 uppercase tracking-widest block mb-1">Holdings</span>
+                  <span class="text-[9px] font-bold text-maroon-400 uppercase tracking-widest block mb-1">TOTAL GOLD QUANTITY</span>
                   <span class="text-maroon-950 font-bold text-sm">{{result.totalGoldQuantity || 0}}g</span>
                </div>
                <div>
-                  <span class="text-[9px] font-bold text-maroon-400 uppercase tracking-widest block mb-1">Joined</span>
-                  <span class="text-maroon-950/60 font-mono text-[10px]">{{result.createdAt | date:'shortDate'}}</span>
+                  <span class="text-[9px] font-bold text-maroon-400 uppercase tracking-widest block mb-1">CREATED AT</span>
+                  <span class="text-maroon-950/60 font-mono text-sm">{{result.createdAt | date:'medium'}}</span>
                </div>
             </div>
          </div>

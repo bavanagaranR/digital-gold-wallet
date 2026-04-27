@@ -45,12 +45,6 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(userService.getUserById(id)));
     }
 
-//    @GetMapping("/users/{id}") // Get single user by ID
-//    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Long id) { // Read ID from URL
-//        return ResponseEntity.status(HttpStatus.OK) // Return 200 OK
-//                .body(ApiResponse.success(userService.getUserById(id)));
-//    }
-
     @GetMapping("/users")// Get all users with pagination
     public ResponseEntity<ApiResponse<Page<UserResponse>>> getAllUsers(Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(userService.getAllUsers(pageable)));

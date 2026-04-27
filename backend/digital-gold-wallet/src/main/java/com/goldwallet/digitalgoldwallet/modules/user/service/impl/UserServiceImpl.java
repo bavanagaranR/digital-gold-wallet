@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
         Address address = null;
         if (request.getAddressId() != null) {
             address = addressRepository.findById(request.getAddressId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Address not found: " + request.getAddressId()));//.orElseThrow->it is optional class,If value exists → give the value,If empty → throw exception
+                    .orElseThrow(() -> new ResourceNotFoundException("Address not found: " + request.getAddressId()));
         }
 
         // Convert request DTO to User entity
@@ -59,16 +59,6 @@ public class UserServiceImpl implements UserService {
                 .address(address)
                 .balance(BigDecimal.ZERO)
                 .build();
-        // Convert request DTO to User entity manually
-//        User user = new User();
-//
-//        user.setName(request.getName());
-//        user.setEmail(request.getEmail());
-//        user.setAddress(address);
-//        user.setBalance(BigDecimal.ZERO);
-
-// userId not set here
-// Database will auto-generate during save()
 
         // Save user entity into database
         User saved = userRepository.save(user);
@@ -122,6 +112,7 @@ public class UserServiceImpl implements UserService {
                     .orElseThrow(() -> new ResourceNotFoundException("Address not found: " + request.getAddressId()));
             user.setAddress(address);
         }
+
         // Save updated user and return response
         return mapToUserResponse(userRepository.save(user));
     }
@@ -143,13 +134,6 @@ public class UserServiceImpl implements UserService {
                 .postalCode(request.getPostalCode())
                 .country(request.getCountry())
                 .build();
-
-//        Address address = new Address();
-//        address.setStreet(request.getStreet());
-//        address.setCity(request.getCity());
-//        address.setState(request.getState());
-//        address.setPostalCode(request.getPostalCode());
-//        address.setCountry(request.getCountry());
 
         return mapToAddressResponse(addressRepository.save(address));
     }
@@ -206,19 +190,6 @@ public class UserServiceImpl implements UserService {
                 .createdAt(user.getCreatedAt())
                 .build();
     }
-//    UserResponse response = new UserResponse();
-//response.setUserId(user.getUserId());
-//response.setName(user.getName());
-//response.setEmail(user.getEmail());
-//response.setBalance(user.getBalance());
-//response.setAddress(
-//        user.getAddress() != null
-//        ? mapToAddressResponse(user.getAddress())
-//            : null
-//            );
-//response.setCreatedAt(user.getCreatedAt());
-//return response;
-//
 
     private AddressResponse mapToAddressResponse(Address address) {
         // Convert Address entity to AddressResponse DTO
@@ -230,16 +201,5 @@ public class UserServiceImpl implements UserService {
                 .postalCode(address.getPostalCode())
                 .country(address.getCountry())
                 .build();
-
-//        AddressResponse response = new AddressResponse();
-//
-//        response.setAddressId(address.getAddressId());
-//        response.setStreet(address.getStreet());
-//        response.setCity(address.getCity());
-//        response.setState(address.getState());
-//        response.setPostalCode(address.getPostalCode());
-//        response.setCountry(address.getCountry());
-//
-//        return response;
     }
 }

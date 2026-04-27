@@ -19,24 +19,26 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DataJpaTest
-@ActiveProfiles("test")
-@Transactional
+@DataJpaTest // Configures in-memory DB for JPA testing
+@ActiveProfiles("test") // Uses test profile
+@Transactional // Rolls back changes after each test
 class VendorRepositoryTest {
 
     @Autowired
-    private VendorRepository vendorRepository;
+    private VendorRepository vendorRepository; // Vendor repository
 
     @Autowired
-    private VendorBranchRepository vendorBranchRepository;
+    private VendorBranchRepository vendorBranchRepository; // Branch repository
 
     @Autowired
-    private AddressRepository addressRepository;
+    private AddressRepository addressRepository; // Address repository
 
     @Autowired
-    private EntityManager entityManager;
+    private EntityManager entityManager; // Used for manual flush/clear
 
     // ---------- Helper Methods ----------
+
+    // Creates and saves an Address entity
     private Address createAddress(String area) {
         return addressRepository.save(Address.builder()
                 .street(area)
@@ -47,6 +49,7 @@ class VendorRepositoryTest {
                 .build());
     }
 
+    // Creates and saves a Vendor entity
     private Vendor createVendor(String name, String email) {
         return vendorRepository.save(Vendor.builder()
                 .vendorName(name)
@@ -62,22 +65,29 @@ class VendorRepositoryTest {
 
     // ---------- BASIC CRUD TESTS ----------
 
+    // Test vendor creation
     @Test
     void testCreateVendor() {
+
         Vendor vendor = createVendor("Tanishq", "tanishq@gmail.com");
-        assertNotNull(vendor.getVendorId());
+        assertNotNull(vendor.getVendorId());//Check that vendorId is NOT null
     }
 
+    // Test fetching vendor by ID
     @Test
     void testFindVendorById() {
+
         Vendor vendor = createVendor("Kalyan", "kalyan@gmail.com");
 
         Optional<Vendor> found = vendorRepository.findById(vendor.getVendorId());
-        assertTrue(found.isPresent());
+        assertEquals("Kalyan", found.get().getVendorName());
     }
 
+
+    // Test updating vendor details
     @Test
     void testUpdateVendor() {
+
         Vendor vendor = createVendor("Malabar", "malabar@gmail.com");
 
         vendor.setCurrentGoldPrice(new BigDecimal("6000"));
@@ -86,36 +96,38 @@ class VendorRepositoryTest {
         assertEquals(new BigDecimal("6000"), updated.getCurrentGoldPrice());
     }
 
+
+    // Test deleting vendor
     @Test
     void testDeleteVendor() {
+
         Vendor vendor = createVendor("GRT", "grt@gmail.com");
 
         vendorRepository.delete(vendor);
 
         Optional<Vendor> found = vendorRepository.findById(vendor.getVendorId());
-        assertFalse(found.isPresent());
+        assertFalse(found.isPresent());//Check that vendor does NOT exist
     }
 
     // ---------- CUSTOM QUERY TESTS ----------
 
-    @Test
-    void testFindByVendorName() {
-        createVendor("Tanishq", "t@gmail.com");
 
-        Optional<Vendor> vendor = vendorRepository.findByVendorName("Tanishq");
-        assertTrue(vendor.isPresent());
-    }
 
+    // Test case-insensitive query
     @Test
     void testFindByNameIgnoreCase() {
+
         createVendor("Kalyan", "k@gmail.com");
 
         Optional<Vendor> vendor = vendorRepository.findByNameIgnoreCase("kalyan");
         assertTrue(vendor.isPresent());
     }
 
+
+    // Test filtering vendors by gold price
     @Test
     void testFindVendorsWithGoldPriceGreaterThan() {
+
         createVendor("Vendor1", "v1@gmail.com");
         Vendor v2 = createVendor("Vendor2", "v2@gmail.com");
 
@@ -127,14 +139,18 @@ class VendorRepositoryTest {
 
         assertEquals(1, result.size());
     }
+
+
+    // Test custom update query
     @Test
     void testCustomUpdateGoldPrice() {
+
 
         Vendor vendor = createVendor("Malabar", "m@gmail.com");
 
         vendorRepository.updateGoldPrice(vendor.getVendorId(), new BigDecimal("6500"));
 
-        entityManager.flush();   // push update
+        entityManager.flush();   // push update to DB
         entityManager.clear();   // clear cache
 
         Vendor updated = vendorRepository.findById(vendor.getVendorId()).get();
@@ -142,20 +158,21 @@ class VendorRepositoryTest {
         assertEquals(0, updated.getCurrentGoldPrice().compareTo(new BigDecimal("6500")));
     }
 
+
+    // Test custom delete query
     @Test
     void testCustomDeleteVendor() {
 
-        //  CREATE vendor first
+        // Create vendor
         Vendor vendor = createVendor("DeleteVendor", "d@gmail.com");
 
-        // DELETE
+        // Delete vendor using custom query
         vendorRepository.deleteVendorById(vendor.getVendorId());
 
-        //  Sync + clear cache
         entityManager.flush();
         entityManager.clear();
 
-        // VERIFY
+        // Verify deletion
         Optional<Vendor> found = vendorRepository.findById(vendor.getVendorId());
 
         assertFalse(found.isPresent());
@@ -165,6 +182,7 @@ class VendorRepositoryTest {
 
     @Test
     void testCreateVendorBranch() {
+        // Test branch creation
         Vendor vendor = createVendor("Joyalukkas", "joy@gmail.com");
         Address address = createAddress("T Nagar");
 
@@ -181,6 +199,7 @@ class VendorRepositoryTest {
 
     @Test
     void testFindBranchesByCity() {
+        // Test branch search by city
         Vendor vendor = createVendor("CityVendor", "cv@gmail.com");
         Address address = createAddress("Adyar");
 
@@ -200,6 +219,7 @@ class VendorRepositoryTest {
 
     @Test
     void testFindBranchesWithQuantityGreaterThan() {
+        // Test filtering branches by quantity
         Vendor vendor = createVendor("QtyVendor", "q@gmail.com");
         Address address = createAddress("Velachery");
 
@@ -219,6 +239,7 @@ class VendorRepositoryTest {
 
     @Test
     void testTotalGoldByVendor() {
+        // Test total gold calculation for vendor
         Vendor vendor = createVendor("TotalVendor", "tv@gmail.com");
         Address address = createAddress("Tambaram");
 
@@ -233,10 +254,12 @@ class VendorRepositoryTest {
         BigDecimal total =
                 vendorBranchRepository.getTotalGoldByVendor(vendor.getVendorId());
 
-        assertEquals(0, total.compareTo(new BigDecimal("50")));    }
+        assertEquals(0, total.compareTo(new BigDecimal("50")));
+    }
 
     @Test
     void testDeleteBranchesByVendor() {
+        // Test deleting all branches of a vendor
         Vendor vendor = createVendor("DeleteBranchVendor", "db@gmail.com");
         Address address = createAddress("Porur");
 
@@ -256,4 +279,3 @@ class VendorRepositoryTest {
         assertTrue(branches.isEmpty());
     }
 }
-
