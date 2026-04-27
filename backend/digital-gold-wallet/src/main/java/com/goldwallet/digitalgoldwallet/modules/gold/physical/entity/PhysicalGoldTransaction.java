@@ -14,23 +14,23 @@ import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "physical_gold_transactions")
-@Builder
+@Builder                                      //to create objects in a readable and flexible way without depending on constructor order
 public class PhysicalGoldTransaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "transaction_id")
-    private Long transactionId;
+    private Long transactionId;   //Stores only physical conversion details  (transaction_id in transaction stores buy/sell/physical together)
 
     @NotNull(message = "User cannot be null")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private User user;            //many transactions can be done by one user
 
     @NotNull(message = "Vendor branch cannot be null")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "branch_id", nullable = false)
-    private VendorBranch branch;
+    private VendorBranch branch;        //many physical transactions can be made to one branch by many users
 
     @NotNull(message = "Quantity cannot be null")
     @DecimalMin(value = "0.01", inclusive = true, message = "Quantity must be greater than 0")
@@ -41,7 +41,7 @@ public class PhysicalGoldTransaction {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "delivery_address_id")
-    private Address deliveryAddress;
+    private Address deliveryAddress;    //Many transactions → One address
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

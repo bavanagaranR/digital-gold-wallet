@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,7 +80,8 @@ public class PhysicalGoldServiceImpl implements PhysicalGoldService {
         physical = physicalRepo.save(physical);
 
         BigDecimal goldPrice = branch.getVendor().getCurrentGoldPrice();
-        BigDecimal totalValue = goldPrice.multiply(request.getQuantity());
+        BigDecimal totalValue = goldPrice.multiply(request.getQuantity())
+                .setScale(2, RoundingMode.HALF_UP);
 
         transactionHistoryRepository.save(TransactionHistory.builder()
                 .user(user).branch(branch)
