@@ -35,6 +35,9 @@ export class AddressUpdateComponent {
     if (!this.addressId) {
       this.error = 'Enter Address ID';
       return;
+    }else if (parseInt(this.addressId)<=0 ) {
+      this.error = 'Address ID must be a greater than 0';
+      return;
     }
     this.loading = true; 
     this.error = ''; 

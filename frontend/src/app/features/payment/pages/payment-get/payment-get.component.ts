@@ -20,10 +20,17 @@ export class PaymentGetComponent {
   loading = false;
 
   submit() {
-    if (!this.paymentId) {
+    if(parseInt(this.paymentId) <= 0)
+    {
+      this.error = 'Payment ID must be a greater than 0';
+      return;
+    }
+   else if (!this.paymentId) {
       this.error = 'Payment ID is required';
       return;
     }
+    
+    
     this.loading = true; 
     this.error = ''; 
     this.result = null;
