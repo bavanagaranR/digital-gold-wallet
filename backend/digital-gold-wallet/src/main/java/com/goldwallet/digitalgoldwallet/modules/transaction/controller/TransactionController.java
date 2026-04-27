@@ -26,11 +26,20 @@ public class TransactionController {
         return ResponseEntity.ok(ApiResponse.success(transactionService.getTransactionById(id)));
     }
 
+    //this is another way to write the above code with proper error handling
+
+    //     @GetMapping("/transactions/{id}")
+// public ResponseEntity<ApiResponse<TransactionResponse>> getTransaction(@PathVariable Long id) {
+//     return ResponseEntity
+//             .status(HttpStatus.OK)
+//             .body(ApiResponse.success(transactionService.getTransactionById(id)));
+// }
     // Retrieves paginated transaction history for a specific user
     @GetMapping("/users/{userId}/transactions")
     public ResponseEntity<ApiResponse<Page<TransactionResponse>>> getUserTransactions(@PathVariable Long userId, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(transactionService.getUserTransactions(userId, pageable)));
     }
+
 
     // Retrieves paginated transactions processed at a specific vendor branch
     @GetMapping("/branches/{branchId}/transactions")
