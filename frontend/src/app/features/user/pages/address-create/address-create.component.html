@@ -5,20 +5,54 @@
     <form [formGroup]="form" (ngSubmit)="submit()">
       <div class="grid grid-cols-1 gap-4">
         <!-- No User ID Needed -->
-        <div><label class="block text-sm text-slate-500 mb-1">Street *</label><input formControlName="street" class="input-field" placeholder="123 Main St" /></div>
+        <div>
+          <label class="block text-sm text-slate-500 mb-1">Street *</label>
+          <input formControlName="street" class="input-field" placeholder="123 Main St" />
+          @if (showControlError('street')) {
+            <p class="mt-1 flex items-center gap-2 text-xs text-red-500">
+              <span>{{ controlErrorMessage('street') }}</span>
+            </p>
+          }
+        </div>
         <div class="grid grid-cols-2 gap-4">
-          <div><label class="block text-sm text-slate-500 mb-1">City *</label><input formControlName="city" class="input-field" /></div>
-          <div><label class="block text-sm text-slate-500 mb-1">State *</label><input formControlName="state" class="input-field" /></div>
+          <div>
+            <label class="block text-sm text-slate-500 mb-1">City *</label>
+            <input formControlName="city" class="input-field" />
+            @if (showControlError('city')) {
+              <p class="mt-1 flex items-center gap-2 text-xs text-red-500">
+                <span>{{ controlErrorMessage('city') }}</span>
+              </p>
+            }
+          </div>
+          <div>
+            <label class="block text-sm text-slate-500 mb-1">State *</label>
+            <input formControlName="state" class="input-field" />
+            @if (showControlError('state')) {
+              <p class="mt-1 flex items-center gap-2 text-xs text-red-500">
+                <span>{{ controlErrorMessage('state') }}</span>
+              </p>
+            }
+          </div>
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-sm text-slate-500 mb-1">Postal Code *</label>
-            <input formControlName="postalCode" class="input-field" [class.border-red-500]="form.get('postalCode')?.invalid && form.get('postalCode')?.touched" />
-            @if (form.get('postalCode')?.invalid && form.get('postalCode')?.touched) {
-              <span class="text-xs text-red-500 mt-1 block">Invalid postal code format</span>
+            <input formControlName="postalCode" class="input-field" />
+            @if (showControlError('postalCode')) {
+              <p class="mt-1 flex items-center gap-2 text-xs text-red-500">
+                <span>{{ controlErrorMessage('postalCode') }}</span>
+              </p>
             }
           </div>
-          <div><label class="block text-sm text-slate-500 mb-1">Country *</label><input formControlName="country" class="input-field" placeholder="India" /></div>
+          <div>
+            <label class="block text-sm text-slate-500 mb-1">Country *</label>
+            <input formControlName="country" class="input-field" placeholder="India" />
+            @if (showControlError('country')) {
+              <p class="mt-1 flex items-center gap-2 text-xs text-red-500">
+                <span>{{ controlErrorMessage('country') }}</span>
+              </p>
+            }
+          </div>
         </div>
       </div>
       <button type="submit" class="btn-primary mt-4" [disabled]="loading">{{ loading ? 'Creating...' : 'Create Address' }}</button>
@@ -36,6 +70,6 @@
         </div>
       </div>
     }
-    <app-result-viewer [error]="error" [loading]="loading" />
+    <app-user-feedback [loading]="loading" [feedback]="feedback" />
   </div>
 </div>

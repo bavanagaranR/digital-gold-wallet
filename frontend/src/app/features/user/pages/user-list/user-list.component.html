@@ -2,19 +2,29 @@
   <app-page-header title="List All Users" developer="Pavithra" moduleName="User" method="GET"
     endpoint="/api/v1/users" description="Retrieves all users with pagination support. Use the page/size controls to navigate through results." />
   <div class="card border-gold-200/30 shadow-2xl">
-    <div class="flex flex-col md:flex-row items-center gap-6 mb-10 bg-maroon-950 p-6 rounded-2xl border border-gold-500/20">
+    <form [formGroup]="form" (ngSubmit)="load()" class="flex flex-col md:flex-row items-center gap-6 mb-10 bg-maroon-950 p-6 rounded-2xl border border-gold-500/20">
        <div class="flex gap-4">
           <div class="w-20">
              <label class="block text-[10px] font-bold text-gold-500/70 uppercase tracking-widest mb-2">Page</label>
-             <input [(ngModel)]="page" type="number" min="0" class="input-field !bg-maroon-900/50 !border-gold-500/20 !text-gold-100 text-center" />
+             <input formControlName="page" type="number" min="0" step="1" class="input-field !bg-maroon-900/50 !border-gold-500/20 !text-gold-100 text-center" />
+             @if (showControlError('page')) {
+               <p class="mt-1 flex items-center gap-1 text-[10px] text-red-300">
+                 <span>{{ controlErrorMessage('page') }}</span>
+               </p>
+             }
           </div>
           <div class="w-20">
              <label class="block text-[10px] font-bold text-gold-500/70 uppercase tracking-widest mb-2">Size</label>
-             <input [(ngModel)]="size" type="number" min="1" max="100" class="input-field !bg-maroon-900/50 !border-gold-500/20 !text-gold-100 text-center" />
+             <input formControlName="size" type="number" min="1" max="100" step="1" class="input-field !bg-maroon-900/50 !border-gold-500/20 !text-gold-100 text-center" />
+             @if (showControlError('size')) {
+               <p class="mt-1 flex items-center gap-1 text-[10px] text-red-300">
+                 <span>{{ controlErrorMessage('size') }}</span>
+               </p>
+             }
           </div>
        </div>
-       <button (click)="load()" class="btn-primary !py-3.5 !px-12 mt-6 md:mt-0 !bg-gold-500 hover:!bg-gold-400 !text-maroon-950 !border-transparent" [disabled]="loading">{{ loading ? '...' : 'Load' }}</button>
-    </div>
+       <button type="submit" class="btn-primary !py-3.5 !px-12 mt-6 md:mt-0 !bg-gold-500 hover:!bg-gold-400 !text-maroon-950 !border-transparent" [disabled]="loading">{{ loading ? '...' : 'Load' }}</button>
+    </form>
 
     @if (users.length) {
       <div class="overflow-hidden rounded-2xl border border-gold-100 shadow-xl">
@@ -56,6 +66,6 @@
           <p class="text-xs font-bold text-maroon-900 uppercase tracking-widest">No users found</p>
        </div>
     }
-    <app-result-viewer [error]="error" [loading]="loading" />
+    <app-user-feedback [loading]="loading" [feedback]="feedback" />
   </div>
 </div>

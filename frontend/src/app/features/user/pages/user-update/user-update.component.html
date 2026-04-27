@@ -2,15 +2,44 @@
   <app-page-header title="Update User" developer="Pavithra" moduleName="User" method="PUT"
     endpoint="/api/v1/users/{id}" description="Updates an existing user's details by their ID. Provide the user ID and the fields to update (name, email, or addressId)." />
   <div class="card">
-    <div class="mb-4">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
+    <div>
       <label class="block text-sm text-slate-500 mb-1">User ID *</label>
-      <input [(ngModel)]="userId" type="number" class="input-field" placeholder="Enter User ID" />
+      <input formControlName="userId" type="number" min="1" step="1" class="input-field" placeholder="Enter User ID" />
+      @if (showControlError('userId')) {
+        <p class="mt-1 flex items-center gap-2 text-xs text-red-500">
+          <span>{{ controlErrorMessage('userId') }}</span>
+        </p>
+      }
     </div>
-    <form [formGroup]="form" (ngSubmit)="submit()">
       <div class="grid grid-cols-1 gap-4">
-        <div><label class="block text-sm text-slate-500 mb-1">Name</label><input formControlName="name" class="input-field" placeholder="New name" /></div>
-        <div><label class="block text-sm text-slate-500 mb-1">Email</label><input formControlName="email" type="email" class="input-field" placeholder="New email" /></div>
-        <div><label class="block text-sm text-slate-500 mb-1">Address ID</label><input formControlName="addressId" type="number" class="input-field" placeholder="New Address ID" /></div>
+        <div>
+          <label class="block text-sm text-slate-500 mb-1">Name</label>
+          <input formControlName="name" class="input-field" placeholder="New name" />
+          @if (showControlError('name')) {
+            <p class="mt-1 flex items-center gap-2 text-xs text-red-500">
+              <span>{{ controlErrorMessage('name') }}</span>
+            </p>
+          }
+        </div>
+        <div>
+          <label class="block text-sm text-slate-500 mb-1">Email</label>
+          <input formControlName="email" type="email" class="input-field" placeholder="New email" />
+          @if (showControlError('email')) {
+            <p class="mt-1 flex items-center gap-2 text-xs text-red-500">
+              <span>{{ controlErrorMessage('email') }}</span>
+            </p>
+          }
+        </div>
+        <div>
+          <label class="block text-sm text-slate-500 mb-1">Address ID</label>
+          <input formControlName="addressId" type="number" min="1" step="1" class="input-field" placeholder="New Address ID" />
+          @if (showControlError('addressId')) {
+            <p class="mt-1 flex items-center gap-2 text-xs text-red-500">
+              <span>{{ controlErrorMessage('addressId') }}</span>
+            </p>
+          }
+        </div>
       </div>
       <button type="submit" class="btn-primary mt-4" [disabled]="loading">{{ loading ? 'Updating...' : 'Update User' }}</button>
     </form>
@@ -32,6 +61,6 @@
         </div>
       </div>
     }
-    <app-result-viewer [error]="error" [loading]="loading" />
+    <app-user-feedback [loading]="loading" [feedback]="feedback" />
   </div>
 </div>
