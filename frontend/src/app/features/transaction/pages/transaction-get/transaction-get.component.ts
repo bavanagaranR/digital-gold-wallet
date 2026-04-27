@@ -16,24 +16,44 @@ export class TransactionGetComponent {
   private svc = inject(TransactionService);
   txId = ''; 
   result: any = null; 
-  error = ''; 
+  validationError = '';
+  backendError = '';
+  systemError = '';
+  statusCode: number | null = null;
   loading = false;
 
   submit() {
+    this.validationError = '';
+    this.backendError = '';
+    this.systemError = '';
+    this.statusCode = null;
+    this.result = null;
+
     if (!this.txId) {
-      this.error = 'Transaction ID is required';
+      this.validationError = 'Transaction ID is required';
+      return;
+    }
+    else if(parseInt(this.txId) <= 0)
+    {
+      this.validationError = 'Transaction ID must be a positive number';
       return;
     }
     this.loading = true; 
-    this.error = ''; 
-    this.result = null;
     this.svc.getTransactionById(+this.txId).subscribe({ 
       next: r => { 
         this.result = r.data; 
         this.loading = false; 
       }, 
       error: e => { 
-        this.error = e.error?.message || e.message || 'Not found'; 
+        this.statusCode = e.status;
+        const msg = e.error?.message || e.error || 'Something went wrong';
+        if (e.status === 400) {
+          this.backendError = msg;
+        } else if (e.status === 500) {
+          this.systemError = 'System Exception: ' + msg;
+        } else {
+          this.systemError = e.status === 0 ? 'Network unreachable' : msg;
+        }
         this.loading = false; 
       } 
     });
