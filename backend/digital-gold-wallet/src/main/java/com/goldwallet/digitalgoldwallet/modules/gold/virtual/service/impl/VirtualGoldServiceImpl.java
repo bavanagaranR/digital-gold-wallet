@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -57,8 +58,9 @@ public class VirtualGoldServiceImpl implements VirtualGoldService {
         Vendor vendor = branch.getVendor();  //checks which vendor belongs to the requested branch
 
         BigDecimal price = vendor.getCurrentGoldPrice();   //gets the price per gram quoted by vendor
-        BigDecimal totalCost = price.multiply(request.getQuantity());  //calculating cost needed to buy requested quantity of gold
-
+//        BigDecimal totalCost = price.multiply(request.getQuantity());  //calculating cost needed to buy requested quantity of gold
+        BigDecimal totalCost = price.multiply(request.getQuantity())
+                .setScale(2, RoundingMode.HALF_UP);
         if (user.getBalance().compareTo(totalCost) < 0) {          //in compareTo: < 0(i.e. a=b) means a<b(i.e. -1), >0 means a>b (i.e. 1)
             throw new InsufficientBalanceException("Insufficient wallet balance. Required: " + totalCost + ", Available: " + user.getBalance());  //throw a custom runtime exception called InsufficientBalanceException. Since this is inside a @Transactional method, throwing this exception also triggers a rollback, ensuring no partial database updates happen
         }
@@ -120,7 +122,9 @@ public class VirtualGoldServiceImpl implements VirtualGoldService {
         }
 
         BigDecimal price = vendor.getCurrentGoldPrice();
-        BigDecimal totalValue = price.multiply(request.getQuantity());
+
+        BigDecimal totalValue = price.multiply(request.getQuantity())
+                .setScale(2, RoundingMode.HALF_UP);
 
         holding.setQuantity(holding.getQuantity().subtract(request.getQuantity())); //here qty is subtracted because of selling
         holdingRepository.save(holding);

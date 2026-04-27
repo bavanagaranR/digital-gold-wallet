@@ -29,6 +29,7 @@ export class GoldBuyComponent {
   loading = false;
 
   submit() {
+  
     this.loading = true; 
     this.error = ''; 
     this.result = null;
