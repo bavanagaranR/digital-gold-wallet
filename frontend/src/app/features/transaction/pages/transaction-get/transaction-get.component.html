@@ -7,6 +7,9 @@
     <div class="flex flex-col md:flex-row gap-6 items-center mb-10">
       <div class="relative w-full md:w-80">
          <input [(ngModel)]="txId" type="number" class="input-field !pl-24" placeholder="Enter Transaction ID" />
+         @if (validationError) {
+           <span class="validation-error animate-pulse">{{validationError}}</span>
+         }
       </div>
       <button (click)="submit()" class="btn-primary !py-3.5 !px-12 uppercase tracking-[0.2em] text-[10px] font-black shadow-gold-500/20" [disabled]="loading">
         {{ loading ? '...' : 'Fetch' }}
@@ -53,6 +56,30 @@
         </div>
       </div>
     }
-    <app-result-viewer [error]="error" [loading]="loading" />
+    @if (backendError) {
+      <div class="backend-error animate-in fade-in slide-in-from-top-4 duration-300">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center justify-center w-8 h-8 rounded-full bg-gold-500 text-maroon-950 font-black text-lg shadow-lg">!</div>
+          <div class="flex flex-col">
+            <span class="text-[10px] font-black uppercase tracking-widest opacity-50">Status {{statusCode}}</span>
+            <span class="text-sm">{{backendError}}</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (systemError) {
+      <div class="system-error animate-bounce">
+        <div class="flex items-center justify-center gap-3">
+          <div class="flex items-center justify-center w-8 h-8 rounded-full bg-red-600 text-white font-black text-lg shadow-lg">!</div>
+          <div class="flex flex-col text-left">
+            <span class="text-[10px] font-black uppercase tracking-widest opacity-50">Error {{statusCode}}</span>
+            <span class="text-sm font-bold">{{systemError}}</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    <app-result-viewer [loading]="loading" />
   </div>
 </div>

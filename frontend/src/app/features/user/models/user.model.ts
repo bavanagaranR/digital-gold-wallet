@@ -1,38 +1,37 @@
 export interface CreateUserRequest {
   name: string;
   email: string;
-  phone: string;
+  addressId: number;
 }
 
 export interface UpdateUserRequest {
   name?: string;
   email?: string;
-  phone?: string;
+  addressId?: number;
 }
 
 export interface UserResponse {
-  id: number;
+  userId: number;
   name: string;
   email: string;
-  phone: string;
+  balance: number;
+  address?: AddressResponse;
   createdAt?: string;
 }
 
 export interface CreateAddressRequest {
-  userId: number;
   street: string;
   city: string;
   state: string;
-  pincode: string;
+  postalCode: string;
   country: string;
 }
 
 export interface AddressResponse {
-  id: number;
-  userId: number;
+  addressId: number;
   street: string;
   city: string;
   state: string;
-  pincode: string;
+  postalCode: string;
   country: string;
 }

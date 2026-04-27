@@ -15,4 +15,6 @@ export class ResultViewerComponent {
   @Input() errorType: 'warning' | 'danger' | '' = '';
   @Input() statusCode: number | null = null;
   @Input() loading = false;
+  @Input() errorType: 'warning' | 'danger' | null = null;
+  @Input() errorStatusCode: number | null = null;
 }

@@ -20,17 +20,24 @@ export class TransactionByStatusComponent {
   txns: any[] = []; 
   totalPages = 0; 
   totalElements = 0; 
-  error = ''; 
+  validationError = '';
+  backendError = '';
+  systemError = '';
+  statusCode: number | null = null;
   loading = false;
 
   load() {
+    this.validationError = '';
+    this.backendError = '';
+    this.systemError = '';
+    this.statusCode = null;
+    this.txns = [];
+
     if (!this.status) {
-      this.error = 'Status is required';
+      this.validationError = 'Status is required';
       return;
     }
     this.loading = true; 
-    this.error = ''; 
-    this.txns = [];
     this.svc.getTransactionsByStatus(this.status, this.page, this.size).subscribe({
       next: r => { 
         const d = r.data as any; 
@@ -40,7 +47,15 @@ export class TransactionByStatusComponent {
         this.loading = false; 
       },
       error: e => { 
-        this.error = e.error?.message || e.message || 'Failed'; 
+        this.statusCode = e.status;
+        const msg = e.error?.message || e.error || 'Something went wrong';
+        if (e.status === 400) {
+          this.backendError = msg;
+        } else if (e.status === 500) {
+          this.systemError = 'System Exception: ' + msg;
+        } else {
+          this.systemError = e.status === 0 ? 'Network unreachable' : msg;
+        }
         this.loading = false; 
       }
     });

@@ -2,16 +2,23 @@
   <app-page-header title="User Wallet Balance" developer="Pavithra" moduleName="User" method="GET"
     endpoint="/api/v1/users/{id}/balance" description="Returns the current wallet balance of a specific user. Useful for displaying available funds before a transaction." />
   <div class="card">
-    <div class="flex gap-3 mb-4">
-      <input [(ngModel)]="userId" type="number" class="input-field" placeholder="Enter User ID" />
-      <button (click)="submit()" class="btn-primary" [disabled]="loading">{{ loading ? '...' : 'Check Balance' }}</button>
-    </div>
+    <form [formGroup]="form" (ngSubmit)="submit()" class="flex gap-3 mb-4">
+      <div class="flex-1">
+        <input formControlName="userId" type="number" min="1" step="1" class="input-field" placeholder="Enter User ID" />
+        @if (showControlError('userId')) {
+          <p class="mt-1 flex items-center gap-2 text-xs text-red-500">
+            <span>{{ controlErrorMessage('userId') }}</span>
+          </p>
+        }
+      </div>
+      <button type="submit" class="btn-primary" [disabled]="loading">{{ loading ? '...' : 'Check Balance' }}</button>
+    </form>
     @if (balance !== null && !loading) {
       <div class="bg-primary-50 border border-gold-700/40 rounded-xl p-6 text-center">
         <p class="text-slate-500 text-sm">Wallet Balance</p>
         <p class="text-4xl font-heading text-primary-600 mt-1">₹ {{ balance | number:'1.2-2' }}</p>
       </div>
     }
-    <app-result-viewer [error]="error" [loading]="loading" />
+    <app-user-feedback [loading]="loading" [feedback]="feedback" />
   </div>
 </div>
