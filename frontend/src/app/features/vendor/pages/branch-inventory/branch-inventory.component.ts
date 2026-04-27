@@ -20,7 +20,16 @@ export class BranchInventoryComponent {
   loading = false;
 
   submit() {
-    if (!this.branchId) return; 
+     if (parseInt(this.branchId)<=0 ) {
+      this.error = 'BranchId must be a greater than 0';
+      return;
+    
+    }
+  
+   else if (!this.branchId) {
+      this.error = 'BranchId  is required *';
+      return;
+    }; 
     this.loading = true; 
     this.error = ''; 
     this.inventory = null;
