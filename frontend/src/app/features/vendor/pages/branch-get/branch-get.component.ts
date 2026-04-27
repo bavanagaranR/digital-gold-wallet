@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { VendorService } from '../../services/vendor.service';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { ResultViewerComponent } from '../../../../shared/components/result-viewer/result-viewer.component';
+import { buildResultError, createEmptyResultError, ResultErrorState } from '../../vendor-error.utils';
 
 @Component({
   selector: 'app-branch-get',
@@ -14,34 +15,53 @@ import { ResultViewerComponent } from '../../../../shared/components/result-view
 })
 export class BranchGetComponent {
   private svc = inject(VendorService);
-  branchId = ''; 
-  result: any = null; 
-  error = ''; 
+
+  branchId = '';
+  result: any = null;
   loading = false;
+  submitted = false;
+  resultError: ResultErrorState = createEmptyResultError();
 
   submit() {
-    if (parseInt(this.branchId)<=0 ) {
-      this.error = 'BranchId must be a greater than 0';
-      return;
-    
-    }
-  
-   else if (!this.branchId) {
-      this.error = 'BranchId  is required *';
-      return;
-    }; 
-    this.loading = true; 
-    this.error = ''; 
+    this.submitted = true;
+    this.resultError = createEmptyResultError();
     this.result = null;
-    this.svc.getBranchById(+this.branchId).subscribe({ 
-      next: r => { 
-        this.result = r.data; 
-        this.loading = false; 
-      }, 
-      error: e => { 
-        this.error = e.error?.message || e.message || 'Not found'; 
-        this.loading = false; 
-      } 
+
+    if (!this.branchId) {
+      return;
+    }
+
+    if (Number(this.branchId) <= 0) {
+      return;
+    }
+
+    this.loading = true;
+    this.svc.getBranchById(+this.branchId).subscribe({
+      next: r => {
+        this.result = r.data;
+        this.resultError = createEmptyResultError();
+        this.loading = false;
+      },
+      error: e => {
+        this.resultError = buildResultError(e, 'Branch not found.');
+        this.loading = false;
+      }
     });
+  }
+
+  getBranchIdError(): string {
+    if (!this.submitted) {
+      return '';
+    }
+
+    if (!this.branchId) {
+      return 'Branch ID is required.';
+    }
+
+    if (Number(this.branchId) <= 0) {
+      return 'Branch ID must be greater than 0.';
+    }
+
+    return '';
   }
 }

@@ -5,27 +5,41 @@
   </div>
 }
 @if (error) {
-  <div class="rounded-lg p-4 mt-4 flex items-start gap-3 shadow-lg"
-    [class.bg-amber-50]="errorType === 'warning'"
-    [class.border-amber-300]="errorType === 'warning'"
-    [class.bg-red-50]="errorType !== 'warning'"
-    [class.border-red-300]="errorType !== 'warning'"
-    [class.border]="true">
-    <span class="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold text-white shrink-0"
-      [class.bg-amber-500]="errorType === 'warning'"
-      [class.bg-red-500]="errorType !== 'warning'">!*</span>
+  <div
+    class="rounded-lg p-4 mt-4 flex items-start gap-3 shadow-lg"
+    [ngClass]="{
+      'border': true,
+      'bg-red-100/20 border-red-800/50': errorType === 'danger' || !errorType,
+      'bg-amber-100/40 border-amber-600/40': errorType === 'warning'
+    }"
+  >
+    <div
+      class="mt-0.5 shrink-0 w-5 h-5 rounded-full border flex items-center justify-center text-xs font-black"
+      [ngClass]="{
+        'text-red-400 border-red-400': errorType === 'danger' || !errorType,
+        'text-amber-700 border-amber-700': errorType === 'warning'
+      }"
+    >!</div>
     <div>
-      <p class="text-sm font-medium"
-        [class.text-amber-900]="errorType === 'warning'"
-        [class.text-red-700]="errorType !== 'warning'">
-        {{ errorType === 'warning' ? 'Request issue' : 'System error' }}
-        @if (errorStatusCode) {
-          <span>(HTTP {{ errorStatusCode }})</span>
+      <p
+        class="text-sm font-medium"
+        [ngClass]="{
+          'text-red-400': errorType === 'danger' || !errorType,
+          'text-amber-800': errorType === 'warning'
+        }"
+      >
+        {{ errorTitle }}
+        @if (statusCode !== null) {
+          <span class="ml-2 text-xs font-semibold">HTTP {{ statusCode }}</span>
         }
       </p>
-      <p class="text-sm mt-1"
-        [class.text-amber-800]="errorType === 'warning'"
-        [class.text-red-600]="errorType !== 'warning'">{{ error }}</p>
+      <p
+        class="text-sm mt-1"
+        [ngClass]="{
+          'text-red-300': errorType === 'danger' || !errorType,
+          'text-amber-700': errorType === 'warning'
+        }"
+      >{{ error }}</p>
     </div>
   </div>
 }

@@ -38,22 +38,19 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getMessage()));
     }
 
-    // ✅ Handles @Valid (DTO validation)
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Void>> handleValidationErrors(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationErrors(MethodArgumentNotValidException ex) {
         Map<String, String> fieldErrors = new LinkedHashMap<>();
 
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
             fieldErrors.putIfAbsent(error.getField(), error.getDefaultMessage());
         }
-
-        String errorMessage = String.join(", ", fieldErrors.values());
-
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(errorMessage));
+                .body(new ApiResponse<>(false, "Validation failed", fieldErrors, LocalDateTime.now()));
     }
 
-    // ✅ Handles @PathVariable, @RequestParam validation
+    // Handles @PathVariable, @RequestParam validation
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiResponse<Void>> handleConstraintViolationException(ConstraintViolationException ex) {
         log.error("Constraint violation: {}", ex.getMessage());

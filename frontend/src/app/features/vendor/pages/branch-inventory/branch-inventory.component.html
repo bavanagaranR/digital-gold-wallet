@@ -2,16 +2,21 @@
   <app-page-header title="Branch Inventory" developer="Caitlyn Mary" moduleName="Vendor" method="GET"
     endpoint="/api/v1/branches/{branchId}/inventory" description="Returns the current gold inventory (in grams) available at a specific branch." />
   <div class="card">
-    <div class="flex gap-3 mb-4">
-      <input [(ngModel)]="branchId" type="number" class="input-field" placeholder="Enter Branch ID" />
-      <button (click)="submit()" class="btn-primary" [disabled]="loading">{{ loading ? '...' : 'Check Inventory' }}</button>
-    </div>
+    <form (ngSubmit)="submit()" class="mb-4">
+      <div class="flex gap-3">
+        <input [(ngModel)]="branchId" name="branchId" type="number" class="input-field" placeholder="Enter Branch ID" />
+        <button type="submit" class="btn-primary" [disabled]="loading">{{ loading ? '...' : 'Check Inventory' }}</button>
+      </div>
+      @if (getBranchIdError()) {
+        <p class="mt-2 text-sm text-red-600 flex items-center gap-2"><span class="font-black">!</span><span>{{ getBranchIdError() }}</span></p>
+      }
+    </form>
     @if (inventory !== null && !loading) {
       <div class="bg-primary-50 border border-gold-700/40 rounded-xl p-6 text-center">
         <p class="text-slate-500 text-sm">Available Inventory</p>
         <p class="text-4xl font-heading text-primary-600 mt-1">{{ inventory | number:'1.2-2' }} g</p>
       </div>
     }
-    <app-result-viewer [error]="error" [loading]="loading" />
+    <app-result-viewer [error]="resultError.message" [errorTitle]="resultError.title" [errorType]="resultError.type" [statusCode]="resultError.statusCode" [loading]="loading" />
   </div>
 </div>

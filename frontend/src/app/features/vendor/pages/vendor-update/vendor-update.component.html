@@ -2,16 +2,64 @@
   <app-page-header title="Update Vendor" developer="Caitlyn Mary" moduleName="Vendor" method="PUT"
     endpoint="/api/v1/vendors/{id}" description="Updates vendor information by ID. Provide the vendor ID and only the fields you wish to change." />
   <div class="card">
-    <div class="mb-4"><label class="block text-sm text-slate-500 mb-1">Vendor ID *</label><input [(ngModel)]="vendorId" type="number" class="input-field" /></div>
+    <div class="mb-4">
+      <label class="block text-sm text-slate-500 mb-1">Vendor ID *</label>
+      <input [(ngModel)]="vendorId" type="number" class="input-field" />
+      @if (getVendorIdError()) {
+        <p class="mt-2 text-sm text-red-600 flex items-center gap-2"><span class="font-black">!</span><span>{{ getVendorIdError() }}</span></p>
+      }
+    </div>
     <form [formGroup]="form" (ngSubmit)="submit()">
       <div class="grid grid-cols-2 gap-4">
-        <div class="col-span-2"><label class="block text-sm text-slate-500 mb-1">Name</label><input formControlName="vendorName" class="input-field" /></div>
-        <div class="col-span-2"><label class="block text-sm text-slate-500 mb-1">Description</label><textarea formControlName="description" class="input-field" rows="2"></textarea></div>
-        <div><label class="block text-sm text-slate-500 mb-1">Contact Person Name</label><input formControlName="contactPersonName" class="input-field" /></div>
-        <div><label class="block text-sm text-slate-500 mb-1">Website URL</label><input formControlName="websiteUrl" class="input-field" /></div>
-        <div><label class="block text-sm text-slate-500 mb-1">Email</label><input formControlName="contactEmail" class="input-field" /></div>
-        <div><label class="block text-sm text-slate-500 mb-1">Phone</label><input formControlName="contactPhone" class="input-field" /></div>
-        <div><label class="block text-sm text-slate-500 mb-1">Gold Price Per Gram</label><input formControlName="currentGoldPrice" type="number" class="input-field" /></div>
+        <div class="col-span-2">
+          <label class="block text-sm text-slate-500 mb-1">Name</label>
+          <input formControlName="vendorName" class="input-field" />
+          @if (getBackendFieldError('vendorName')) {
+            <p class="mt-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 flex items-center gap-2"><span class="font-black">!</span><span>{{ getBackendFieldError('vendorName') }}</span></p>
+          }
+        </div>
+        <div class="col-span-2">
+          <label class="block text-sm text-slate-500 mb-1">Description</label>
+          <textarea formControlName="description" class="input-field" rows="2"></textarea>
+          @if (getBackendFieldError('description')) {
+            <p class="mt-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 flex items-center gap-2"><span class="font-black">!</span><span>{{ getBackendFieldError('description') }}</span></p>
+          }
+        </div>
+        <div>
+          <label class="block text-sm text-slate-500 mb-1">Contact Person Name</label>
+          <input formControlName="contactPersonName" class="input-field" />
+          @if (getBackendFieldError('contactPersonName')) {
+            <p class="mt-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 flex items-center gap-2"><span class="font-black">!</span><span>{{ getBackendFieldError('contactPersonName') }}</span></p>
+          }
+        </div>
+        <div>
+          <label class="block text-sm text-slate-500 mb-1">Website URL</label>
+          <input formControlName="websiteUrl" class="input-field" />
+          @if (getBackendFieldError('websiteUrl')) {
+            <p class="mt-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 flex items-center gap-2"><span class="font-black">!</span><span>{{ getBackendFieldError('websiteUrl') }}</span></p>
+          }
+        </div>
+        <div>
+          <label class="block text-sm text-slate-500 mb-1">Email</label>
+          <input formControlName="contactEmail" class="input-field" />
+          @if (getBackendFieldError('contactEmail')) {
+            <p class="mt-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 flex items-center gap-2"><span class="font-black">!</span><span>{{ getBackendFieldError('contactEmail') }}</span></p>
+          }
+        </div>
+        <div>
+          <label class="block text-sm text-slate-500 mb-1">Phone</label>
+          <input formControlName="contactPhone" class="input-field" />
+          @if (getBackendFieldError('contactPhone')) {
+            <p class="mt-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 flex items-center gap-2"><span class="font-black">!</span><span>{{ getBackendFieldError('contactPhone') }}</span></p>
+          }
+        </div>
+        <div>
+          <label class="block text-sm text-slate-500 mb-1">Gold Price Per Gram</label>
+          <input formControlName="currentGoldPrice" type="number" class="input-field" />
+          @if (getBackendFieldError('currentGoldPrice')) {
+            <p class="mt-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 flex items-center gap-2"><span class="font-black">!</span><span>{{ getBackendFieldError('currentGoldPrice') }}</span></p>
+          }
+        </div>
         <!-- <div><label class="block text-sm text-slate-500 mb-1">Total Gold Quantity (g)</label><input formControlName="totalGoldQuantity" type="number" class="input-field" /></div> -->
       </div>
       <button type="submit" class="btn-primary mt-4" [disabled]="loading">{{ loading ? 'Updating...' : 'Update Vendor' }}</button>
@@ -33,6 +81,16 @@
         </div>
       </div>
     }
-    <app-result-viewer [error]="error" [loading]="loading" />
+    @if (backendValidationSummary.length) {
+      <div class="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4">
+        <p class="text-sm font-semibold text-red-700 flex items-center gap-2"><span class="font-black">!</span><span>Backend Validation Errors</span></p>
+        <div class="mt-3 space-y-2">
+          @for (message of backendValidationSummary; track message) {
+            <p class="text-sm text-red-700 flex items-center gap-2"><span class="font-black">!</span><span>{{ message }}</span></p>
+          }
+        </div>
+      </div>
+    }
+    <app-result-viewer [error]="resultError.message" [errorTitle]="resultError.title" [errorType]="resultError.type" [statusCode]="resultError.statusCode" [loading]="loading" />
   </div>
 </div>

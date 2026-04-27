@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { VendorService } from '../../services/vendor.service';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { ResultViewerComponent } from '../../../../shared/components/result-viewer/result-viewer.component';
+import { buildResultError, createEmptyResultError, ResultErrorState } from '../../vendor-error.utils';
 
 @Component({
   selector: 'app-vendor-price',
@@ -14,34 +15,53 @@ import { ResultViewerComponent } from '../../../../shared/components/result-view
 })
 export class VendorPriceComponent {
   private svc = inject(VendorService);
-  vendorId = ''; 
-  price: number | null = null; 
-  error = ''; 
+
+  vendorId = '';
+  price: number | null = null;
   loading = false;
+  submitted = false;
+  resultError: ResultErrorState = createEmptyResultError();
 
   submit() {
-    if (parseInt(this.vendorId)<=0 ) {
-      this.error = 'vendorId must be a greater than 0';
-      return;
-    
-    }
-  
-   else if (!this.vendorId) {
-      this.error = 'vendorId  is required *';
-      return;
-    }; 
-    this.loading = true; 
-    this.error = ''; 
+    this.submitted = true;
+    this.resultError = createEmptyResultError();
     this.price = null;
-    this.svc.getVendorPrice(+this.vendorId).subscribe({ 
-      next: r => { 
-        this.price = (r.data as any)?.price ?? r.data; 
-        this.loading = false; 
-      }, 
-      error: e => { 
-        this.error = e.error?.message || e.message || 'Failed'; 
-        this.loading = false; 
-      } 
+
+    if (!this.vendorId) {
+      return;
+    }
+
+    if (Number(this.vendorId) <= 0) {
+      return;
+    }
+
+    this.loading = true;
+    this.svc.getVendorPrice(+this.vendorId).subscribe({
+      next: r => {
+        this.price = (r.data as any)?.price ?? r.data;
+        this.resultError = createEmptyResultError();
+        this.loading = false;
+      },
+      error: e => {
+        this.resultError = buildResultError(e, 'Failed to fetch vendor price.');
+        this.loading = false;
+      }
     });
+  }
+
+  getVendorIdError(): string {
+    if (!this.submitted) {
+      return '';
+    }
+
+    if (!this.vendorId) {
+      return 'Vendor ID is required.';
+    }
+
+    if (Number(this.vendorId) <= 0) {
+      return 'Vendor ID must be greater than 0.';
+    }
+
+    return '';
   }
 }

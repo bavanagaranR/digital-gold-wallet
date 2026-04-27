@@ -11,6 +11,9 @@ import { CommonModule } from '@angular/common';
 export class ResultViewerComponent {
   @Input() data: unknown = null;
   @Input() error = '';
+  @Input() errorTitle = 'Operation Failed';
+  @Input() errorType: 'warning' | 'danger' | '' = '';
+  @Input() statusCode: number | null = null;
   @Input() loading = false;
   @Input() errorType: 'warning' | 'danger' | null = null;
   @Input() errorStatusCode: number | null = null;
