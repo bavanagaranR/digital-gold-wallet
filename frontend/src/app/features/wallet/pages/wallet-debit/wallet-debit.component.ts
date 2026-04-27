@@ -28,7 +28,13 @@ export class WalletDebitComponent {
   loading = false;
 
   submit() {
-    if (!this.userId) {
+    
+     if(parseInt(this.userId) <= 0)
+    {
+      this.error = 'User ID must be a greater than 0';
+      return;
+    }
+    else if (!this.userId) {
       this.error = 'User ID is required';
       return;
     }
