@@ -14,12 +14,12 @@ import { ResultViewerComponent } from '../../../../shared/components/result-view
 })
 export class TransactionByAmountComponent {
   private svc = inject(TransactionService);
-  amount = ''; 
-  page = 0; 
-  size = 10; 
-  txns: any[] = []; 
-  totalPages = 0; 
-  totalElements = 0; 
+  amount = '';
+  page = 0;
+  size = 10;
+  txns: any[] = [];
+  totalPages = 0;
+  totalElements = 0;
   validationError = '';
   backendError = '';
   systemError = '';
@@ -37,21 +37,20 @@ export class TransactionByAmountComponent {
       this.validationError = 'Amount is required';
       return;
     }
-    else if(parseInt(this.amount) <= 0)
-    {
+    else if (parseInt(this.amount) <= 0) {
       this.validationError = 'Amount must be a greater than zero';
       return;
     }
-    this.loading = true; 
+    this.loading = true;
     this.svc.getTransactionsGreaterThanAmount(+this.amount, this.page, this.size).subscribe({
-      next: r => { 
-        const d = r.data as any; 
-        this.txns = d?.content ?? (Array.isArray(d) ? d : []); 
-        this.totalPages = d?.totalPages ?? 1; 
-        this.totalElements = d?.totalElements ?? this.txns.length; 
-        this.loading = false; 
+      next: r => {
+        const d = r.data as any;
+        this.txns = d?.content ?? (Array.isArray(d) ? d : []);
+        this.totalPages = d?.totalPages ?? 1;
+        this.totalElements = d?.totalElements ?? this.txns.length;
+        this.loading = false;
       },
-      error: e => { 
+      error: e => {
         this.statusCode = e.status;
         const msg = e.error?.message || e.error || 'Something went wrong';
         if (e.status === 400) {
@@ -61,22 +60,22 @@ export class TransactionByAmountComponent {
         } else {
           this.systemError = e.status === 0 ? 'Network unreachable' : msg;
         }
-        this.loading = false; 
+        this.loading = false;
       }
     });
   }
 
-  prev() { 
-    if (this.page > 0) { 
-      this.page--; 
-      this.load(); 
-    } 
+  prev() {
+    if (this.page > 0) {
+      this.page--;
+      this.load();
+    }
   }
 
-  next() { 
-    if (this.page < this.totalPages - 1) { 
-      this.page++; 
-      this.load(); 
-    } 
+  next() {
+    if (this.page < this.totalPages - 1) {
+      this.page++;
+      this.load();
+    }
   }
 }

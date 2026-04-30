@@ -1,6 +1,6 @@
 import { AbstractControl } from '@angular/forms';
 
-export type ResultErrorType = 'warning' | 'danger' | '';
+export type ResultErrorType = 'warning' | 'danger' | null;
 
 export interface ResultErrorState {
   type: ResultErrorType;
@@ -21,7 +21,7 @@ export const vendorValidationPatterns = {
 
 export function createEmptyResultError(): ResultErrorState {
   return {
-    type: '',
+    type: null,
     title: '',
     message: '',
     statusCode: null

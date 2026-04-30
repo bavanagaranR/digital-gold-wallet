@@ -35,20 +35,23 @@
           <thead>
             <tr class="bg-maroon-900 text-gold-400 text-[10px] uppercase tracking-[0.2em]">
               <th class="py-5 px-6 text-left">ID</th>
-              <th class="py-5 px-6 text-left">User ID</th>
+              <th class="py-5 px-6 text-left">Name</th>
               <th class="py-5 px-6 text-left">Type</th>
+              <th class="py-5 px-6 text-left">Qty</th>
               <th class="py-5 px-6 text-left">Amount</th>
               <th class="py-5 px-6 text-left">Status</th>
+              <th class="py-5 px-6 text-left">Date</th>
             </tr>
           </thead>
           <tbody class="bg-white">
             @for (t of txns; track t.transactionId) {
               <tr class="border-b border-gold-100/50 hover:bg-beige-50/50 transition-colors">
                 <td class="py-4 px-6 font-mono text-xs text-maroon-400">#{{t.transactionId}}</td>
-                <td class="py-4 px-6 font-mono text-xs font-bold text-maroon-950">USR-{{t.userId || '—'}}</td>
+                <td class="py-4 px-6 font-mono text-xs font-bold text-maroon-950">{{t.userName || '—'}}</td>
                 <td class="py-4 px-6">
                    <span class="px-2 py-0.5 rounded bg-beige-100 text-maroon-900 text-[9px] font-black uppercase tracking-widest">{{t.transactionType}}</span>
                 </td>
+                <td class="py-4 px-6 font-bold text-maroon-900 text-xs">{{t.quantity ? t.quantity + 'g' : '—'}}</td>
                 <td class="py-4 px-6">
                    <span class="text-gold-600 font-black text-lg tracking-tighter">₹{{t.amount}}</span>
                 </td>
@@ -57,6 +60,7 @@
                      {{t.transactionStatus}}
                    </span>
                 </td>
+                <td class="py-4 px-6 text-maroon-900/40 text-[10px] font-bold">{{t.createdAt | date:'short' || '—'}}</td>
               </tr>
             }
           </tbody>
