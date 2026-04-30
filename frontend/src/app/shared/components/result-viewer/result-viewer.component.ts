@@ -12,8 +12,8 @@ export class ResultViewerComponent {
   @Input() data: unknown = null;
   @Input() error = '';
   @Input() errorTitle = 'Operation Failed';
-  @Input() errorType: 'warning' | 'danger' | null = null;
-  @Input() statusCode: number | null = null;
+  @Input() errorType: 'warning' | 'danger' | '' | null = null;
   @Input() loading = false;
+  @Input() statusCode: number | null = null;
   @Input() errorStatusCode: number | null = null;
 }

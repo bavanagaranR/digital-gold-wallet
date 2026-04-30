@@ -25,7 +25,16 @@ export class PaymentGetComponent {
   errorState: ErrorState | null = null;
   validationError = ''; 
   loading = false;
-
+ validatePaymentId() {
+   if (!this.paymentId) {
+    this.validationError = 'Payment ID is required';
+  } else if (parseInt(this.paymentId) <= 0) {
+    this.validationError = 'Payment ID must be greater than 0';
+  } else {
+    this.validationError = '';
+  };
+    
+  }
   submit() {
     this.validationError = '';
    if (!this.paymentId) {

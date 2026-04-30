@@ -31,7 +31,7 @@
         />
 
         <!-- ✅ FRONTEND VALIDATION -->
-        @if (apiErrors.fieldErrors["branchId"].length) {
+        @if (apiErrors.fieldErrors["branchId"] && apiErrors.fieldErrors["branchId"].length) {
           @for (msg of apiErrors.fieldErrors["branchId"]; track msg) {
             <p class="mt-2 flex items-center gap-2 text-sm text-red-600">
               <span class="text-lg">* </span>

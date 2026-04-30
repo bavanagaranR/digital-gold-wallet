@@ -58,11 +58,6 @@ export class AddressUpdateComponent extends UserFormSupport {
     if (this.form.invalid) {
       return;
     }
-    const addressIdValue = this.form.get('addressId')?.value;
-    if (!addressIdValue || parseInt(addressIdValue) <= 0) {
-      this.error = 'Address ID must be a greater than 0';
-      return;
-    }
     this.loading = true;
     this.result = null;
     this.error = '';

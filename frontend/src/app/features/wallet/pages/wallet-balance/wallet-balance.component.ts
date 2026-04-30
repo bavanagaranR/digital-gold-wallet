@@ -25,21 +25,27 @@ export class WalletBalanceComponent {
   errorState: ErrorState | null = null;
   validationError = ''; 
   loading = false;
+  validateUserId() {
+   if (!this.userId) {
+    this.validationError = 'User ID is required';
+  } else if (parseInt(this.userId) <= 0) {
+    this.validationError = 'User ID must be greater than 0';
+  } else {
+    this.validationError = '';
+  };
+    
+  }
 
   submit() {
-    this.validationError = '';
-     if (!this.userId) {
-  this.validationError = 'Payment ID is required';
-  return;
-}
-
-
-
-if (parseInt(this.userId) <= 0) {
-  this.validationError = 'Payment ID must be greater than 0';
-  return;
-}
-     
+    
+      if (!this.userId) {
+    this.validationError = 'User ID is required';
+    return
+  }
+  else if (parseInt(this.userId) <= 0) {
+    this.validationError = 'User ID must be greater than 0';
+    return
+  }
     this.loading = true; 
     this.errorState = null; 
     this.balance = null;

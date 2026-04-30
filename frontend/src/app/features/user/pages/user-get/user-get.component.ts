@@ -47,7 +47,6 @@ export class UserGetComponent extends UserFormSupport {
       return;
     }
     this.loading = true;
-    this.error = '';
     this.result = null;
     this.svc.getUserById(+this.form.getRawValue().userId!).subscribe({
       next: r => {

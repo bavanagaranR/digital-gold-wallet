@@ -45,7 +45,6 @@ export class UserUpdateComponent extends UserFormSupport {
       return;
     }
     this.loading = true;
-    this.error = '';
     this.result = null;
     const { userId, ...body } = this.form.getRawValue();
     const requestBody = Object.fromEntries(Object.entries(body).filter(([, v]) => v !== '' && v != null));

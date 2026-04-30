@@ -29,19 +29,29 @@ export class UserPaymentsComponent {
   errorState: ErrorState | null = null;
   validationError = ''; 
   loading = false;
+   validateUserId() {
+   if (!this.userId) {
+    this.validationError = 'User ID is required';
+  } else if (parseInt(this.userId) <= 0) {
+    this.validationError = 'User ID must be greater than 0';
+  } else {
+    this.validationError = '';
+  };}
+    
+
 
   load() {
     this.validationError = '';
     
     if (!this.userId) {
-  this.validationError = 'Payment ID is required';
+  this.validationError = 'User ID is required';
   return;
 }
 
 
 
 if (parseInt(this.userId) <= 0) {
-  this.validationError = 'Payment ID must be greater than 0';
+  this.validationError = 'User ID must be greater than 0';
   return;
 }
      

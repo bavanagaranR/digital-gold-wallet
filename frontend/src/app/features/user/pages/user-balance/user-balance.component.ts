@@ -47,7 +47,6 @@ export class UserBalanceComponent extends UserFormSupport {
       return;
     }
     this.loading = true;
-    this.error = '';
     this.balance = null;
     this.svc.getUserBalance(+this.form.getRawValue().userId!).subscribe({
       next: r => {

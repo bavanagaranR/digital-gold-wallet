@@ -26,9 +26,16 @@ export class WalletDebitComponent {
   
   userId = ''; 
   form = this.fb.group({ 
-    amount: ['', Validators.required] 
+    amount: ['', [Validators.required, Validators.min(1)]] 
   });
-  
+   validateUserId() {
+   if (!this.userId) {
+    this.validationError = 'User ID is required';
+  } else if (parseInt(this.userId) <= 0) {
+    this.validationError = 'User ID must be greater than 0';
+  } else {
+    this.validationError = '';
+  };}
   result: any = null; 
   errorState: ErrorState | null = null;
   validationError = ''; 
@@ -39,14 +46,14 @@ export class WalletDebitComponent {
     this.form.markAllAsTouched();
 
     if (!this.userId) {
-  this.validationError = 'Payment ID is required';
+  this.validationError = 'User ID is required';
   return;
 }
 
 
 
 if (parseInt(this.userId) <= 0) {
-  this.validationError = 'Payment ID must be greater than 0';
+  this.validationError = 'User ID must be greater than 0';
   return;
 }
     
