@@ -23,6 +23,16 @@ export class UserBalanceComponent extends UserFormSupport {
   balance: number | null = null;
   loading = false;
 
+  get error(): string {
+    return this.userError;
+  }
+
+  set error(value: string) {
+    this.userError = value;
+  }
+
+  private userError = '';
+
   controlErrorMessage(field: string): string {
     return getControlErrorMessage(this.form.get(field), field);
   }
@@ -32,25 +42,12 @@ export class UserBalanceComponent extends UserFormSupport {
   }
 
   submit() {
-<<<<<<< pavithra
     this.startSubmit();
     if (this.form.invalid) {
       return;
     }
     this.loading = true;
-=======
-    if (parseInt(this.userId)<=0 ) {
-      this.error = 'User ID must be a greater than 0';
-      return;
-    
-    }
-   else if (!this.userId) {
-      this.error = 'User ID is required';
-      return;
-    }
-    this.loading = true; 
-    this.error = ''; 
->>>>>>> dev
+    this.error = '';
     this.balance = null;
     this.svc.getUserBalance(+this.form.getRawValue().userId!).subscribe({
       next: r => {

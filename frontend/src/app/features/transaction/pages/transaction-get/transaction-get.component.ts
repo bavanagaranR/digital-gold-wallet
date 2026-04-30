@@ -14,8 +14,8 @@ import { ResultViewerComponent } from '../../../../shared/components/result-view
 })
 export class TransactionGetComponent {
   private svc = inject(TransactionService);
-  txId = ''; 
-  result: any = null; 
+  txId = '';
+  result: any = null;
   validationError = '';
   backendError = '';
   systemError = '';
@@ -33,18 +33,17 @@ export class TransactionGetComponent {
       this.validationError = 'Transaction ID is required';
       return;
     }
-    else if(parseInt(this.txId) <= 0)
-    {
+    else if (parseInt(this.txId) <= 0) {
       this.validationError = 'Transaction ID must be a positive number';
       return;
     }
-    this.loading = true; 
-    this.svc.getTransactionById(+this.txId).subscribe({ 
-      next: r => { 
-        this.result = r.data; 
-        this.loading = false; 
-      }, 
-      error: e => { 
+    this.loading = true;
+    this.svc.getTransactionById(+this.txId).subscribe({
+      next: r => {
+        this.result = r.data;
+        this.loading = false;
+      },
+      error: e => {
         this.statusCode = e.status;
         const msg = e.error?.message || e.error || 'Something went wrong';
         if (e.status === 400) {
@@ -54,8 +53,8 @@ export class TransactionGetComponent {
         } else {
           this.systemError = e.status === 0 ? 'Network unreachable' : msg;
         }
-        this.loading = false; 
-      } 
+        this.loading = false;
+      }
     });
   }
 }

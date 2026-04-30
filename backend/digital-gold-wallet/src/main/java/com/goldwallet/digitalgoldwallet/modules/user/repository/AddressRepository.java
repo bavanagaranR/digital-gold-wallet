@@ -13,3 +13,5 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
     @Query("SELECT a FROM Address a WHERE a.city = :city")
     List<Address> findByCity(@Param("city") String city);
 }
+
+

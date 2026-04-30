@@ -1,10 +1,11 @@
 export interface TransactionResponse {
-  id: number;
+  transactionId: number;
   userId: number;
+  userName?: string;
   branchId?: number;
-  type: string;
+  transactionType: string;
+  transactionStatus: string;
+  quantity?: number;
   amount: number;
-  status: string;
   createdAt?: string;
-  description?: string;
 }
