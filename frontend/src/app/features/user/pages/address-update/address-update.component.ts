@@ -31,6 +31,20 @@ export class AddressUpdateComponent extends UserFormSupport {
   result: any = null;
   loading = false;
 
+  get addressId(): string {
+    return this.form.get('addressId')?.value ?? '';
+  }
+
+  get error(): string {
+    return this.userError;
+  }
+
+  set error(value: string) {
+    this.userError = value;
+  }
+
+  private userError = '';
+
   controlErrorMessage(field: string): string {
     return getControlErrorMessage(this.form.get(field), field);
   }
@@ -46,6 +60,7 @@ export class AddressUpdateComponent extends UserFormSupport {
     }
     this.loading = true;
     this.result = null;
+    this.error = '';
     const { addressId, ...body } = this.form.getRawValue();
     const requestBody = Object.fromEntries(Object.entries(body).filter(([, v]) => v !== '' && v != null));
     this.svc.updateAddress(+addressId!, requestBody).subscribe({

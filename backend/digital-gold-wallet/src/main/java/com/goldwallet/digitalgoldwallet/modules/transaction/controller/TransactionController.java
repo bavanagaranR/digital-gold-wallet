@@ -3,8 +3,10 @@ package com.goldwallet.digitalgoldwallet.modules.transaction.controller;
 import com.goldwallet.digitalgoldwallet.common.response.ApiResponse;
 import com.goldwallet.digitalgoldwallet.modules.transaction.dto.response.TransactionResponse;
 import com.goldwallet.digitalgoldwallet.modules.transaction.service.TransactionService;
+import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Page;
@@ -14,6 +16,7 @@ import java.math.BigDecimal;
 // REST controller that exposes all transaction-related API endpoints
 @RestController
 @RequestMapping("/api/v1")
+@Validated
 public class TransactionController {
 
     // Injects the transaction service to delegate business logic
@@ -22,7 +25,7 @@ public class TransactionController {
 
     // Fetches a single transaction by its unique ID
     @GetMapping("/transactions/{id}")
-    public ResponseEntity<ApiResponse<TransactionResponse>> getTransaction(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<TransactionResponse>> getTransaction(@PathVariable @Positive(message = "Transaction ID must be greater than 0") Long id) {
         return ResponseEntity.ok(ApiResponse.success(transactionService.getTransactionById(id)));
     }
 
@@ -36,14 +39,14 @@ public class TransactionController {
 // }
     // Retrieves paginated transaction history for a specific user
     @GetMapping("/users/{userId}/transactions")
-    public ResponseEntity<ApiResponse<Page<TransactionResponse>>> getUserTransactions(@PathVariable Long userId, Pageable pageable) {
+    public ResponseEntity<ApiResponse<Page<TransactionResponse>>> getUserTransactions(@PathVariable @Positive(message = "Transaction ID must be greater than 0") Long userId, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(transactionService.getUserTransactions(userId, pageable)));
     }
 
 
     // Retrieves paginated transactions processed at a specific vendor branch
     @GetMapping("/branches/{branchId}/transactions")
-    public ResponseEntity<ApiResponse<Page<TransactionResponse>>> getBranchTransactions(@PathVariable Long branchId, Pageable pageable) {
+    public ResponseEntity<ApiResponse<Page<TransactionResponse>>> getBranchTransactions(@PathVariable @Positive(message = "Transaction ID must be greater than 0") Long branchId, Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(transactionService.getBranchTransactions(branchId, pageable)));
     }
 

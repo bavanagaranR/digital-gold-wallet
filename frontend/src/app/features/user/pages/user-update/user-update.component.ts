@@ -29,6 +29,16 @@ export class UserUpdateComponent extends UserFormSupport {
   result: any = null;
   loading = false;
 
+  get error(): string {
+    return this.userError;
+  }
+
+  set error(value: string) {
+    this.userError = value;
+  }
+
+  private userError = '';
+
   submit() {
     this.startSubmit();
     if (this.form.invalid) {

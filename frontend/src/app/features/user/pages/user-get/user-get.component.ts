@@ -23,6 +23,16 @@ export class UserGetComponent extends UserFormSupport {
   result: any = null;
   loading = false;
 
+  get error(): string {
+    return this.userError;
+  }
+
+  set error(value: string) {
+    this.userError = value;
+  }
+
+  private userError = '';
+
   controlErrorMessage(field: string): string {
     return getControlErrorMessage(this.form.get(field), field);
   }

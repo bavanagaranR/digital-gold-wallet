@@ -42,14 +42,17 @@ public class GlobalExceptionHandler {
 
     //caitlyn
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationErrors(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleValidationErrors(MethodArgumentNotValidException ex) {
         Map<String, String> fieldErrors = new LinkedHashMap<>();
 
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
             fieldErrors.putIfAbsent(error.getField(), error.getDefaultMessage());
         }
+
+        String errorMessage = String.join(", ", fieldErrors.values());
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ApiResponse<>(false, "Validation failed", fieldErrors, LocalDateTime.now()));
+                .body(ApiResponse.error(errorMessage));
     }
 
 //bhavan

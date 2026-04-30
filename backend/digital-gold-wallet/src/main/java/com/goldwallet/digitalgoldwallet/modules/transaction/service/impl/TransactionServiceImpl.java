@@ -104,6 +104,13 @@ public class TransactionServiceImpl implements TransactionService {
     // Returns all transactions where the amount is greater than or equal to the given value
     @Override
     public Page<TransactionResponse> getTransactionsGreaterThanAmount(BigDecimal amount, Pageable pageable) {
+        Page<TransactionHistory> transactions =
+                transactionHistoryRepository.findTransactionsGreaterThan(amount, pageable);
+
+        if (transactions.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "No transactions found greater than amount: " + amount);
+        }
         // Delegate the amount filter query to the repository and map results to DTOs
         return transactionHistoryRepository.findTransactionsGreaterThan(amount, pageable)
                 .map(this::mapToResponse);
