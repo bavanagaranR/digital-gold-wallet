@@ -103,6 +103,7 @@ class PaymentServiceTest {
     // 3 - Initiate payment maps payment method correctly
     @Test
     void testInitiatePayment_success_paymentMethodMapped() {
+
         User user = buildUser(1L, "Cathy");
 
         InitiatePaymentRequest req = new InitiatePaymentRequest();

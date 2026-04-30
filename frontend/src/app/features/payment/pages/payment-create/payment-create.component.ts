@@ -25,8 +25,8 @@ export class PaymentCreateComponent {
   private fb = inject(FormBuilder);
 
   form = this.fb.group({ 
-    userId: ['', Validators.required], 
-    amount: ['', Validators.required], 
+    userId: ['', [Validators.required,  Validators.min(1)]], 
+    amount: ['', [Validators.required,  Validators.min(1)]], 
     paymentMethod: ['', Validators.required], 
     transactionType: ['', Validators.required] 
   });

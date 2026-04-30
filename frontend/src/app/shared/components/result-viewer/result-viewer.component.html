@@ -29,8 +29,8 @@
         }"
       >
         {{ errorTitle }}
-        @if (statusCode !== null) {
-          <span class="ml-2 text-xs font-semibold">HTTP {{ statusCode }}</span>
+        @if ((statusCode || errorStatusCode) !== null) {
+          <span class="ml-2 text-xs font-semibold">HTTP {{ statusCode || errorStatusCode }}</span>
         }
       </p>
       <p
